@@ -20,7 +20,7 @@ static void stereo(struct fake_xfer *x, void *arg)
         }
 }
 
-static void duplex(bool interrupt)
+static void duplex(bool interrupt, unsigned int rate)
 {
     const struct ozzy_device *model = ozzy_device_lookup(0x0a4a, 0x5a16);
     assert(model && model->in_channels == 2 && model->out_channels == 16);
@@ -38,7 +38,9 @@ static void duplex(bool interrupt)
     struct ozzy_pcm_ring ri = { input, 1024, 2, 0 }, ro = { output, 1024, 16, 0 };
     ozzy_engine_set_pcm_ring(e, OZZY_PCM_IN, &ri);
     ozzy_engine_set_pcm_ring(e, OZZY_PCM_OUT, &ro);
+    if (rate) ozzy_engine_set_rate(e, rate);
     assert(ozzy_engine_start(e));
+    assert(shm->audio.sample_rate == (rate ? rate : 48000));
     struct fake_xfer x;
     for (unsigned int i = 0; i < 12; i++) {
         assert(fake_bus_pop(&fb, &x));
@@ -54,8 +56,13 @@ static void duplex(bool interrupt)
 
 int main(void)
 {
-    duplex(false);
-    duplex(true); /* Matches the attached A16's actual interrupt endpoint sizes. */
+    duplex(false, 0); /* No host request: A16 must default to 48 kHz. */
+    duplex(true, 0);
+    const unsigned int rates[] = {44100, 48000, 88200, 96000};
+    for (unsigned int i = 0; i < 4; i++) {
+        duplex(false, rates[i]);
+        duplex(true, rates[i]); /* Actual A16 interrupt endpoint sizes. */
+    }
     static const uint8_t expected[6] = { 0x56,0x34,0x12,0xaa,0xcb,0xed };
 
     /* Independent single-bit vectors across all 16 channels and all 24 bits. */

@@ -1,0 +1,93 @@
+{
+  "description": "Suggested bindings for the four A16 PCM Custom banks. Configure the A16 room to match before selecting. Edit these slot lists and regenerate/rebuild to change the bindings. All four profiles must be representable by Pulse.",
+  "banks": [
+    {
+      "bank": 1,
+      "label": "8.1.7h, three-across heights + rear center + overhead",
+      "slots": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Cr",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "Chr",
+        "Rhr",
+        "T"
+      ]
+    },
+    {
+      "bank": 2,
+      "label": "10.1.5h, inner fronts + rear center + heights + overhead",
+      "slots": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Cr",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr",
+        "T"
+      ]
+    },
+    {
+      "bank": 3,
+      "label": "9.1.6h, inner fronts + front upper center + true overhead",
+      "slots": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "T",
+        "Rhr"
+      ]
+    },
+    {
+      "bank": 4,
+      "label": "10.1.5h, inner fronts + front upper center + rear center (no overhead)",
+      "slots": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "Rhr",
+        "Cr"
+      ]
+    }
+  ]
+}

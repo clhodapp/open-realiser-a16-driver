@@ -61,6 +61,7 @@ static void LIBUSB_CALL completed(struct libusb_transfer *t)
                 (unsigned long long)usb_now(), t->endpoint, t->status, t->actual_length, t->length);
     /* Remove from the list before the engine resubmits the same token. */
     if (b->draining || b->failed) status = OZZY_STATUS_ABORTED;
+    if (!status && b->before_complete) b->before_complete(b->audio_data, t->endpoint);
     ozzy_engine_complete(b->engine, t->endpoint, p->token, status,
                          status ? 0 : (uint32_t)t->actual_length);
     libusb_free_transfer(t);
@@ -138,7 +139,10 @@ static bool bus_timer(void *ctx, uint32_t us)
 static void bus_timer_stop(void *ctx) { ((struct usb_bus *)ctx)->timer_us = 0; }
 static void bus_progress(void *ctx, enum ozzy_pcm_dir dir, uint64_t frames)
 {
-    ((struct usb_bus *)ctx)->progress[dir] = frames;
+    struct usb_bus *b = ctx;
+    b->progress[dir] = frames;
+    if (!b->draining && !b->failed && b->on_progress)
+        b->on_progress(b->audio_data, dir, frames);
 }
 
 static void bus_abort(void *ctx)

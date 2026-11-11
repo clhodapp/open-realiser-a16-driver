@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ ${1:-} == --help ]]; then
+    echo 'Usage: a16-upmix'
+    echo 'Publish stereo, 5.1 and 7.1 PipeWire inputs with 7.1.4 output.'
+    echo 'Preserve existing LFE; derive height ambience; use A16 Virtual/120 Hz bass management.'
+    exit 0
+fi
+if (( $# )); then echo 'Unexpected argument; use --help' >&2; exit 2; fi
+here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+config=${A16_UPMIX_CONFIG:-"$here/../share/a16-userspace-driver/a16-upmix.conf"}
+if [[ ! -f $config ]]; then config="$here/a16-upmix.conf"; fi
+exec "${PIPEWIRE:-pipewire}" --config "$config"

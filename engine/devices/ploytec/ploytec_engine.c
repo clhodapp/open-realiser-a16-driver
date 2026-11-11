@@ -519,7 +519,7 @@ static const struct ozzy_engine_ops ploytec_engine_ops = {
 /*
  * The Xones present two interfaces: 0 has the control requests, PCM out (EP 0x05) and MIDI in
  * (EP 0x83); 1 has PCM in (EP 0x86). Run at the highest rate the device lists (the DB2 is
- * 48 kHz only).
+ * 48 kHz only). The A16 defaults to its SVS processing rate, 48 kHz.
  */
 void ploytec_engine_init(struct ploytec_engine *pe, const struct ozzy_device *model)
 {
@@ -528,7 +528,8 @@ void ploytec_engine_init(struct ploytec_engine *pe, const struct ozzy_device *mo
 
 	pe->base.ops = &ploytec_engine_ops;
 	pe->base.model = model;
-	pe->default_rate = rates[ozzy_device_rates(model, rates) - 1];
+	pe->default_rate = !strcmp(model->key, "SmythRealiserA16") && ozzy_device_has_rate(model, 48000) ?
+		48000 : rates[ozzy_device_rates(model, rates) - 1];
 	pe->sample_rate = pe->default_rate;
 	pe->out_layout = PLOYTEC_OUT_LAYOUT_INT;
 	pe->out_frames = ozzy_pcm_frames(false, ozzy_engine_setting_default(&pe->base, OZZY_SETTING_PCM_OUT_FRAMES));

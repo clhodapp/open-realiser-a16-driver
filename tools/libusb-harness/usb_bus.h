@@ -21,6 +21,10 @@ struct usb_bus {
     uint64_t timer_next, progress[OZZY_PCM_DIRS];
     uint64_t completed[OZZY_PCM_DIRS], bytes[OZZY_PCM_DIRS];
     bool draining, failed;
+    /* Optional live adapter hooks, called only on the USB event thread. */
+    void (*before_complete)(void *data, uint8_t endpoint);
+    void (*on_progress)(void *data, enum ozzy_pcm_dir dir, uint64_t frames);
+    void *audio_data;
     FILE *trace;
 };
 uint64_t usb_now(void);

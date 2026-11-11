@@ -10,13 +10,13 @@ static void on_signal(int sig) { (void)sig; interrupted = 1; }
 
 static void usage(void)
 {
-    puts("ozzy-libusb inspect [--device BUS:ADDRESS]\n"
-         "ozzy-libusb stream --seconds 1..60 [--device BUS:ADDRESS] [--detach]\n"
+    puts("a16-usb inspect [--device BUS:ADDRESS]\n"
+         "a16-usb stream --seconds 1..60 [--device BUS:ADDRESS] [--detach] [--rate 44100|48000|88200|96000]\n"
          "                   [--play input.wav] [--capture output.wav] [--log trace.txt]\n"
-         "A16 only (0a4a:5a16), 44100 Hz, 16 out / 2 in, 24-bit PCM.\n"
+         "A16 only (0a4a:5a16), 44100/48000/88200/96000 Hz (default 48000), 16 out / 2 in, 24-bit PCM.\n"
          "inspect reads descriptors without opening/claiming interfaces.\n"
          "stream changes device state; silence unless --play is given. WAV playback is\n"
-         "one-shot, requires 16 channels at 44100 Hz, and pads remaining time with silence.\n"
+         "one-shot, requires 16 channels at the selected rate, and pads remaining time with silence.\n"
          "--detach permits temporary kernel driver detachment; reattached on clean exit.");
 }
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     if (argc == 2 && !strcmp(argv[1], "--help")) { usage(); return 0; }
     if (argc < 2 || (strcmp(argv[1], "inspect") && strcmp(argv[1], "stream"))) { usage(); return 2; }
     bool stream = !strcmp(argv[1], "stream"), detach = false, select = false;
-    unsigned int seconds = 0, bus_number = 0, address = 0;
+    unsigned int rate = 48000, seconds = 0, bus_number = 0, address = 0;
     const char *play = NULL, *capture = NULL, *log = NULL;
     for (int i = 2; i < argc; i++) {
         if (stream && !strcmp(argv[i], "--detach")) detach = true;
@@ -77,6 +77,8 @@ int main(int argc, char **argv)
             select = true;
         } else if (stream && !strcmp(argv[i], "--seconds") && i + 1 < argc) {
             if (!number(argv[++i], 60, &seconds) || !seconds) goto bad;
+        } else if (stream && !strcmp(argv[i], "--rate") && i + 1 < argc) {
+            if (!number(argv[++i], 96000, &rate) || (rate != 44100 && rate != 48000 && rate != 88200 && rate != 96000)) goto bad;
         } else if (stream && !strcmp(argv[i], "--play") && i + 1 < argc) play = argv[++i];
         else if (stream && !strcmp(argv[i], "--capture") && i + 1 < argc) capture = argv[++i];
         else if (stream && !strcmp(argv[i], "--log") && i + 1 < argc) log = argv[++i];
@@ -84,12 +86,12 @@ int main(int argc, char **argv)
     }
     if (stream && !seconds) goto bad;
     /* Validate input files before initializing USB, much less claiming the device. */
-    uint32_t frames = (seconds + 2) * 44100, play_frames = 0;
+    uint32_t frames = (seconds + 2) * rate, play_frames = 0;
     uint8_t *out = stream ? calloc(frames, 16 * 3) : NULL;
     uint8_t *in = stream ? calloc(frames, 2 * 3) : NULL;
     if (stream && (!out || !in)) { free(out); free(in); return 1; }
-    if (play && !wav_read(play, 44100, 16, out, seconds * 44100, &play_frames)) {
-        fprintf(stderr, "playback must be a valid 44100-Hz 16-channel 24-bit PCM WAV no longer than --seconds\n");
+    if (play && !wav_read(play, rate, 16, out, seconds * rate, &play_frames)) {
+        fprintf(stderr, "playback must be a valid %u-Hz 16-channel 24-bit PCM WAV no longer than --seconds\n", rate);
         free(out); free(in); return 2;
     }
     FILE *record = NULL, *trace = NULL;
@@ -132,13 +134,13 @@ int main(int argc, char **argv)
     if (!usb_bus_configure(&b, detach)) goto done;
     ozzy_engine_attach(engine, &b.bus, shm); attached = true;
     ozzy_engine_set_usb_speed(engine, OZZY_USB_SPEED_HIGH);
-    ozzy_engine_set_rate(engine, 44100);
+    ozzy_engine_set_rate(engine, rate);
     struct ozzy_pcm_ring playback = { out, frames, 16, 0 }, recording = { in, frames, 2, 0 };
     ozzy_engine_set_pcm_ring(engine, OZZY_PCM_OUT, &playback);
     ozzy_engine_set_pcm_ring(engine, OZZY_PCM_IN, &recording);
     signal(SIGINT, on_signal); signal(SIGTERM, on_signal);
-    fprintf(stderr, "Starting experimental A16 engine: 44100 Hz, %u playback frames, %u seconds\n",
-            play_frames, seconds);
+    fprintf(stderr, "Starting experimental A16 engine: %u Hz, %u playback frames, %u seconds\n",
+            rate, play_frames, seconds);
     if (!ozzy_engine_start(engine) || b.failed) goto done;
     uint64_t start = usb_now(), deadline = start + (uint64_t)seconds * 1000000000ULL, last = start;
     while (!interrupted && !b.failed && usb_now() < deadline) {
@@ -158,8 +160,8 @@ done:
     if (bus_ready) {
         if (record) {
             uint64_t got = b.progress[OZZY_PCM_IN];
-            if (got > (uint64_t)seconds * 44100) got = (uint64_t)seconds * 44100;
-            if (!wav_write(record, 44100, 2, in, (uint32_t)got)) { perror("capture write"); result = 1; }
+            if (got > (uint64_t)seconds * rate) got = (uint64_t)seconds * rate;
+            if (!wav_write(record, rate, 2, in, (uint32_t)got)) { perror("capture write"); result = 1; }
             fprintf(stderr, "Captured %llu frames; USB transfers out=%llu in=%llu\n",
                     (unsigned long long)got, (unsigned long long)b.completed[0],
                     (unsigned long long)b.completed[1]);

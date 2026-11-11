@@ -1,0 +1,5375 @@
+{
+  "source": "smyth-tables.json",
+  "profiles": [
+    {
+      "name": "7.1.4",
+      "layout": "7.1.4t Compatibility",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.4t",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "validated live room and bridge",
+        "workbook PCM code 25 row 230",
+        "workbook DTS code 37 row 189",
+        "workbook Atmos code 43 row 45"
+      ],
+      "description": "Compatibility: 7.1.4t Compatibility + Stereo Return",
+      "room": "PCM 7.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "9.1.6",
+      "layout": "9.1.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.6t",
+      "available": true,
+      "channels": 16,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "validated live room and bridge",
+        "workbook PCM code 38 row 243",
+        "workbook Atmos code 56 row 58"
+      ],
+      "description": "Advanced: 9.1.6t + Stereo Return",
+      "room": "PCM 9.1.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "2.0",
+      "layout": "2.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "2.0.0",
+      "available": true,
+      "channels": 2,
+      "usb": [
+        0,
+        1
+      ],
+      "speakers": [
+        "L",
+        "R"
+      ],
+      "positions": [
+        "FL",
+        "FR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 0 row 205",
+        "workbook Auro-3D code 0 row 246",
+        "workbook DTS code 0 row 152",
+        "workbook Atmos code 0 row 2"
+      ],
+      "description": "Compatibility: 2.0 + Stereo Return",
+      "room": "PCM 2.0.0 room (unused positions silent) with USB 1=L, 2=R; other slots unused"
+    },
+    {
+      "name": "2.2.2m",
+      "layout": "2.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "2.2.2m",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        3,
+        8,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "SW2",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "LFE2",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 1 row 206",
+        "workbook Atmos code 5 row 7"
+      ],
+      "description": "Advanced: 2.2.2m + Stereo Return",
+      "room": "PCM 2.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 9=SW2, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "2.2.2h",
+      "layout": "2.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "2.2.2h",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        3,
+        8,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "SW2",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "LFE2",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 2 row 207"
+      ],
+      "description": "Advanced: 2.2.2h + Stereo Return",
+      "room": "PCM 2.2.2h room (unused positions silent) with USB 1=L, 2=R, 4=SW, 9=SW2, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "3.0",
+      "layout": "3.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "3.0.0",
+      "available": true,
+      "channels": 3,
+      "usb": [
+        0,
+        1,
+        2
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 3 row 208",
+        "workbook Auro-3D code 2 row 248",
+        "workbook DTS code 3 row 155",
+        "workbook Atmos code 6 row 8"
+      ],
+      "description": "Compatibility: 3.0 + Stereo Return",
+      "room": "PCM 3.0.0 room (unused positions silent) with USB 1=L, 2=R, 3=C; other slots unused"
+    },
+    {
+      "name": "3.2.2m",
+      "layout": "3.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "3.2.2m",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        8,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "SW2",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "LFE2",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 4 row 209"
+      ],
+      "description": "Advanced: 3.2.2m + Stereo Return",
+      "room": "PCM 3.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 9=SW2, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "3.2.2h",
+      "layout": "3.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "3.2.2h",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        8,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "SW2",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "LFE2",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 5 row 210"
+      ],
+      "description": "Advanced: 3.2.2h + Stereo Return",
+      "room": "PCM 3.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 9=SW2, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "4.0",
+      "layout": "4.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "4.0.0",
+      "available": true,
+      "channels": 4,
+      "usb": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Ls",
+        "Rs"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 6 row 211",
+        "workbook Auro-3D code 4 row 250",
+        "workbook Atmos code 12 row 14"
+      ],
+      "description": "Compatibility: 4.0 + Stereo Return",
+      "room": "PCM 4.0.0 room (unused positions silent) with USB 1=L, 2=R, 5=Ls, 6=Rs; other slots unused"
+    },
+    {
+      "name": "4.2.2m",
+      "layout": "4.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.2m",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        8,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 7 row 212",
+        "workbook Atmos code 17 row 19"
+      ],
+      "description": "Advanced: 4.2.2m + Stereo Return",
+      "room": "PCM 4.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 9=SW2, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "4.2.2h",
+      "layout": "4.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.2h",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 8 row 213"
+      ],
+      "description": "Advanced: 4.2.2h + Stereo Return",
+      "room": "PCM 4.2.2h room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "4.2.4t",
+      "layout": "4.2.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.4t",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 9 row 214"
+      ],
+      "description": "Advanced: 4.2.4t + Stereo Return",
+      "room": "PCM 4.2.4t room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "4.2.4h",
+      "layout": "4.2.4h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.4h",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 10 row 215"
+      ],
+      "description": "Advanced: 4.2.4h + Stereo Return",
+      "room": "PCM 4.2.4h room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "5.0",
+      "layout": "5.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.0.0",
+      "available": true,
+      "channels": 5,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 11 row 216",
+        "workbook Auro-3D code 10 row 256",
+        "workbook DTS code 6 row 158",
+        "workbook Atmos code 18 row 20"
+      ],
+      "description": "Compatibility: 5.0 + Stereo Return",
+      "room": "PCM 5.0.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs; other slots unused"
+    },
+    {
+      "name": "5.1",
+      "layout": "5.1",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.1.0",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 12 row 217",
+        "workbook Auro-3D code 11 row 257",
+        "workbook DTS code 7 row 159",
+        "workbook Atmos code 19 row 21"
+      ],
+      "description": "Compatibility: 5.1 + Stereo Return",
+      "room": "PCM 5.1.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs; other slots unused"
+    },
+    {
+      "name": "5.2.2m",
+      "layout": "5.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.2m",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 13 row 218",
+        "workbook DTS code 14 row 166",
+        "workbook Atmos code 23 row 25"
+      ],
+      "description": "Advanced: 5.2.2m + Stereo Return",
+      "room": "PCM 5.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "5.2.2h",
+      "layout": "5.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.2h",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 14 row 219",
+        "workbook DTS code 11 row 163",
+        "workbook DTS code 17 row 169"
+      ],
+      "description": "Advanced: 5.2.2h + Stereo Return",
+      "room": "PCM 5.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "5.2.4t",
+      "layout": "5.2.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.4t",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 15 row 220",
+        "workbook DTS code 20 row 172",
+        "workbook Atmos code 26 row 28"
+      ],
+      "description": "Advanced: 5.2.4t + Stereo Return",
+      "room": "PCM 5.2.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "5.2.4h",
+      "layout": "5.2.4h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.4h",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 16 row 221",
+        "workbook DTS code 23 row 175"
+      ],
+      "description": "Advanced: 5.2.4h + Stereo Return",
+      "room": "PCM 5.2.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "5.2.6t",
+      "layout": "5.2.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.6t",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 17 row 222",
+        "workbook Atmos code 29 row 31"
+      ],
+      "description": "Advanced: 5.2.6t + Stereo Return",
+      "room": "PCM 5.2.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "6.0",
+      "layout": "6.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "6.0.0",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        6,
+        7
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "RL",
+        "RR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 18 row 223",
+        "workbook Atmos code 30 row 32"
+      ],
+      "description": "Compatibility: 6.0 + Stereo Return",
+      "room": "PCM 6.0.0 room (unused positions silent) with USB 1=L, 2=R, 5=Lss, 6=Rss, 7=Lb, 8=Rb; other slots unused"
+    },
+    {
+      "name": "7.0",
+      "layout": "7.0",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.0.0",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 19 row 224",
+        "workbook Auro-3D code 20 row 266",
+        "workbook DTS code 24 row 176",
+        "workbook Atmos code 36 row 38"
+      ],
+      "description": "Compatibility: 7.0 + Stereo Return",
+      "room": "PCM 7.0.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb; other slots unused"
+    },
+    {
+      "name": "7.1",
+      "layout": "7.1",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.0",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 20 row 225",
+        "workbook Auro-3D code 21 row 267",
+        "workbook DTS code 25 row 177",
+        "workbook Atmos code 37 row 39"
+      ],
+      "description": "Compatibility: 7.1 + Stereo Return",
+      "room": "PCM 7.1.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb; other slots unused"
+    },
+    {
+      "name": "7.1.2m",
+      "layout": "7.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.2m",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 21 row 226",
+        "workbook DTS code 31 row 183",
+        "workbook Atmos code 40 row 42"
+      ],
+      "description": "Advanced: 7.1.2m + Stereo Return",
+      "room": "PCM 7.1.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "7.2.2m",
+      "layout": "7.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.2m",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 22 row 227",
+        "workbook DTS code 32 row 184"
+      ],
+      "description": "Advanced: 7.2.2m + Stereo Return",
+      "room": "PCM 7.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "7.1.2h",
+      "layout": "7.1.2h",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.2h",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 23 row 228",
+        "workbook DTS code 28 row 180",
+        "workbook DTS code 34 row 186"
+      ],
+      "description": "Compatibility: 7.1.2h + Stereo Return",
+      "room": "PCM 7.1.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "7.2.2h",
+      "layout": "7.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.2h",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 24 row 229",
+        "workbook DTS code 29 row 181",
+        "workbook DTS code 35 row 187"
+      ],
+      "description": "Advanced: 7.2.2h + Stereo Return",
+      "room": "PCM 7.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "7.2.4t",
+      "layout": "7.2.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.4t",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 26 row 231",
+        "workbook DTS code 38 row 190"
+      ],
+      "description": "Advanced: 7.2.4t + Stereo Return",
+      "room": "PCM 7.2.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "7.1.4h",
+      "layout": "7.1.4h",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.4h",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 27 row 232",
+        "workbook DTS code 40 row 192",
+        "workbook Atmos code 60 row 62"
+      ],
+      "description": "Compatibility: 7.1.4h + Stereo Return",
+      "room": "PCM 7.1.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "7.2.4h",
+      "layout": "7.2.4h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.4h",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 28 row 233",
+        "workbook DTS code 41 row 193"
+      ],
+      "description": "Advanced: 7.2.4h + Stereo Return",
+      "room": "PCM 7.2.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "7.1.6t",
+      "layout": "7.1.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.6t",
+      "available": true,
+      "channels": 14,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 29 row 234",
+        "workbook Auro-3D code 27 row 273",
+        "workbook Atmos code 46 row 48"
+      ],
+      "description": "Advanced: 7.1.6t + Stereo Return",
+      "room": "PCM 7.1.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "7.2.6t",
+      "layout": "7.2.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.6t",
+      "available": true,
+      "channels": 15,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 30 row 235"
+      ],
+      "description": "Advanced: 7.2.6t + Stereo Return",
+      "room": "PCM 7.2.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "9.0",
+      "layout": "9.0",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.0.0",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 31 row 236"
+      ],
+      "description": "Advanced: 9.0 + Stereo Return",
+      "room": "PCM 9.0.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw; other slots unused"
+    },
+    {
+      "name": "9.1.2m",
+      "layout": "9.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.2m",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 32 row 237",
+        "workbook DTS code 46 row 198",
+        "workbook Atmos code 50 row 52"
+      ],
+      "description": "Advanced: 9.1.2m + Stereo Return",
+      "room": "PCM 9.1.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "9.2.2m",
+      "layout": "9.2.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.2.2m",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        12,
+        13,
+        14
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltm",
+        "Rtm",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TSL",
+        "TSR",
+        "LFE2"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 33 row 238",
+        "workbook DTS code 47 row 199"
+      ],
+      "description": "Advanced: 9.2.2m + Stereo Return",
+      "room": "PCM 9.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 13=Ltm, 14=Rtm, 15=SW2; other slots unused"
+    },
+    {
+      "name": "9.1.2h",
+      "layout": "9.1.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.2h",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 34 row 239",
+        "workbook DTS code 49 row 201"
+      ],
+      "description": "Advanced: 9.1.2h + Stereo Return",
+      "room": "PCM 9.1.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "9.2.2h",
+      "layout": "9.2.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.2.2h",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        14
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Lh",
+        "Rh",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "LFE2"
+      ],
+      "families": [
+        "DTS",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 35 row 240",
+        "workbook DTS code 50 row 202"
+      ],
+      "description": "Advanced: 9.2.2h + Stereo Return",
+      "room": "PCM 9.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Lh, 12=Rh, 15=SW2; other slots unused"
+    },
+    {
+      "name": "9.1.4t",
+      "layout": "9.1.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.4t",
+      "available": true,
+      "channels": 14,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 36 row 241",
+        "workbook Atmos code 53 row 55"
+      ],
+      "description": "Advanced: 9.1.4t + Stereo Return",
+      "room": "PCM 9.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "9.2.4t",
+      "layout": "9.2.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.2.4t",
+      "available": true,
+      "channels": 15,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf",
+        "SW2",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "LFE2",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "PCM"
+      ],
+      "sources": [
+        "workbook PCM code 37 row 242"
+      ],
+      "description": "Advanced: 9.2.4t + Stereo Return",
+      "room": "PCM 9.2.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf, 13=SW2, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "auro-2.1",
+      "layout": "Auro-style 2.1 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "2.2.2m",
+      "available": true,
+      "channels": 3,
+      "usb": [
+        0,
+        1,
+        3
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS"
+      ],
+      "sources": [
+        "workbook Auro-3D code 1 row 247",
+        "workbook DTS code 1 row 153",
+        "workbook Atmos code 1 row 3"
+      ],
+      "description": "Compatibility: Auro-style 2.1 PCM + Stereo Return",
+      "room": "PCM 2.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW; other slots unused"
+    },
+    {
+      "name": "auro-3.1",
+      "layout": "Auro-style 3.1 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.1.0",
+      "available": true,
+      "channels": 4,
+      "usb": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D",
+        "DTS"
+      ],
+      "sources": [
+        "workbook Auro-3D code 3 row 249",
+        "workbook DTS code 4 row 156",
+        "workbook Atmos code 7 row 9"
+      ],
+      "description": "Compatibility: Auro-style 3.1 PCM + Stereo Return",
+      "room": "PCM 5.1.0 room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW; other slots unused"
+    },
+    {
+      "name": "auro-4.1",
+      "layout": "Auro-style 4.1 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.1.0",
+      "available": true,
+      "channels": 5,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 5 row 251",
+        "workbook Atmos code 13 row 15"
+      ],
+      "description": "Compatibility: Auro-style 4.1 PCM + Stereo Return",
+      "room": "PCM 5.1.0 room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs; other slots unused"
+    },
+    {
+      "name": "auro-222.0",
+      "layout": "Auro-style 222.0 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "4.2.2h",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 6 row 252"
+      ],
+      "description": "Compatibility: Auro-style 222.0 PCM + Stereo Return",
+      "room": "PCM 4.2.2h room (unused positions silent) with USB 1=L, 2=R, 5=Ls, 6=Rs, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "auro-222.1",
+      "layout": "Auro-style 222.1 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "4.2.2h",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 7 row 253"
+      ],
+      "description": "Compatibility: Auro-style 222.1 PCM + Stereo Return",
+      "room": "PCM 4.2.2h room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "auro-8.0",
+      "layout": "Auro-style 8.0 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "4.2.4h",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 8 row 254"
+      ],
+      "description": "Compatibility: Auro-style 8.0 PCM + Stereo Return",
+      "room": "PCM 4.2.4h room (unused positions silent) with USB 1=L, 2=R, 5=Ls, 6=Rs, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "auro-8.1",
+      "layout": "Auro-style 8.1 PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "4.2.4h",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 9 row 255"
+      ],
+      "description": "Compatibility: Auro-style 8.1 PCM + Stereo Return",
+      "room": "PCM 4.2.4h room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "auro-5.0.2h",
+      "layout": "Auro-style 5.0.2h PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.2h",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "Auro-3D",
+        "DTS"
+      ],
+      "sources": [
+        "workbook Auro-3D code 12 row 258",
+        "workbook DTS code 9 row 161",
+        "workbook DTS code 15 row 167"
+      ],
+      "description": "Compatibility: Auro-style 5.0.2h PCM + Stereo Return",
+      "room": "PCM 5.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "auro-5.1.2h",
+      "layout": "Auro-style 5.1.2h PCM",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.2h",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "Auro-3D",
+        "DTS"
+      ],
+      "sources": [
+        "workbook Auro-3D code 13 row 259",
+        "workbook DTS code 10 row 162",
+        "workbook DTS code 16 row 168"
+      ],
+      "description": "Compatibility: Auro-style 5.1.2h PCM + Stereo Return",
+      "room": "PCM 5.2.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "auro-7.0.6t",
+      "layout": "Auro-style 7.0.6t PCM",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.6t",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "Auro-3D"
+      ],
+      "sources": [
+        "workbook Auro-3D code 26 row 272",
+        "workbook Atmos code 45 row 47"
+      ],
+      "description": "Advanced: Auro-style 7.0.6t PCM + Stereo Return",
+      "room": "PCM 7.1.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "2.2",
+      "layout": "2.2",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "2.2.2m",
+      "available": true,
+      "channels": 4,
+      "usb": [
+        0,
+        1,
+        3,
+        8
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "LFE2"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 2 row 154",
+        "workbook Atmos code 2 row 4"
+      ],
+      "description": "Advanced: 2.2 + Stereo Return",
+      "room": "PCM 2.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 9=SW2; other slots unused"
+    },
+    {
+      "name": "3.2",
+      "layout": "3.2",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "3.2.2m",
+      "available": true,
+      "channels": 5,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        8
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "LFE2"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 5 row 157",
+        "workbook Atmos code 8 row 10"
+      ],
+      "description": "Advanced: 3.2 + Stereo Return",
+      "room": "PCM 3.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 9=SW2; other slots unused"
+    },
+    {
+      "name": "5.2",
+      "layout": "5.2",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.2m",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        8
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 8 row 160"
+      ],
+      "description": "Advanced: 5.2 + Stereo Return",
+      "room": "PCM 5.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 9=SW2; other slots unused"
+    },
+    {
+      "name": "5.0.2m",
+      "layout": "5.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.2m",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 12 row 164",
+        "workbook Atmos code 21 row 23"
+      ],
+      "description": "Advanced: 5.0.2m + Stereo Return",
+      "room": "PCM 5.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "5.1.2m",
+      "layout": "5.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.2m",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 13 row 165",
+        "workbook Atmos code 22 row 24"
+      ],
+      "description": "Advanced: 5.1.2m + Stereo Return",
+      "room": "PCM 5.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "5.0.4t",
+      "layout": "5.0.4t",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.4t",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 18 row 170",
+        "workbook Atmos code 24 row 26"
+      ],
+      "description": "Compatibility: 5.0.4t + Stereo Return",
+      "room": "PCM 5.2.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "5.1.4t",
+      "layout": "5.1.4t",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.4t",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 19 row 171",
+        "workbook Atmos code 25 row 27"
+      ],
+      "description": "Compatibility: 5.1.4t + Stereo Return",
+      "room": "PCM 5.2.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "5.0.4h",
+      "layout": "5.0.4h",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.4h",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 21 row 173"
+      ],
+      "description": "Compatibility: 5.0.4h + Stereo Return",
+      "room": "PCM 5.2.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "5.1.4h",
+      "layout": "5.1.4h",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "5.2.4h",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 22 row 174"
+      ],
+      "description": "Compatibility: 5.1.4h + Stereo Return",
+      "room": "PCM 5.2.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "7.2",
+      "layout": "7.2",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.2.2m",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "LFE2"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 26 row 178"
+      ],
+      "description": "Advanced: 7.2 + Stereo Return",
+      "room": "PCM 7.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=SW2; other slots unused"
+    },
+    {
+      "name": "7.0.2f",
+      "layout": "7.0.2f",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.2h",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 27 row 179",
+        "workbook DTS code 33 row 185"
+      ],
+      "description": "Compatibility: 7.0.2f + Stereo Return",
+      "room": "PCM 7.1.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "7.0.2m",
+      "layout": "7.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.2m",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 30 row 182",
+        "workbook Atmos code 39 row 41"
+      ],
+      "description": "Advanced: 7.0.2m + Stereo Return",
+      "room": "PCM 7.1.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "7.0.4t",
+      "layout": "7.0.4t",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.4t",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 36 row 188",
+        "workbook Atmos code 42 row 44"
+      ],
+      "description": "Compatibility: 7.0.4t + Stereo Return",
+      "room": "PCM 7.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "7.0.4h",
+      "layout": "7.0.4h",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.4h",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 39 row 191",
+        "workbook Atmos code 59 row 61"
+      ],
+      "description": "Compatibility: 7.0.4h + Stereo Return",
+      "room": "PCM 7.1.4h room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 11=Lh, 12=Rh, 15=Lhr, 16=Rhr; other slots unused"
+    },
+    {
+      "name": "9.0.2f",
+      "layout": "9.0.2f",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.4t",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 42 row 194"
+      ],
+      "description": "Advanced: 9.0.2f + Stereo Return",
+      "room": "PCM 9.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf; other slots unused"
+    },
+    {
+      "name": "9.1.2f",
+      "layout": "9.1.2f",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.4t",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 43 row 195"
+      ],
+      "description": "Advanced: 9.1.2f + Stereo Return",
+      "room": "PCM 9.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf; other slots unused"
+    },
+    {
+      "name": "9.0.2m",
+      "layout": "9.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.2m",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos",
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 45 row 197",
+        "workbook Atmos code 49 row 51"
+      ],
+      "description": "Advanced: 9.0.2m + Stereo Return",
+      "room": "PCM 9.1.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "9.0.2h",
+      "layout": "9.0.2h",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.2h",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Lh",
+        "Rh"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR"
+      ],
+      "families": [
+        "DTS"
+      ],
+      "sources": [
+        "workbook DTS code 48 row 200"
+      ],
+      "description": "Advanced: 9.0.2h + Stereo Return",
+      "room": "PCM 9.1.2h room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Lh, 12=Rh; other slots unused"
+    },
+    {
+      "name": "2.0.2m",
+      "layout": "2.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "2.2.2m",
+      "available": true,
+      "channels": 4,
+      "usb": [
+        0,
+        1,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 3 row 5"
+      ],
+      "description": "Advanced: 2.0.2m + Stereo Return",
+      "room": "PCM 2.2.2m room (unused positions silent) with USB 1=L, 2=R, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "2.1.2m",
+      "layout": "2.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "2.2.2m",
+      "available": true,
+      "channels": 5,
+      "usb": [
+        0,
+        1,
+        3,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 4 row 6"
+      ],
+      "description": "Advanced: 2.1.2m + Stereo Return",
+      "room": "PCM 2.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "3.0.2m",
+      "layout": "3.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "3.2.2m",
+      "available": true,
+      "channels": 5,
+      "usb": [
+        0,
+        1,
+        2,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 9 row 11"
+      ],
+      "description": "Advanced: 3.0.2m + Stereo Return",
+      "room": "PCM 3.2.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "4.2",
+      "layout": "4.2",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.2m",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        8
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "SW2"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "LFE2"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 14 row 16"
+      ],
+      "description": "Advanced: 4.2 + Stereo Return",
+      "room": "PCM 4.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 9=SW2; other slots unused"
+    },
+    {
+      "name": "4.0.2m",
+      "layout": "4.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.2m",
+      "available": true,
+      "channels": 6,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Ls",
+        "Rs",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 15 row 17"
+      ],
+      "description": "Advanced: 4.0.2m + Stereo Return",
+      "room": "PCM 4.2.2m room (unused positions silent) with USB 1=L, 2=R, 5=Ls, 6=Rs, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "4.1.2m",
+      "layout": "4.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "4.2.2m",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Ls",
+        "Rs",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 16 row 18"
+      ],
+      "description": "Advanced: 4.1.2m + Stereo Return",
+      "room": "PCM 4.2.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Ls, 6=Rs, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "5.0.6t",
+      "layout": "5.0.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.6t",
+      "available": true,
+      "channels": 11,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Ls",
+        "Rs",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 27 row 29"
+      ],
+      "description": "Advanced: 5.0.6t + Stereo Return",
+      "room": "PCM 5.2.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Ls, 6=Rs, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "5.1.6t",
+      "layout": "5.1.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "5.2.6t",
+      "available": true,
+      "channels": 12,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Ls",
+        "Rs",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 28 row 30"
+      ],
+      "description": "Advanced: 5.1.6t + Stereo Return",
+      "room": "PCM 5.2.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Ls, 6=Rs, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "6.1",
+      "layout": "6.1",
+      "advanced": false,
+      "custom": false,
+      "pulse_compatible": true,
+      "matching_room": "7.1.0",
+      "available": true,
+      "channels": 7,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 31 row 33"
+      ],
+      "description": "Compatibility: 6.1 + Stereo Return",
+      "room": "PCM 7.1.0 room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb; other slots unused"
+    },
+    {
+      "name": "6.0.2m",
+      "layout": "6.0.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.2m",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        6,
+        7,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 33 row 35"
+      ],
+      "description": "Advanced: 6.0.2m + Stereo Return",
+      "room": "PCM 7.1.2m room (unused positions silent) with USB 1=L, 2=R, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "6.1.2m",
+      "layout": "6.1.2m",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "7.1.2m",
+      "available": true,
+      "channels": 9,
+      "usb": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        12,
+        13
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Ltm",
+        "Rtm"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TSL",
+        "TSR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 34 row 36"
+      ],
+      "description": "Advanced: 6.1.2m + Stereo Return",
+      "room": "PCM 7.1.2m room (unused positions silent) with USB 1=L, 2=R, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 13=Ltm, 14=Rtm; other slots unused"
+    },
+    {
+      "name": "8.0",
+      "layout": "8.0",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.0.0",
+      "available": true,
+      "channels": 8,
+      "usb": [
+        0,
+        1,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 48 row 50"
+      ],
+      "description": "Advanced: 8.0 + Stereo Return",
+      "room": "PCM 9.0.0 room (unused positions silent) with USB 1=L, 2=R, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw; other slots unused"
+    },
+    {
+      "name": "9.0.4t",
+      "layout": "9.0.4t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.4t",
+      "available": true,
+      "channels": 13,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 52 row 54"
+      ],
+      "description": "Advanced: 9.0.4t + Stereo Return",
+      "room": "PCM 9.1.4t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "9.0.6t",
+      "layout": "9.0.6t",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.6t",
+      "available": true,
+      "channels": 15,
+      "usb": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw",
+        "Ltf",
+        "Rtf",
+        "Ltm",
+        "Rtm",
+        "Ltr",
+        "Rtr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW",
+        "TFL",
+        "TFR",
+        "TSL",
+        "TSR",
+        "TRL",
+        "TRR"
+      ],
+      "families": [
+        "Atmos"
+      ],
+      "sources": [
+        "workbook Atmos code 55 row 57"
+      ],
+      "description": "Advanced: 9.0.6t + Stereo Return",
+      "room": "PCM 9.1.6t room (unused positions silent) with USB 1=L, 2=R, 3=C, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw, 11=Ltf, 12=Rtf, 13=Ltm, 14=Rtm, 15=Ltr, 16=Rtr; other slots unused"
+    },
+    {
+      "name": "9.1",
+      "layout": "9.1",
+      "advanced": true,
+      "custom": false,
+      "pulse_compatible": false,
+      "matching_room": "9.1.2m",
+      "available": true,
+      "channels": 10,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lw",
+        "Rw"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "FLW",
+        "FRW"
+      ],
+      "families": [
+        "PCM Custom"
+      ],
+      "sources": [
+        "subset of validated 9.1.6t room"
+      ],
+      "description": "Advanced: 9.1 + Stereo Return",
+      "room": "PCM 9.1.2m room (unused positions silent) with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Lw, 10=Rw; other slots unused"
+    },
+    {
+      "name": "custom-1",
+      "layout": "PCM Custom #1: 8.1.7h, three-across heights + rear center + overhead",
+      "advanced": true,
+      "custom": true,
+      "pulse_compatible": true,
+      "matching_room": null,
+      "available": true,
+      "channels": 16,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Cr",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "Chr",
+        "Rhr",
+        "T"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "RC",
+        "TFL",
+        "TFC",
+        "TFR",
+        "TRL",
+        "TRC",
+        "TRR",
+        "TC"
+      ],
+      "families": [
+        "PCM Custom Bank"
+      ],
+      "sources": [
+        "custom-banks.json bank 1"
+      ],
+      "description": "Custom: PCM Custom #1: 8.1.7h, three-across heights + rear center + overhead + Stereo Return",
+      "room": "PCM Custom #1 with USB 1=L, 2=R, 3=C, 4=SW, 5=Lss, 6=Rss, 7=Lb, 8=Rb, 9=Cr, 10=Lh, 11=Ch, 12=Rh, 13=Lhr, 14=Chr, 15=Rhr, 16=T; other slots unused",
+      "bank": 1
+    },
+    {
+      "name": "custom-2",
+      "layout": "PCM Custom #2: 10.1.5h, inner fronts + rear center + heights + overhead",
+      "advanced": true,
+      "custom": true,
+      "pulse_compatible": true,
+      "matching_room": null,
+      "available": true,
+      "channels": 16,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Cr",
+        "Lh",
+        "Rh",
+        "Lhr",
+        "Rhr",
+        "T"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "FLC",
+        "FRC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "RC",
+        "TFL",
+        "TFR",
+        "TRL",
+        "TRR",
+        "TC"
+      ],
+      "families": [
+        "PCM Custom Bank"
+      ],
+      "sources": [
+        "custom-banks.json bank 2"
+      ],
+      "description": "Custom: PCM Custom #2: 10.1.5h, inner fronts + rear center + heights + overhead + Stereo Return",
+      "room": "PCM Custom #2 with USB 1=L, 2=R, 3=C, 4=SW, 5=Lc, 6=Rc, 7=Lss, 8=Rss, 9=Lb, 10=Rb, 11=Cr, 12=Lh, 13=Rh, 14=Lhr, 15=Rhr, 16=T; other slots unused",
+      "bank": 2
+    },
+    {
+      "name": "custom-3",
+      "layout": "PCM Custom #3: 9.1.6h, inner fronts + front upper center + true overhead",
+      "advanced": true,
+      "custom": true,
+      "pulse_compatible": true,
+      "matching_room": null,
+      "available": true,
+      "channels": 16,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "T",
+        "Rhr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "FLC",
+        "FRC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFC",
+        "TFR",
+        "TRL",
+        "TC",
+        "TRR"
+      ],
+      "families": [
+        "PCM Custom Bank"
+      ],
+      "sources": [
+        "custom-banks.json bank 3"
+      ],
+      "description": "Custom: PCM Custom #3: 9.1.6h, inner fronts + front upper center + true overhead + Stereo Return",
+      "room": "PCM Custom #3 with USB 1=L, 2=R, 3=C, 4=SW, 5=Lc, 6=Rc, 7=Lss, 8=Rss, 9=Lb, 10=Rb, 11=Lh, 12=Ch, 13=Rh, 14=Lhr, 15=T, 16=Rhr; other slots unused",
+      "bank": 3
+    },
+    {
+      "name": "custom-4",
+      "layout": "PCM Custom #4: 10.1.5h, inner fronts + front upper center + rear center (no overhead)",
+      "advanced": true,
+      "custom": true,
+      "pulse_compatible": true,
+      "matching_room": null,
+      "available": true,
+      "channels": 16,
+      "usb": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "speakers": [
+        "L",
+        "R",
+        "C",
+        "SW",
+        "Lc",
+        "Rc",
+        "Lss",
+        "Rss",
+        "Lb",
+        "Rb",
+        "Lh",
+        "Ch",
+        "Rh",
+        "Lhr",
+        "Rhr",
+        "Cr"
+      ],
+      "positions": [
+        "FL",
+        "FR",
+        "FC",
+        "LFE",
+        "FLC",
+        "FRC",
+        "SL",
+        "SR",
+        "RL",
+        "RR",
+        "TFL",
+        "TFC",
+        "TFR",
+        "TRL",
+        "TRR",
+        "RC"
+      ],
+      "families": [
+        "PCM Custom Bank"
+      ],
+      "sources": [
+        "custom-banks.json bank 4"
+      ],
+      "description": "Custom: PCM Custom #4: 10.1.5h, inner fronts + front upper center + rear center (no overhead) + Stereo Return",
+      "room": "PCM Custom #4 with USB 1=L, 2=R, 3=C, 4=SW, 5=Lc, 6=Rc, 7=Lss, 8=Rss, 9=Lb, 10=Rb, 11=Lh, 12=Ch, 13=Rh, 14=Lhr, 15=Rhr, 16=Cr; other slots unused",
+      "bank": 4
+    }
+  ],
+  "aliases": {
+    "7.1.4t": "7.1.4",
+    "9.1.6t": "9.1.6",
+    "auro-2.0": "2.0",
+    "auro-3.0": "3.0",
+    "auro-4.0": "4.0",
+    "auro-5.0": "5.0",
+    "auro-5.1": "5.1",
+    "auro-7.0": "7.0",
+    "auro-7.1": "7.1",
+    "auro-7.1.6t": "7.1.6t",
+    "dts-2.0": "2.0",
+    "2.1": "auro-2.1",
+    "dts-3.0": "3.0",
+    "3.1": "auro-3.1",
+    "dts-5.0": "5.0",
+    "dts-5.1": "5.1",
+    "5.0.2f": "auro-5.0.2h",
+    "5.1.2f": "auro-5.1.2h",
+    "5.2.2f": "5.2.2h",
+    "dts-5.2.2m": "5.2.2m",
+    "5.0.2h": "auro-5.0.2h",
+    "5.1.2h": "auro-5.1.2h",
+    "dts-5.2.2h": "5.2.2h",
+    "dts-5.2.4t": "5.2.4t",
+    "dts-5.2.4h": "5.2.4h",
+    "dts-7.0": "7.0",
+    "dts-7.1": "7.1",
+    "7.1.2f": "7.1.2h",
+    "7.2.2f": "7.2.2h",
+    "dts-7.1.2m": "7.1.2m",
+    "dts-7.2.2m": "7.2.2m",
+    "7.0.2h": "7.0.2f",
+    "dts-7.1.2h": "7.1.2h",
+    "dts-7.2.2h": "7.2.2h",
+    "dts-7.2.4t": "7.2.4t",
+    "dts-7.1.4h": "7.1.4h",
+    "dts-7.2.4h": "7.2.4h",
+    "dts-9.1.2m": "9.1.2m",
+    "dts-9.2.2m": "9.2.2m",
+    "dts-9.1.2h": "9.1.2h",
+    "dts-9.2.2h": "9.2.2h",
+    "atmos-2.0": "2.0",
+    "atmos-2.2": "2.2",
+    "atmos-2.2.2m": "2.2.2m",
+    "atmos-3.0": "3.0",
+    "atmos-3.2": "3.2",
+    "atmos-4.0": "4.0",
+    "4.1": "auro-4.1",
+    "atmos-4.2.2m": "4.2.2m",
+    "atmos-5.0": "5.0",
+    "atmos-5.1": "5.1",
+    "atmos-5.0.2m": "5.0.2m",
+    "atmos-5.1.2m": "5.1.2m",
+    "atmos-5.2.2m": "5.2.2m",
+    "atmos-5.0.4t": "5.0.4t",
+    "atmos-5.1.4t": "5.1.4t",
+    "atmos-5.2.4t": "5.2.4t",
+    "atmos-5.2.6t": "5.2.6t",
+    "atmos-6.0": "6.0",
+    "atmos-7.0": "7.0",
+    "atmos-7.1": "7.1",
+    "atmos-7.0.2m": "7.0.2m",
+    "atmos-7.1.2m": "7.1.2m",
+    "atmos-7.0.4t": "7.0.4t",
+    "7.0.6t": "auro-7.0.6t",
+    "atmos-7.1.6t": "7.1.6t",
+    "atmos-9.0.2m": "9.0.2m",
+    "atmos-9.1.2m": "9.1.2m",
+    "atmos-9.1.4t": "9.1.4t",
+    "atmos-7.0.4h": "7.0.4h",
+    "atmos-7.1.4h": "7.1.4h"
+  },
+  "audit": [
+    {
+      "source": "workbook PCM code 32 row 237",
+      "action": "corrected",
+      "reason": "Removed extraneous SW2 from 9.1.2m; 9.2.2m retains it"
+    },
+    {
+      "source": "workbook Auro-3D code 14 row 260",
+      "mode": "Auro-style 9.0 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 15 row 261",
+      "mode": "Auro-style 9.1 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 16 row 262",
+      "mode": "Auro-style 10.0 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 17 row 263",
+      "mode": "Auro-style 10.1 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 18 row 264",
+      "mode": "Auro-style 11.0 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 19 row 265",
+      "mode": "Auro-style 11.1 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 22 row 268",
+      "mode": "Auro-style 7.0.4h PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 23 row 269",
+      "mode": "Auro-style 7.1.4h PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 24 row 270",
+      "mode": "Auro-style 13.0 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Auro-3D code 25 row 271",
+      "mode": "Auro-style 13.1 PCM",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook DTS code 44 row 196",
+      "mode": "9.2.2f",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 10 row 12",
+      "mode": "3.1.2m",
+      "action": "excluded",
+      "reason": "Label count 5 differs from declared 6"
+    },
+    {
+      "source": "workbook Atmos code 11 row 13",
+      "mode": "3.2.2m",
+      "action": "excluded",
+      "reason": "Label count 5 differs from declared 7"
+    },
+    {
+      "source": "workbook Atmos code 20 row 22",
+      "mode": "5.2.0",
+      "action": "excluded",
+      "reason": "Label count 6 differs from declared 7"
+    },
+    {
+      "source": "workbook Atmos code 32 row 34",
+      "mode": "6.2.0",
+      "action": "excluded",
+      "reason": "Label count 7 differs from declared 8"
+    },
+    {
+      "source": "workbook Atmos code 35 row 37",
+      "mode": "6.2.2m",
+      "action": "excluded",
+      "reason": "Label count 9 differs from declared 10"
+    },
+    {
+      "source": "workbook Atmos code 38 row 40",
+      "mode": "7.2.0",
+      "action": "excluded",
+      "reason": "Label count 8 differs from declared 9"
+    },
+    {
+      "source": "workbook Atmos code 41 row 43",
+      "mode": "7.2.2m",
+      "action": "excluded",
+      "reason": "Label count 10 differs from declared 11"
+    },
+    {
+      "source": "workbook Atmos code 44 row 46",
+      "mode": "7.2.4",
+      "action": "excluded",
+      "reason": "Label count 12 differs from declared 13"
+    },
+    {
+      "source": "workbook Atmos code 47 row 49",
+      "mode": "7.2.6",
+      "action": "excluded",
+      "reason": "Label count 14 differs from declared 15"
+    },
+    {
+      "source": "workbook Atmos code 51 row 53",
+      "mode": "9.2.2m",
+      "action": "excluded",
+      "reason": "Label count 12 differs from declared 13"
+    },
+    {
+      "source": "workbook Atmos code 54 row 56",
+      "mode": "9.2.4",
+      "action": "excluded",
+      "reason": "Label count 16 differs from declared 15"
+    },
+    {
+      "source": "workbook Atmos code 57 row 59",
+      "mode": "5.0.4h",
+      "action": "excluded",
+      "reason": "Label count 11 differs from declared 9"
+    },
+    {
+      "source": "workbook Atmos code 58 row 60",
+      "mode": "5.1.4h",
+      "action": "excluded",
+      "reason": "Label count 12 differs from declared 10"
+    },
+    {
+      "source": "workbook Atmos code 61 row 63",
+      "mode": "7.0.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 62 row 64",
+      "mode": "7.1.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 63 row 65",
+      "mode": "8.0.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 64 row 66",
+      "mode": "8.0.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 65 row 67",
+      "mode": "8.1.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 66 row 68",
+      "mode": "8.1.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 67 row 69",
+      "mode": "8.0.6t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 68 row 70",
+      "mode": "8.0.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 69 row 71",
+      "mode": "8.1.6t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 70 row 72",
+      "mode": "8.1.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 71 row 73",
+      "mode": "9.0.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 72 row 74",
+      "mode": "9.1.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 73 row 75",
+      "mode": "9.0.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 74 row 76",
+      "mode": "9.1.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 75 row 77",
+      "mode": "9.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 76 row 78",
+      "mode": "9.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 77 row 79",
+      "mode": "10.0.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 78 row 80",
+      "mode": "10.0.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 79 row 81",
+      "mode": "10.1.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 80 row 82",
+      "mode": "10.1.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 81 row 83",
+      "mode": "10.0.6t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 82 row 84",
+      "mode": "10.0.6h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 83 row 85",
+      "mode": "10.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 84 row 86",
+      "mode": "10.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 85 row 87",
+      "mode": "10.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 86 row 88",
+      "mode": "10.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 87 row 89",
+      "mode": "11.0.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 88 row 90",
+      "mode": "11.0.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 89 row 91",
+      "mode": "11.1.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 90 row 92",
+      "mode": "11.1.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 91 row 93",
+      "mode": "11.0.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 92 row 94",
+      "mode": "11.0.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 93 row 95",
+      "mode": "11.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 94 row 96",
+      "mode": "11.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 95 row 97",
+      "mode": "11.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 96 row 98",
+      "mode": "11.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 97 row 99",
+      "mode": "11.0.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 98 row 100",
+      "mode": "11.1.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 99 row 101",
+      "mode": "12.0.4t",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 100 row 102",
+      "mode": "12.0.4h",
+      "action": "not advertised",
+      "reason": "Requires a PCM Custom bank; choose/configure one of the four bank profiles"
+    },
+    {
+      "source": "workbook Atmos code 101 row 103",
+      "mode": "12.1.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 102 row 104",
+      "mode": "12.1.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 103 row 105",
+      "mode": "12.0.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 104 row 106",
+      "mode": "12.0.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 105 row 107",
+      "mode": "12.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 106 row 108",
+      "mode": "12.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 107 row 109",
+      "mode": "12.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 108 row 110",
+      "mode": "12.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 109 row 111",
+      "mode": "12.0.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 110 row 112",
+      "mode": "12.1.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 111 row 113",
+      "mode": "13.0.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 112 row 114",
+      "mode": "13.0.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 113 row 115",
+      "mode": "13.1.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 114 row 116",
+      "mode": "13.1.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 115 row 117",
+      "mode": "13.0.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 116 row 118",
+      "mode": "13.0.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 117 row 119",
+      "mode": "13.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 118 row 120",
+      "mode": "13.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 119 row 121",
+      "mode": "13.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 120 row 122",
+      "mode": "13.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 121 row 123",
+      "mode": "13.0.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 122 row 124",
+      "mode": "13.1.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 123 row 125",
+      "mode": "14.0.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 124 row 126",
+      "mode": "14.0.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 125 row 127",
+      "mode": "14.1.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 126 row 128",
+      "mode": "14.1.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 127 row 129",
+      "mode": "14.0.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 128 row 130",
+      "mode": "14.0.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 129 row 131",
+      "mode": "14.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 130 row 132",
+      "mode": "14.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 131 row 133",
+      "mode": "14.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 132 row 134",
+      "mode": "14.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 133 row 135",
+      "mode": "14.0.10",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 134 row 136",
+      "mode": "15.0.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 135 row 137",
+      "mode": "15.0.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 136 row 138",
+      "mode": "15.1.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 137 row 139",
+      "mode": "15.1.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 138 row 140",
+      "mode": "15.0.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 139 row 141",
+      "mode": "15.0.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 140 row 142",
+      "mode": "15.1.6",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 141 row 143",
+      "mode": "15.1.6h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 142 row 144",
+      "mode": "15.0.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 143 row 145",
+      "mode": "15.1.8",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 144 row 146",
+      "mode": "16.0.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 145 row 147",
+      "mode": "16.0.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 146 row 148",
+      "mode": "16.1.4",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    },
+    {
+      "source": "workbook Atmos code 147 row 149",
+      "mode": "16.1.4h",
+      "action": "excluded",
+      "reason": "More than 16 independent PCM channels"
+    }
+  ]
+}

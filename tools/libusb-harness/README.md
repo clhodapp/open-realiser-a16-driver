@@ -1,3 +1,50 @@
+Live desktop soundcard: see [PIPEWIRE.md](PIPEWIRE.md) for the new `ozzy-pipewire` sink/source.
+
+## A16 default rate
+
+The current local harness and shared engine default the A16 to **48000 Hz**.
+All four explicit rates remain available. The A16-specific engine default is
+covered by fake-bus startup tests without a host rate request; all four tests pass.
+A focused upstream patch is saved at workspace `upstream/a16-rates-default.patch`.
+Historical validation notes below retain their original defaults.
+
+## Four-rate validation (2026-11-05)
+
+`stream --rate` now accepts 44100, 48000, 88200 and 96000 Hz (default 44100).
+All four rates are enabled in the A16 model mask and tested with fake-bus
+bulk and interrupt endpoints. Nix build: all four CTest tests passed.
+Unsupported rate values are rejected before USB access.
+
+Hardware at 88200 and 96000 Hz: 10 seconds silent duplex per rate, then
+6 seconds duplex with half-second 440 Hz tones on channel 1 then channel 2,
+at -48 dBFS peak. Correct hardware rate readback, nominal frame throughput,
+440 Hz return peaks (1 Hz search grid), and successful cleanup at both rates.
+Final 48000 Hz tone run also passed; both interfaces verified at alt 0.
+Captured tone levels were approximately -61.30 dBFS left and -62.94 dBFS right
+at both higher rates. These short checks do not establish long-run losslessness
+or validate every playback channel at every rate.
+
+Artifacts: workspace `experiments/rates-high-01/` contains console logs,
+USB traces, WAVs, JSON measurements and the tone generation/analysis script.
+The previous 48 kHz-only and original harness notes below are historical.
+
+## Local 48 kHz validation (2026-11-05)
+
+This workspace copy adds `stream --rate 44100|48000` (default 44100).
+The A16 model rate mask includes both rates. Buffer bounds, WAV validation,
+engine startup and capture headers use the selected rate. Higher rates remain
+unavailable. The unchanged device-paced interrupt transport uses 80-frame
+transfers at either rate. Fake-bus duplex tests exercise both endpoint layouts
+at both rates; the Nix build passed all four tests.
+
+Hardware: A16 0a4a:5a16 at 10:9 accepted and read back 48000 Hz.
+Ten seconds of silent duplex captured 479040 frames with 5988 transfers in each
+direction, no reported errors and successful cleanup. This is a short-run check,
+not a claim of continuous lossless operation. Logs and a subsequent quiet stereo
+tone check are in `experiments/rate-48000-01/` at the workspace root.
+
+The older notes below describe the original 44.1 kHz-only harness.
+
 # A16 userspace validation harness
 
 `ozzy-libusb` runs Ozzy's existing protocol engine over asynchronous libusb
