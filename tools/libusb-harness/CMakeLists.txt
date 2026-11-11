@@ -47,6 +47,8 @@ if(BUILD_TESTING)
   add_test(NAME live-audio COMMAND test-live)
   add_test(NAME pipewire-help COMMAND a16-driver --help)
   add_test(NAME list-profiles COMMAND a16-driver --list-profiles)
+  add_test(NAME config-paths COMMAND ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_config.py $<TARGET_FILE:a16-driver>)
   add_test(NAME reject-profile COMMAND a16-driver --profile invalid)
   set_tests_properties(reject-profile PROPERTIES WILL_FAIL TRUE)
   add_executable(test-a16 test_a16.c wav.c ${OZZY}/tests/fake_bus.c)
@@ -82,9 +84,3 @@ if(BUILD_TESTING)
 endif()
 
 install(PROGRAMS ../pipewire-upmix/a16-play-static DESTINATION bin)
-
-# Keep existing installations and scripts working under their original names.
-install(CODE [[
-  file(CREATE_LINK a16-driver "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/ozzy-pipewire" SYMBOLIC)
-  file(CREATE_LINK a16-usb "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/ozzy-libusb" SYMBOLIC)
-]])

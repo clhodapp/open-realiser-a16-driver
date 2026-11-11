@@ -82,10 +82,6 @@ Stop the upmixer with Ctrl-C independently of the driver.
 | `a16-static-dsp` | Offline stereo-to-16-slot Custom #2 PCM processing |
 | `a16-play-static` | Play a prepared Custom #2 RF64 file directly to the A16 |
 
-`ozzy-pipewire` and `ozzy-libusb` remain installed as compatibility aliases.
-Existing `ozzy.a16.*` PipeWire identities and `ozzy-a16/config.json` settings are
-retained so saved routing and configuration continue to work.
-
 ## Scope and provenance
 
 This package focuses on the A16 userspace implementation. It is experimental:
@@ -94,8 +90,6 @@ rate or long-running workload. The live bridge uses 48 kHz; the USB diagnostic
 streamer supports 44.1/48/88.2/96 kHz. Tests run offline and do not need an A16.
 Historical validation details remain in the [USB harness notes](tools/libusb-harness/README.md).
 
-The Ploytec reverse-engineering work, underlying protocol engine, and broader
-platform sources are credited to Ozzy and its contributors;
-see the [original project documentation](README.ozzy.md). Their presence does not
-extend this userspace package's support to Windows, macOS or other devices.
-The upstream [MIT license and copyright notice](LICENSE) are preserved.
+The Ploytec reverse-engineering work and underlying protocol engine come from
+Ozzy and its contributors. See the [original project documentation](README.ozzy.md)
+and [MIT license](LICENSE).

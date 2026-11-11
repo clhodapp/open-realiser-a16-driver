@@ -56,7 +56,7 @@ def module(mode, layout):
             'channelmix.upmix':False, 'channelmix.mix-lfe':False,
         },
         'playback.props': {
-            'node.name':f'a16.upmix.{mode}.output', 'target.object':'ozzy.a16.playback',
+            'node.name':f'a16.upmix.{mode}.output', 'target.object':'a16.playback',
             'audio.position':OUTPUT, 'node.passive':True, 'node.dont-fallback':True,
             'stream.dont-remix':True, 'channelmix.upmix':False, 'channelmix.mix-lfe':False,
         }})

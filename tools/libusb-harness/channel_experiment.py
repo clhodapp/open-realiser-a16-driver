@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Quiet, file-based A16 channel probes and narrowband capture measurements.
 
-No USB access: generate WAVs, run ozzy-libusb separately, then analyze its WAVs.
+No USB access: generate WAVs, run a16-usb separately, then analyze its WAVs.
 All levels are digital full scale, not a prediction of headphone sound pressure.
 """
 import argparse

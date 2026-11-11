@@ -16,7 +16,7 @@ send 7.1 through the stereo input: that would downmix it before processing.
 The stereo path internally feeds the 7.1 height stage.
 
 All three output named FL FR FC LFE SL SR RL RR TFL TFR TRL TRR to
-`ozzy.a16.playback`. The configured A16 Custom #2 room maps the height positions
+`a16.playback`. The configured A16 Custom #2 room maps the height positions
 to Lh/Rh/Lhr/Rhr. Inner fronts, rear center and true overhead are not generated
 by these presets. Other rooms must provide and correctly map the output positions.
 The direct A16 playback device remains available to bypass the upmixer or play

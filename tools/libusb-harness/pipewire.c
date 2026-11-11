@@ -160,13 +160,13 @@ static bool make_stream(struct live *l, struct endpoint *e, bool source) {
     snprintf(channel_count, sizeof(channel_count), "%u", e->channels);
     const char *positions = source ? "[ FL FR ]" : profile->positions;
     struct pw_properties *props = pw_properties_new(
-        PW_KEY_NODE_NAME, source ? "ozzy.a16.capture" : "ozzy.a16.playback", PW_KEY_NODE_DESCRIPTION,
+        PW_KEY_NODE_NAME, source ? "a16.capture" : "a16.playback", PW_KEY_NODE_DESCRIPTION,
         source ? "Realiser A16 USB Return" : description, PW_KEY_DEVICE_ID, device_id, "card.profile.device",
         source ? "1" : "0", PW_KEY_MEDIA_CLASS, source ? "Audio/Source" : "Audio/Sink", PW_KEY_MEDIA_TYPE,
         "Audio", PW_KEY_MEDIA_CATEGORY, source ? "Capture" : "Playback", PW_KEY_NODE_VIRTUAL, "true",
         PW_KEY_NODE_PAUSE_ON_IDLE, "true", PW_KEY_NODE_RATE, "1/48000", PW_KEY_NODE_LATENCY, "1024/48000",
         "priority.session", "0", "node.autoconnect", "false", "audio.position", positions, "audio.rate",
-        "48000", "audio.channels", channel_count, "stream.dont-remix", "true", "node.group", "ozzy.a16",
+        "48000", "audio.channels", channel_count, "stream.dont-remix", "true", "node.group", "a16",
         "resample.quality", "4", NULL);
     if (!source) {
         pw_properties_set(props, "a16.profile", profile->name);
@@ -350,9 +350,9 @@ int main(int argc, char **argv) {
     bool explicit_config = config != NULL;
     if (!config) {
         const char *xdg = getenv("XDG_CONFIG_HOME"), *home = getenv("HOME");
-        int n = xdg && *xdg ? snprintf(config_path, sizeof(config_path), "%s/ozzy-a16/config.json", xdg)
+        int n = xdg && *xdg ? snprintf(config_path, sizeof(config_path), "%s/open-realiser-a16-driver/config.json", xdg)
                 : home && *home
-                    ? snprintf(config_path, sizeof(config_path), "%s/.config/ozzy-a16/config.json", home)
+                    ? snprintf(config_path, sizeof(config_path), "%s/.config/open-realiser-a16-driver/config.json", home)
                     : -1;
         if (n < 0 || (size_t)n >= sizeof(config_path))
             return 2;

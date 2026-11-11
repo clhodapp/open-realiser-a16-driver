@@ -8,15 +8,15 @@ nix build path:./ozzy-userspace --out-link ozzy-userspace/result
 ```
 
 The default is **7.1.4t Compatibility**, exposing 12 playback channels.
-The card `ozzy.a16` now advertises **86 profile entries**: 28 Compatibility,
+The card `a16` now advertises **86 profile entries**: 28 Compatibility,
 54 Advanced and four PCM Custom bank entries. All four Custom banks have proposed full 16-channel mappings.
 
 Select the profile in KDE's card-profile control, or:
 
 ```sh
-pactl set-card-profile ozzy.a16 7.1.4
-pactl set-card-profile ozzy.a16 9.1.6
-pactl set-card-profile ozzy.a16 custom-1
+pactl set-card-profile a16 7.1.4
+pactl set-card-profile a16 9.1.6
+pactl set-card-profile a16 custom-1
 ```
 
 Run `a16-driver --list-profiles` to inspect every required room and slot map.
@@ -48,8 +48,8 @@ The A16's `T` capture maps to Pulse `top-center` / native `TC` (straight overhea
 Edit `layouts/custom-banks.json`, regenerate and rebuild to change the bindings.
 
 A user's capture set can omit speakers without changing these shared recipes.
-The bridge reads `$XDG_CONFIG_HOME/ozzy-a16/config.json` (normally
-`~/.config/ozzy-a16/config.json`) at startup:
+The bridge reads `$XDG_CONFIG_HOME/open-realiser-a16-driver/config.json` (normally
+`~/.config/open-realiser-a16-driver/config.json`) at startup:
 
 ```json
 {"missing_speakers": ["Chr"]}
@@ -85,8 +85,8 @@ No root privileges are normally required with suitable USB permissions.
 
 It exposes two selectable desktop nodes:
 
-- `ozzy.a16.playback`: Realiser A16 USB <selected profile>, a layout-dependent number of playback channels.
-- `ozzy.a16.capture`: Realiser A16 USB Return, 2 recording channels.
+- `a16.playback`: Realiser A16 USB <selected profile>, a layout-dependent number of playback channels.
+- `a16.capture`: Realiser A16 USB Return, 2 recording channels.
 
 The bridge does not issue commands to set default audio routing or the A16's
 volume/input/room. The session manager can select newly available devices under
@@ -130,7 +130,7 @@ No Auro-3D decoding or Auro-Matic upmixing is added by these profiles.
 Example playback with an explicitly mapped 16-channel WAV (select `9.1.6` first):
 
 ```sh
-pw-cat --playback --target ozzy.a16.playback \
+pw-cat --playback --target a16.playback \
   --channel-map FL,FR,FC,LFE,SL,SR,RL,RR,FLW,FRW,TFL,TFR,TSL,TSR,TRL,TRR \
   input.wav
 ```
@@ -138,7 +138,7 @@ pw-cat --playback --target ozzy.a16.playback \
 Record the processed stereo USB return:
 
 ```sh
-pw-cat --record --target ozzy.a16.capture \
+pw-cat --record --target a16.capture \
   --rate 48000 --channels 2 --format s24 return.wav
 ```
 

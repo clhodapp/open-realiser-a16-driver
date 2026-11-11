@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: MIT */
 /* Included after make_stream: standard SPA Device profile control, PW loop only. */
 static void device_info(struct live *l, struct spa_device_info *info) {
-    static const struct spa_dict_item items[] = {{"device.name", "ozzy.a16"},
+    static const struct spa_dict_item items[] = {{"device.name", "a16"},
                                                  {"device.description", "Smyth Realiser A16 USB"},
-                                                 {"device.api", "ozzy"},
+                                                 {"device.api", "a16"},
                                                  {"media.class", "Audio/Device"},
                                                  {"device.icon-name", "audio-card"}};
     static const struct spa_dict props = SPA_DICT_INIT_ARRAY(items);

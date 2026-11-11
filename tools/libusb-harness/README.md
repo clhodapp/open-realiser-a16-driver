@@ -1,4 +1,4 @@
-Live desktop soundcard: see [PIPEWIRE.md](PIPEWIRE.md) for the new `ozzy-pipewire` sink/source.
+Live desktop soundcard: see [PIPEWIRE.md](PIPEWIRE.md) for the new `a16-driver` sink/source.
 
 ## A16 default rate
 
@@ -47,7 +47,7 @@ The older notes below describe the original 44.1 kHz-only harness.
 
 # A16 userspace validation harness
 
-`ozzy-libusb` runs Ozzy's existing protocol engine over asynchronous libusb
+`a16-usb` runs Ozzy's existing protocol engine over asynchronous libusb
 transfers on Linux. It needs no custom kernel module or system audio setup.
 This checkout started at upstream commit
 `e0345d95dc987382ccf3f83b58a57d949d85a40e`; the shared engine and codec sources
@@ -143,8 +143,8 @@ windows to compare single-channel and simultaneous tone levels:
 
 ```sh
 python3 tools/libusb-harness/channel_experiment.py generate experiment-directory
-./result/bin/ozzy-libusb stream --seconds 19 --play experiment-directory/sequential-input.wav --capture experiment-directory/sequential-return.wav --log experiment-directory/sequential.log
-./result/bin/ozzy-libusb stream --seconds 13 --play experiment-directory/simultaneous-input.wav --capture experiment-directory/simultaneous-return.wav --log experiment-directory/simultaneous.log
+./result/bin/a16-usb stream --seconds 19 --play experiment-directory/sequential-input.wav --capture experiment-directory/sequential-return.wav --log experiment-directory/sequential.log
+./result/bin/a16-usb stream --seconds 13 --play experiment-directory/simultaneous-input.wav --capture experiment-directory/simultaneous-return.wav --log experiment-directory/simultaneous.log
 python3 tools/libusb-harness/channel_experiment.py analyze experiment-directory
 ```
 
@@ -154,7 +154,7 @@ From the repository root, using the included Nix dependency lock:
 
 ```sh
 nix build path:.
-./result/bin/ozzy-libusb --help
+./result/bin/a16-usb --help
 ```
 
 For development:
@@ -172,8 +172,8 @@ libusb development headers, then use the same CMake commands.
 ## Inspect before streaming
 
 ```sh
-./result/bin/ozzy-libusb inspect
-./result/bin/ozzy-libusb inspect --device 10:4
+./result/bin/a16-usb inspect
+./result/bin/a16-usb inspect --device 10:4
 ```
 
 This enumerates matching A16 devices and prints every configuration, interface,
@@ -193,13 +193,13 @@ reported as `No matching A16 found.`
 Silence and capture for five seconds:
 
 ```sh
-./result/bin/ozzy-libusb stream --seconds 5 --capture capture.wav --log usb.txt
+./result/bin/a16-usb stream --seconds 5 --capture capture.wav --log usb.txt
 ```
 
 Play a file once while recording:
 
 ```sh
-./result/bin/ozzy-libusb stream --seconds 10 --play input.wav --capture return.wav --log usb.txt
+./result/bin/a16-usb stream --seconds 10 --play input.wav --capture return.wav --log usb.txt
 ```
 
 `--seconds` is required and accepts 1–60. The time limit begins after the
