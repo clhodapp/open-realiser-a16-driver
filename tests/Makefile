@@ -1,10 +1,10 @@
-# Host tests for common/ and engine/ (macOS and Linux, any C compiler):
+# Linux host tests for common/ and engine/:
 #   make check    build and run them
 #   make golden   regenerate golden/ after an intended change (and read the diff)
 CC       ?= cc
 CFLAGS   ?= -std=gnu11 -O1 -g -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 CPPFLAGS += -DOZZY_USER_ENGINE -I..
-LDLIBS   += -lm    # the float codecs (fminf, fmaxf); on macOS libm is part of libSystem
+LDLIBS   += -lm    # the float codecs (fminf, fmaxf)
 BUILD    := build
 ENGINE   := ../engine/core/ozzy_engine.c ../engine/core/ozzy_isoc_output.c ../engine/core/ozzy_isoc_input.c \
             ../engine/devices/ploytec/ploytec_engine.c ../engine/devices/ploytec/ploytec_io.c \

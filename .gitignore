@@ -1,52 +1,19 @@
-# macOS system files
-.DS_Store
-.AppleDouble
-.LSOverride
-*.swp
-
 # Build artifacts
 Build/
 build/
 *.o
 *.a
 *.so
-*.dylib
-*.kext
-*.dSYM/
-*.sdk/
+/build-userspace*/
+/result
 
-# Linux kernel module build outputs
-*.ko
-*.mod
-*.mod.c
-.*.cmd
-Module.symvers
-modules.order
-
-# Xcode
-xcuserdata/
-*.xcworkspace/xcuserdata/
-DerivedData/
-*.moved-aside
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-
-# IDE
+# Editor files
+*.swp
 .vscode/
 .idea/
 
 # Logs
 *.log
-
-# Standalone libusb harness builds
-/build-userspace*/
-/result
 
 # Python bytecode
 __pycache__/

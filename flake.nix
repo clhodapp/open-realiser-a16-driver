@@ -26,6 +26,9 @@
               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.pipewire pkgs.python3 ]}
           '';
           doCheck = true;
+          postCheck = ''
+            make -C ../tests -j"$NIX_BUILD_CORES" check
+          '';
           meta.description = "Userspace USB audio driver and upmixer for the Smyth Realiser A16";
           meta.platforms = pkgs.lib.platforms.linux;
           meta.license = pkgs.lib.licenses.mit;
