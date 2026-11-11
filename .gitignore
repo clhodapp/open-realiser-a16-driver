@@ -53,3 +53,10 @@ apps/gui/subprojects/libui-ng-*/
 apps/gui/subprojects/packagecache/
 apps/gui/subprojects/.wraplock
 apps/gui/.cache/
+# Standalone libusb harness builds
+/build-userspace*/
+/result
+
+# Python bytecode
+__pycache__/
+*.py[cod]
