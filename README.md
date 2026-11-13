@@ -18,8 +18,9 @@ From a checkout:
 nix build path:.
 ```
 
-The package is `a16-userspace-driver`; `nix run path:. -- --help` opens the driver
-help. Both x86-64 and ARM64 Linux package definitions are provided.
+The package is `open-realiser-a16-driver`; `nix run path:. -- --help` opens the
+driver help. The flake's `overlays.default` adds it to a package set as
+`pkgs.open-realiser-a16-driver.open-realiser-a16-driver`. Both x86-64 and ARM64 Linux package definitions are provided.
 
 Without Nix, install a C11 compiler, CMake, pkg-config, libusb, PipeWire development
 headers, libsamplerate, and Python 3, then:

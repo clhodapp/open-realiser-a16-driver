@@ -1,59 +1,40 @@
+# SPDX-License-Identifier: MIT
 {
+
   description = "Open Realiser A16 userspace USB audio driver and surround upmixer";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  outputs = { self, nixpkgs }:
+
+  inputs = {
+    caisson.url = "github:nix-caisson/caisson";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # The library comes from the nixpkgs.lib mirror. The package sets
+    # take nixpkgs.
+    nixpkgs-lib.url = "github:nix-community/nixpkgs.lib";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs-lib";
+  };
+
+  outputs =
+    inputs@{ caisson, ... }:
     let
-      systems = [ "x86_64-linux" "aarch64-linux" ];
-      each = nixpkgs.lib.genAttrs systems;
-      package = system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in
-        pkgs.stdenv.mkDerivation {
-          pname = "open-realiser-a16-driver";
-          version = "0.1.0";
-          src = pkgs.lib.cleanSourceWith {
-            src = self;
-            filter = path: type:
-              let name = baseNameOf path; in
-              !(pkgs.lib.hasPrefix "build-userspace" name) && name != "result"
-              && pkgs.lib.cleanSourceFilter path type;
-          };
-          nativeBuildInputs = [ pkgs.cmake pkgs.pkg-config pkgs.python3 pkgs.makeWrapper ];
-          buildInputs = [ pkgs.libusb1 pkgs.libsamplerate pkgs.pipewire ];
-          postInstall = ''
-            wrapProgram $out/bin/a16-upmix \
-              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.pipewire ]}
-            wrapProgram $out/bin/a16-play-static \
-              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.pipewire pkgs.python3 ]}
-          '';
-          doCheck = true;
-          postCheck = ''
-            make -C ../tests -j"$NIX_BUILD_CORES" check
-          '';
-          meta.description = "Userspace USB audio driver and upmixer for the Smyth Realiser A16";
-          meta.platforms = pkgs.lib.platforms.linux;
-          meta.license = pkgs.lib.licenses.mit;
-          meta.mainProgram = "a16-driver";
+      lib = caisson.lib.caisson.mkLib {
+        inherit (caisson.lib.caisson.pins.flake inputs) dependencies root;
+        name = "open-realiser-a16-driver";
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+        projects = {
+          inherit caisson;
         };
-    in {
-      packages = each (system:
-        let driver = package system; in {
-          default = driver;
-          open-realiser-a16-driver = driver;
-          a16-userspace-driver = driver;
-        });
-      checks = each (system: {
-        driver = self.packages.${system}.default;
-      });
-      apps = each (system:
-        let driver = package system; in {
-          default = { type = "app"; program = "${driver}/bin/a16-driver"; };
-          upmix = { type = "app"; program = "${driver}/bin/a16-upmix"; };
-        });
-      devShells = each (system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in {
-          default = pkgs.mkShell {
-            packages = [ pkgs.cmake pkgs.pkg-config pkgs.libusb1 pkgs.libsamplerate pkgs.pipewire pkgs.python3 pkgs.gcc pkgs.gnumake ];
-          };
-        });
-    };
+
+        configs = lib: lib.caisson.mkModules ./configs;
+
+        pkgSets = lib: lib.caisson.nixpkgs.mkConfigurations { };
+
+        libOverlays = lib: lib.caisson.mkLibOverlays ./lib-overlays;
+        pkgOverlays = lib: lib.caisson.mkPkgOverlays ./pkg-overlays;
+      };
+    in
+    lib.caisson.flake-parts.mkTopConfiguration { };
+
 }
