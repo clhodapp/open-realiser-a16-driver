@@ -228,7 +228,6 @@ struct ozzy_engine_report {
  * @report:       the family's part of ozzy_info, from its last start()
  * @usb_speed:    enum ozzy_usb_speed, as the platform found it (ozzy_engine_set_usb_speed)
  * @driver_version: the platform's build (OZZY_GIT_VERSION), NULL if it didn't say
- * @anchors:      the platform reads the clock anchors (ozzy_engine_set_anchors)
  * @starts:       starts that succeeded since ozzy_engine_attach
  * @stats_last/@stats_late: per PCM direction, the bus time of the last completion (0: none
  *                since the start) and the gap past which a completion is late (the queued
@@ -253,7 +252,6 @@ struct ozzy_engine {
 	struct ozzy_engine_report report;
 	uint8_t usb_speed;
 	const char *driver_version;
-	bool anchors;
 	uint32_t starts;
 	uint64_t stats_last[OZZY_PCM_DIRS];
 	uint64_t stats_late[OZZY_PCM_DIRS];
@@ -337,16 +335,6 @@ bool ozzy_engine_start(struct ozzy_engine *e);
 static inline void ozzy_engine_set_usb_speed(struct ozzy_engine *e, enum ozzy_usb_speed speed)
 {
 	e->usb_speed = (uint8_t)speed;
-}
-
-/*
- * Whether the host consumes shared clock anchors (shm audio.timestamp).
- * When disabled, families publish no anchors and omit OZZY_SETTING_IO_BUFFER_MAX.
- * Set before starting.
- */
-static inline void ozzy_engine_set_anchors(struct ozzy_engine *e, bool anchors)
-{
-	e->anchors = anchors;
 }
 
 /* The driver's build (OZZY_GIT_VERSION, which only the platform's own files get): a string
@@ -467,9 +455,9 @@ enum ozzy_setting_change {
 
 /*
  * The least safety offset a family reports (shm safety_offset_frames / input_safety_offset_frames)
- * at @rate: 1 ms, room for the jitter between the device's clock anchors and the transfers'
- * completions. What the family queues is its own (the settings); this is only what the host is
- * told to keep ahead. A guess, to be measured on hardware; far below what the defaults queue.
+ * at @rate: 1 ms, room for the jitter of the transfers' completions. What the family queues is
+ * its own (the settings); this is only what the host is told to keep ahead. A guess, to be
+ * measured on hardware; far below what the defaults queue.
  */
 #define OZZY_SAFETY_MIN_US 1000
 

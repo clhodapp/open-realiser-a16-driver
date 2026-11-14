@@ -113,7 +113,6 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 		ozzy_engine_set_endpoint(e, (enum ozzy_pipe_role)eps[k][0], eps[k][1], eps[k][2],
 					 (uint16_t)(eps[k][3] | eps[k][4] << 8), eps[k][5]);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	if (setting >= 0)
 		ozzy_engine_set_setting(e, (unsigned int)setting, (uint8_t)value);
 	printf("start %d\n", ozzy_engine_start(e));

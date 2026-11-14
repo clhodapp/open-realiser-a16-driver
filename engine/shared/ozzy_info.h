@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 /* Bump when struct ozzy_info changes */
-#define OZZY_INFO_VERSION 2   /* 2: alt_settings per interface */
+#define OZZY_INFO_VERSION 3   /* bump when struct ozzy_info changes layout */
 
 /* One per enum ozzy_pipe_role (engine/core/ozzy_engine.h), in its order */
 enum ozzy_info_pipe_role {
@@ -97,7 +97,6 @@ struct ozzy_info_pipe {
  * @safety_offset_frames: how far ahead of the device's clock the host must write output (the
  *                   transfers queued, at least the jitter floor, OZZY_SAFETY_MIN_US)
  * @input_safety_offset_frames: how far behind the clock the host may read input (the same way)
- * @timestamp_frames: frames between the clock anchors the engine publishes
  * @driver_version:  the commit the driver was built from (common/ozzy_version.h), terminated
  */
 struct ozzy_info {
@@ -135,7 +134,6 @@ struct ozzy_info {
 	uint32_t in_bytes_per_frame;
 	uint32_t safety_offset_frames;
 	uint32_t input_safety_offset_frames;
-	uint32_t timestamp_frames;
 	char driver_version[40];
 
 	struct ozzy_info_pipe pipes[OZZY_INFO_PIPES];
