@@ -77,7 +77,7 @@ static void run(uint16_t vid, uint16_t pid, uint16_t out_max_packet, unsigned in
 	memset(res, 0, sizeof(*res));
 	for (k = 0; k < sizeof(out_ring); k++)
 		out_ring[k] = (uint8_t)(k * 13 + 5);
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, PCM_OUT, out_max_packet <= 512 ? 2 : 3, out_max_packet, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, PCM_IN, 2, 512, 0);

@@ -93,7 +93,7 @@ static void run(uint16_t vid, uint16_t pid, const int (*settings)[2], struct cap
 
 	memset(&shm, 0, sizeof(shm));
 	memset(c, 0, sizeof(*c));
-	fake_bus_init(&fb, &shm, false, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	for (k = 0; eps[k][0] != 0xFF; k++)
 		ozzy_engine_set_endpoint(e, (enum ozzy_pipe_role)eps[k][0], eps[k][1], eps[k][2],

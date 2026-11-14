@@ -31,7 +31,7 @@ int main(void)
 	struct ozzy_engine *e;
 
 	model.quirks |= OZZY_QUIRK_DIGITAL_IN | OZZY_QUIRK_OUT_ROUTING;
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(&model)), &model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);

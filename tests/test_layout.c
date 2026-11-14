@@ -27,7 +27,7 @@ int main(void)
 	F(audio.input_bytes_per_frame); F(audio.input_channels); F(audio.output_channels);
 	F(audio.safety_offset_frames); F(audio.input_safety_offset_frames); F(audio.settings); F(audio.settings.value); F(audio.settings.clock_locked);
 	F(audio.settings.lock_rate);
-	F(audio.host_write_position); F(audio.input_buffer); F(audio.output_buffer);
+	F(audio.input_buffer); F(audio.output_buffer);
 
 	printf("info version %d size %zu\n", OZZY_INFO_VERSION, sizeof(struct ozzy_info));
 	I(version); I(size); I(starts); I(vendor_id); I(product_id); I(family); I(status); I(usb_speed);

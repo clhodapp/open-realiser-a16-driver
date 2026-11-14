@@ -4,7 +4,7 @@
  * feedback endpoint (common/isoc_feedback.h, the same pacing as Linux's core). An engine owns
  * one and forwards its isochronous completions.
  *
- * The host writes frames into a ring in shared memory (OZZY_DEVICE_FLAG_PLAIN_OUTPUT), and each
+ * @fill writes frames into a ring in shared memory (OZZY_DEVICE_FLAG_PLAIN_OUTPUT), and each
  * microframe's packet points straight into it (zero copy; a packet that runs past the end
  * wraps).
  *
@@ -28,14 +28,13 @@ extern "C" {
  * @ring_frames:    frames in the output ring
  * @out_max_packet: bytes per service interval
  * @fb_addr:        0: no feedback endpoint, nominal rate
- * @ring:           the plain frame ring OUT packets point into (the host writes it)
+ * @ring:           the plain frame ring OUT packets point into
  * @xfer:           instead of @ring, one buffer per OUT transfer (@xfer_size bytes each), its
  *                  packets one after the other from the start; @fill writes each before it
  *                  goes out (platforms whose transfers can't wrap a ring: Linux)
  * @fb_buf:         the feedback transfers (@fb_size bytes)
- * @fill:           optional: called before each OUT transfer to write its @frames frames into
- *                  @dst, from position @first wrapping at @dst_frames; without it the host has
- *                  written them
+ * @fill:           called before each OUT transfer to write its @frames frames into @dst, from
+ *                  position @first wrapping at @dst_frames
  */
 struct ozzy_isoc_output_config {
 	uint32_t rate;

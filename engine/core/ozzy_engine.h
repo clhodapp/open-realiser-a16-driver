@@ -505,17 +505,11 @@ static inline uint32_t ozzy_engine_transfer_frames(const struct ozzy_engine *e, 
 	return 0;
 }
 
-/* Whether the platform attaches PCM rings (without one attached, PCM out is silence) */
-static inline bool ozzy_engine_ring_platform(const struct ozzy_engine *e)
-{
-	return e->bus->ops->pcm_progress != NULL;
-}
-
 /*
  * For engines whose PCM is plain interleaved S24_3LE on the wire (isochronous): @frames frames
  * out of the attached ring with the output routing, into @dst_ring (@dst_frames frames,
- * from position @first, wrapping); silence on a ring platform with none attached, nothing
- * written without by the host. Completion path (ozzy_isoc_output_config.fill).
+ * from position @first, wrapping); silence with none attached. Completion path
+ * (ozzy_isoc_output_config.fill).
  */
 void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t dst_frames, uint64_t first,
 			   uint32_t frames);
