@@ -8,8 +8,7 @@
  *   byte 0: cable number (high nibble) | code index number (CIN, low nibble)
  *   bytes 1-3: MIDI bytes, zero padded
  *
- * Used for class MIDI devices that need an Ozzy driver anyway, such as the
- * Xone:1D, whose 4-byte bulk endpoints macOS's class driver rejects.
+ * Used for the Tascam US-366's MIDI (ploytec_us3xx_engine).
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

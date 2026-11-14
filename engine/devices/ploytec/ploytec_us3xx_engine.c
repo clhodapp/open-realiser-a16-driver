@@ -137,7 +137,7 @@ static bool start_input(struct ploytec_us3xx_engine *ue)
 	return ozzy_isoc_input_start(&ue->input, e->bus, &in);
 }
 
-/* --- MIDI: USB-MIDI event packets (usb_midi_engine does the same on the Xone:1D) --- */
+/* --- MIDI: USB-MIDI event packets --- */
 
 static uint8_t *midi_read_slot(struct ploytec_us3xx_engine *ue, uint32_t slot)
 {

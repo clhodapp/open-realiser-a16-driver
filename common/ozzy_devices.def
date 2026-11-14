@@ -10,7 +10,6 @@
  *   key        device identifier
  *   family     PLOYTEC_XONE  Ploytec junction protocol, bulk/interrupt out (Xone mixers)
  *              PLOYTEC_ISOC  Ploytec bulk in / isochronous out (Akai EIE Pro)
- *              USB_MIDI      USB MIDI class device that needs Ozzy anyway
  *              PLOYTEC_US3XX Ploytec isochronous in and out, MIDI as USB-MIDI packets (Tascam US-366)
  *   in, out    audio channels (lanes used in the device's frames)
  *   rates      OZZY_RATE_xxx bits
@@ -22,7 +21,7 @@
  *
  * Each row notes where its numbers come from, and is wrapped in
  * #ifndef OZZY_DISABLE_<key>: building with -DOZZY_DISABLE_<key> leaves the device
- * out of the device table. Linux normally handles USB_MIDI devices with snd-usb-audio.
+ * out of the device table.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -107,15 +106,6 @@ OZZY_DEVICE(DynacordCMS600, 0x0562, 0x03EB, "Dynacord CMS 600-3", PLOYTEC_ISOC, 
 #ifndef OZZY_DISABLE_AlesisMultiMix
 OZZY_DEVICE(AlesisMultiMix, 0x13B2, 0x0030, "Alesis MultiMix USB 2.0", PLOYTEC_ISOC, 10, 2,
 	    OZZY_RATE_44K1 | OZZY_RATE_48K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/*
- * USB MIDI class, but its bulk endpoints have wMaxPacketSize 4, which macOS's class driver
- * rejects. Linux's snd-usb-audio drives it (Ozzy's Linux side has no USB_MIDI family) (#27).
- */
-#ifndef OZZY_DISABLE_Xone1D
-OZZY_DEVICE(Xone1D, 0x0A4A, 0x001E, "Xone:1D", USB_MIDI, 0, 0,
-	    0, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
 #endif
 
 /*

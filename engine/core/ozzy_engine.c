@@ -10,14 +10,12 @@
 #include "../devices/ploytec/ploytec_engine.h"
 #include "../devices/ploytec/ploytec_isoc_engine.h"
 #include "../devices/ploytec/ploytec_us3xx_engine.h"
-#include "../devices/usbmidi/usb_midi_engine.h"
 
 size_t ozzy_engine_size(const struct ozzy_device *model)
 {
 	switch (model->family) {
 	case OZZY_FAMILY_PLOYTEC_XONE:  return sizeof(struct ploytec_engine);
 	case OZZY_FAMILY_PLOYTEC_ISOC:  return sizeof(struct ploytec_isoc_engine);
-	case OZZY_FAMILY_USB_MIDI:      return sizeof(struct usb_midi_engine);
 	case OZZY_FAMILY_PLOYTEC_US3XX: return sizeof(struct ploytec_us3xx_engine);
 	default:                        return 0;
 	}
@@ -36,9 +34,6 @@ struct ozzy_engine *ozzy_engine_init(void *mem, const struct ozzy_device *model)
 		break;
 	case OZZY_FAMILY_PLOYTEC_ISOC:
 		ploytec_isoc_engine_init((struct ploytec_isoc_engine *)mem, model);
-		break;
-	case OZZY_FAMILY_USB_MIDI:
-		usb_midi_engine_init((struct usb_midi_engine *)mem, model);
 		break;
 	case OZZY_FAMILY_PLOYTEC_US3XX:
 		ploytec_us3xx_engine_init((struct ploytec_us3xx_engine *)mem, model);

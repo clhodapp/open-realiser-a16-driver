@@ -1,12 +1,11 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * Golden trace: what the engine does on the bus for four devices, one per path:
+ * Golden trace: what the engine does on the bus for these devices and paths:
  *   Xone:DB4     interrupt layout, PCM rings attached at packet 20, detached at 300
  *   ESI ESU1808  bulk layout, the S/PDIF mirror (pair 2), the same rings
  *   Akai EIE Pro isochronous out with feedback, MIDI out on the 1 ms timer
  *   PHASE X64    the same path, with its WM8776 writes (inputs 1-2 on Phono)
  *   ESI U168 XT  the interrupt layout with the ESI selector on Internal and its C-port writes
- *   Xone:1D      USB MIDI
  *   US-366       isochronous in and out without feedback, USB-MIDI packets
  * with MIDI going out every 5 completions and MIDI IN bytes coming in. Every submission,
  * control request and progress report is printed, then hashes of the shared memory and the
@@ -176,14 +175,12 @@ int main(void)
 	/* the US-366's descriptors (#91), alternate setting 2 */
 	static const uint8_t us366[][6] = { { 0, 0x02, 1, 0x00, 0x02, 1 }, { 1, 0x81, 1, 0x00, 0x02, 1 },
 					    { 2, 0x83, 2, 0x00, 0x02, 0 }, { 3, 0x04, 3, 0x10, 0, 4 }, { 0xFF } };
-	static const uint8_t none[][6] = { { 0xFF } };
 
 	run(0x0A4A, 0xFFDB, -1, 0, db4);
 	run(0x0A92, 0x0111, OZZY_SETTING_SPDIF_MIRROR, 2, esu);
 	run(0x09E8, 0x0010, -1, 0, eie);
 	run(0x0A4A, 0x5B01, OZZY_SETTING_WM_INPUT_12, OZZY_WM_IN12_PHONO, eie);
 	run(0x2573, 0x0012, OZZY_SETTING_ESI_CLOCK, OZZY_ESI_CLOCK_INTERNAL, db4);
-	run(0x0A4A, 0x001E, -1, 0, none);
 	run(0x0644, 0x8041, -1, 0, us366);
 	return 0;
 }
