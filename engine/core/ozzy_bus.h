@@ -28,7 +28,7 @@ extern "C" {
 
 /*
  * One packet (service interval) of an isochronous transfer. The engine fills @offset and
- * @length; the bus fills @actual, @status and @time (the platform's clock) on completion.
+ * @length; the bus fills @actual and @status on completion.
  * @offset may run past the end of the buffer and wrap to its start.
  */
 struct ozzy_isoc_packet {
@@ -36,7 +36,6 @@ struct ozzy_isoc_packet {
 	uint32_t length;
 	uint32_t actual;
 	int32_t status;
-	uint64_t time;
 };
 
 enum ozzy_pcm_dir {

@@ -132,13 +132,6 @@ enum ozzy_quirk {
 	OZZY_QUIRK_PCM_IN_QUEUE = 1u << 17,
 
 	/*
-	 * The clock anchors' spacing (OZZY_SETTING_IO_BUFFER_MAX), added by the engine family only
-	 * where the host reads the anchors (ozzy_engine_set_anchors), rather than reporting
-	 * positions per transfer.
-	 */
-	OZZY_QUIRK_CLOCK_ANCHORS = 1u << 18,
-
-	/*
 	 * Wait 1000 ms before the setup requests (Musonik PHASE X64): the 2.0.4 kext's
 	 * initDeviceSpecificData sets PGDevice+0x2d8 = 1000, slept in configurationDone.
 	 * Windows 2.9.34 waits 600 ms, after the first configuration only.

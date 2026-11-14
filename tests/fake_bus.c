@@ -197,7 +197,6 @@ void fake_bus_complete(struct fake_bus *fb, struct ozzy_engine *e, struct fake_x
 		for (i = 0; i < x->count; i++) {
 			x->packets[i].actual = x->packets[i].length;
 			x->packets[i].status = 0;
-			x->packets[i].time = fb->ticks + 1000;
 		}
 	}
 	if ((x->pipe & 0x80) && fill)

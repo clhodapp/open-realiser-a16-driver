@@ -81,7 +81,6 @@ static struct ozzy_engine *make(struct fake_bus *fb, struct ozzy_shared_memory *
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 2, 512, 0);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_OUT, 0x04, 3, 16, 4);
 	ozzy_engine_attach(e, &fb->bus, shm);
-	ozzy_engine_set_anchors(e, !rings);
 	return e;
 }
 

@@ -102,12 +102,10 @@ bool ozzy_isoc_output_start(struct ozzy_isoc_output *out, const struct ozzy_bus 
 	ozzy_log("isoc out: %u microframe(s) per packet, up to %u frames, feedback every %u microframe(s)",
 		 out->out_uframes, out->out_max_frames, out->fb.uframes);
 
-	/* Silence in the ring, clock at 0 */
+	/* Silence in the ring */
 	if (!config->xfer[0])
 		memset(config->ring, 0, ring_bytes);
 	out->out_frame = 0;
-	out->played_frames = 0;
-	out->next_anchor = config->anchor_frames;
 	out->fb_logged = false;
 	out->running = true;
 
@@ -116,26 +114,6 @@ bool ozzy_isoc_output_start(struct ozzy_isoc_output *out, const struct ozzy_bus 
 	for (i = 0; i < ISOC_OUT_TRANSFERS; i++)
 		submit_out(out, i);
 	return true;
-}
-
-/*
- * publish_timestamps - Advance the device's sample time by the frames this transfer played,
- * and publish an anchor (ozzy_timestamp_write) in the microframe that reaches each multiple
- * of anchor_frames, at that microframe's completion time.
- */
-static void publish_timestamps(struct ozzy_isoc_output *out, const struct ozzy_isoc_output_xfer *t)
-{
-	uint32_t p;
-
-	for (p = 0; p < t->count; p++) {
-		out->played_frames += t->frames[p];
-		if (!out->config.anchor_frames || out->played_frames < out->next_anchor)
-			continue;   /* no anchors (the platform doesn't read them), or not yet */
-
-		ozzy_timestamp_write(&out->shm->audio.timestamp, out->next_anchor,
-				     t->packets[p].time ? t->packets[p].time : ozzy_bus_time(out->bus));
-		out->next_anchor += out->config.anchor_frames;
-	}
 }
 
 bool ozzy_isoc_output_complete(struct ozzy_isoc_output *out, uint8_t pipe, void *xfer, int status,
@@ -147,7 +125,6 @@ bool ozzy_isoc_output_complete(struct ozzy_isoc_output *out, uint8_t pipe, void 
 	if (pipe == out->config.out_addr) {
 		if (!out->running || status == OZZY_STATUS_ABORTED)
 			return true;
-		publish_timestamps(out, &out->out[i]);
 		submit_out(out, i);
 		return true;
 	}

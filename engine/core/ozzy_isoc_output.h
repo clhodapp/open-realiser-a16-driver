@@ -6,9 +6,7 @@
  *
  * The host writes frames into a ring in shared memory (OZZY_DEVICE_FLAG_PLAIN_OUTPUT), and each
  * microframe's packet points straight into it (zero copy; a packet that runs past the end
- * wraps). The output clock is the device's: the frames of completed transfers advance the
- * sample time, and the timestamp anchors use the completion time of the microframe that
- * reaches each one.
+ * wraps).
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -28,7 +26,6 @@ extern "C" {
  * struct ozzy_isoc_output_config
  * @frame_bytes:    bytes per plain frame (channels * 3)
  * @ring_frames:    frames in the output ring
- * @anchor_frames:  timestamp anchor spacing (the host's zero timestamp period), 0: none
  * @out_max_packet: bytes per service interval
  * @fb_addr:        0: no feedback endpoint, nominal rate
  * @ring:           the plain frame ring OUT packets point into (the host writes it)
@@ -44,7 +41,6 @@ struct ozzy_isoc_output_config {
 	uint32_t rate;
 	uint32_t frame_bytes;
 	uint32_t ring_frames;
-	uint64_t anchor_frames;
 	uint8_t out_addr;
 	uint16_t out_max_packet;
 	uint8_t out_interval;
@@ -77,8 +73,6 @@ struct ozzy_isoc_output {
 	uint32_t out_uframes;      /* microframes per OUT packet */
 	uint32_t out_max_frames;   /* frames that fit one OUT packet */
 	uint64_t out_frame;        /* next frame to send (ring position) */
-	uint64_t played_frames;    /* frames of completed transfers (the device's sample time) */
-	uint64_t next_anchor;      /* sample time of the next timestamp anchor */
 	bool fb_logged;
 	struct ozzy_isoc_output_xfer out[ISOC_OUT_TRANSFERS];
 	struct ozzy_isoc_output_xfer fb_xfer[ISOC_FB_TRANSFERS];
