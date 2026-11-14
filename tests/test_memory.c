@@ -2,7 +2,7 @@
 /*
  * The engine on transfer memory of the platform's own (ozzy_engine_alloc_memory), as Linux has
  * it: separate buffers, 4 PCM slots per direction, a buffer per isochronous OUT transfer.
- * Every transfer must use that memory (never the shared memory's host rings), the frames on
+ * Every transfer must use that memory (never the shared memory's PCM buffers), the frames on
  * the wire must be the ring's frames in order, no isochronous packet may wrap or leave a gap
  * (a transfer goes out as one URB), and everything allocated must be freed.
  *
@@ -110,7 +110,7 @@ static void xone(void)
 	memset(&shm, 0, sizeof(shm));
 	for (i = 0; i < sizeof(ring); i++)
 		ring[i] = (uint8_t)(i * 11 + 1);
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
@@ -138,7 +138,7 @@ static void xone(void)
 	CHECK(!outside, "Xone: %u transfers outside the platform's memory", outside);
 	CHECK(outs > 50 && !wrong, "Xone: %u ring-encoded OUT transfers, %u wrong frames", outs, wrong);
 	CHECK(all_zero(shm.audio.output_buffer, sizeof(shm.audio.output_buffer)) &&
-	      all_zero(shm.audio.input_buffer, sizeof(shm.audio.input_buffer)), "Xone: the host rings were touched");
+	      all_zero(shm.audio.input_buffer, sizeof(shm.audio.input_buffer)), "Xone: the shared memory's PCM buffers were touched");
 	ozzy_engine_stop(e);
 	platform_memory_done(&pm, e, "Xone");
 	free(e);
@@ -162,7 +162,7 @@ static void isoc(void)
 	memset(&shm, 0, sizeof(shm));
 	for (i = 0; i < sizeof(ring); i++)
 		ring[i] = (uint8_t)(i * 5 + 9);
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x02, 1, 1024, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 2, 512, 1);
@@ -196,7 +196,7 @@ static void isoc(void)
 	CHECK(!wrapped, "isoc: %u packets wrap their transfer buffer", wrapped);
 	CHECK(!gaps, "isoc: %u packets not right after the one before", gaps);
 	CHECK(frame > 10000 && !wrong, "isoc: %llu frames on the wire, %u wrong", (unsigned long long)frame, wrong);
-	CHECK(all_zero(shm.audio.output_buffer, sizeof(shm.audio.output_buffer)), "isoc: the host ring was touched");
+	CHECK(all_zero(shm.audio.output_buffer, sizeof(shm.audio.output_buffer)), "isoc: the shared memory's output buffer was touched");
 	CHECK(e->mem.isoc_out_size == 32 * 1024, "isoc: OUT transfer buffers of %u bytes", e->mem.isoc_out_size);
 	ozzy_engine_stop(e);
 	platform_memory_done(&pm, e, "isoc");

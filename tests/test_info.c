@@ -21,13 +21,12 @@ int main(void)
 	struct fake_bus fb;
 	struct ozzy_engine *e;
 
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	ozzy_engine_set_usb_speed(e, OZZY_USB_SPEED_HIGH);
 	ozzy_engine_set_driver_version(e, "test-1234");
 	CHECK(info->version == 0, "info before the first start");
@@ -58,7 +57,6 @@ int main(void)
 	      info->in_bytes_per_frame == shm.audio.input_bytes_per_frame, "bytes per frame");
 	CHECK(info->safety_offset_frames == shm.audio.safety_offset_frames && info->safety_offset_frames,
 	      "safety offset %u", info->safety_offset_frames);
-	CHECK(info->timestamp_frames == OZZY_TIMESTAMP_FRAMES, "timestamp frames %u", info->timestamp_frames);
 	CHECK(info->input_safety_offset_frames == 4 * 80, "input safety offset %u", info->input_safety_offset_frames);
 	CHECK(info->pipes[OZZY_PIPE_PCM_OUT].address == 0x05 && info->pipes[OZZY_PIPE_PCM_OUT].transfer_type == 3 &&
 	      info->pipes[OZZY_PIPE_PCM_OUT].max_packet == 964 && info->pipes[OZZY_PIPE_PCM_OUT].in_flight == 4,
@@ -77,25 +75,6 @@ int main(void)
 
 	ozzy_engine_stop(e);
 
-	/* A host that doesn't read the anchors (the libusb driver): none written, none published,
-	 * the IO buffer setting not offered */
-	memset(&shm, 0, sizeof(shm));
-	fake_bus_init(&fb, &shm, true, NULL);
-	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, false);
-	CHECK(!ozzy_engine_has_setting(e, OZZY_SETTING_IO_BUFFER_MAX), "IO buffer setting without anchors");
-	CHECK(ozzy_engine_start(e), "start without anchors");
-	{
-		struct fake_xfer x;
-		unsigned int n;
-
-		for (n = 0; n < 400 && fake_bus_pop(&fb, &x); n++)
-			fake_bus_complete(&fb, e, &x, NULL, NULL);
-	}
-	CHECK(shm.audio.timestamp.sequence == 0 && shm.audio.timestamp_frames == 0 && info->timestamp_frames == 0,
-	      "anchors without a reader: sequence %u, every %u", shm.audio.timestamp.sequence,
-	      shm.audio.timestamp_frames);
-	ozzy_engine_stop(e);
 	free(e);
 	return CHECK_DONE("info");
 }

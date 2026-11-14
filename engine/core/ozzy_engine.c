@@ -10,14 +10,12 @@
 #include "../devices/ploytec/ploytec_engine.h"
 #include "../devices/ploytec/ploytec_isoc_engine.h"
 #include "../devices/ploytec/ploytec_us3xx_engine.h"
-#include "../devices/usbmidi/usb_midi_engine.h"
 
 size_t ozzy_engine_size(const struct ozzy_device *model)
 {
 	switch (model->family) {
 	case OZZY_FAMILY_PLOYTEC_XONE:  return sizeof(struct ploytec_engine);
 	case OZZY_FAMILY_PLOYTEC_ISOC:  return sizeof(struct ploytec_isoc_engine);
-	case OZZY_FAMILY_USB_MIDI:      return sizeof(struct usb_midi_engine);
 	case OZZY_FAMILY_PLOYTEC_US3XX: return sizeof(struct ploytec_us3xx_engine);
 	default:                        return 0;
 	}
@@ -36,9 +34,6 @@ struct ozzy_engine *ozzy_engine_init(void *mem, const struct ozzy_device *model)
 		break;
 	case OZZY_FAMILY_PLOYTEC_ISOC:
 		ploytec_isoc_engine_init((struct ploytec_isoc_engine *)mem, model);
-		break;
-	case OZZY_FAMILY_USB_MIDI:
-		usb_midi_engine_init((struct usb_midi_engine *)mem, model);
 		break;
 	case OZZY_FAMILY_PLOYTEC_US3XX:
 		ploytec_us3xx_engine_init((struct ploytec_us3xx_engine *)mem, model);
@@ -84,7 +79,7 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 		e->settings.value[i] = ozzy_engine_setting_default(e, i);
 	update_routes(e);
 
-	/* Transfers in the shared memory: the PCM rings the host reads and writes (laid out at start) */
+	/* Transfers in the shared memory (laid out at start) */
 	memset(m, 0, sizeof(*m));
 	m->pcm_out_ring = (uint8_t *)shm->audio.output_buffer;
 	m->pcm_out_ring_bytes = sizeof(shm->audio.output_buffer);
@@ -346,7 +341,6 @@ void ozzy_engine_publish_info(struct ozzy_engine *e)
 	info.safety_offset_frames = shm->audio.safety_offset_frames;
 	info.input_safety_offset_frames = model->in_channels ? (shm->audio.input_safety_offset_frames ?
 				shm->audio.input_safety_offset_frames : shm->audio.safety_offset_frames) : 0;
-	info.timestamp_frames = e->anchors && (model->out_channels || model->in_channels) ? shm->audio.timestamp_frames : 0;
 	if (e->driver_version)
 		ozzy_strlcpy(info.driver_version, e->driver_version, sizeof(info.driver_version));
 	for (i = 0; i < OZZY_PIPE_ROLES; i++) {
@@ -432,9 +426,8 @@ void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t ds
 	uint32_t d = ozzy_mod_u64(first, dst_frames), r, f;
 
 	if (!ring) {
-		if (ozzy_engine_ring_platform(e))
-			for (f = 0; f < frames; f++, d = d + 1 == dst_frames ? 0 : d + 1)
-				memset(dst_ring + d * frame_bytes, 0, frame_bytes);
+		for (f = 0; f < frames; f++, d = d + 1 == dst_frames ? 0 : d + 1)
+			memset(dst_ring + d * frame_bytes, 0, frame_bytes);
 		return;
 	}
 	r = ozzy_mod_u64(e->pcm_pos[OZZY_PCM_OUT], ring->frames);

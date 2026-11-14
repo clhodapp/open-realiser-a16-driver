@@ -9,10 +9,9 @@ BUILD    := build
 ENGINE   := ../engine/core/ozzy_engine.c ../engine/core/ozzy_isoc_output.c ../engine/core/ozzy_isoc_input.c \
             ../engine/devices/ploytec/ploytec_engine.c ../engine/devices/ploytec/ploytec_io.c \
             ../engine/devices/ploytec/ploytec_isoc_engine.c ../engine/devices/ploytec/ploytec_us3xx_engine.c \
-            ../engine/devices/usbmidi/usb_midi_engine.c \
             ../common/devices/ploytec/ploytec_handshake.c ../common/devices/ploytec/ploytec_codec.c \
             ../common/usb_midi.c
-TESTS    := test_endpoints test_settings test_info test_transfers test_midi_queue test_trace test_routing test_isoc_ring test_memory test_running_status test_layout test_stats test_latency test_clock test_cport test_isoc_input
+TESTS    := test_endpoints test_settings test_info test_transfers test_midi_queue test_trace test_routing test_isoc_ring test_memory test_running_status test_layout test_stats test_latency test_cport test_isoc_input
 HEADERS  := $(wildcard ../engine/*/*.h ../engine/devices/*/*.h ../common/*.h ../common/devices/*/*.h) fake_bus.h check.h
 
 all: $(addprefix $(BUILD)/,$(TESTS))

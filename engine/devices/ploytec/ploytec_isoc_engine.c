@@ -89,7 +89,6 @@ static bool isoc_start(struct ozzy_engine *e)
 	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT;
 	shm->audio.output_ring_frames = OZZY_PLAIN_RING_FRAMES;
 	shm->audio.input_ring_frames = in_places * pe->in_frames;
-	shm->audio.timestamp_frames = e->anchors ? ozzy_anchor_frames(e->settings.value[OZZY_SETTING_IO_BUFFER_MAX], 1) : 0;
 	shm->audio.output_bytes_per_frame = frame_bytes;
 	shm->audio.input_bytes_per_frame = PLOYTEC_IN_FRAME_SIZE;
 	shm->audio.input_channels = model->in_channels;
@@ -132,7 +131,6 @@ static bool isoc_start(struct ozzy_engine *e)
 			       PLOYTEC_MIDI_XFER_NS7 : PLOYTEC_MIDI_XFER_M4_C1);
 
 	ozzy_store_release_bool(&shm->audio.hardware_present, true);
-	shm->audio.timestamp.sample_time = 0;
 	ozzy_store_release_bool(&pe->midi_out_busy, false);
 	pe->running = true;
 	pe->streamed = true;
@@ -146,7 +144,6 @@ static bool isoc_start(struct ozzy_engine *e)
 	out.rate = pe->sample_rate;
 	out.frame_bytes = frame_bytes;
 	out.ring_frames = OZZY_PLAIN_RING_FRAMES;   /* the host's ring size */
-	out.anchor_frames = shm->audio.timestamp_frames;   /* 0: none */
 	out.out_addr = pe->out_addr;
 	out.out_max_packet = pe->out_max_packet;
 	out.out_interval = pe->out_interval;
@@ -288,8 +285,7 @@ static uint32_t isoc_transfer_frames(const struct ozzy_engine *e, enum ozzy_pcm_
  * isochronous */
 static uint32_t isoc_setting_quirks(const struct ozzy_engine *e)
 {
-	return e->model->quirks | OZZY_QUIRK_PCM_IN_FRAMES | OZZY_QUIRK_PCM_IN_QUEUE |
-	       (e->anchors ? OZZY_QUIRK_CLOCK_ANCHORS : 0);
+	return e->model->quirks | OZZY_QUIRK_PCM_IN_FRAMES | OZZY_QUIRK_PCM_IN_QUEUE;
 }
 
 /* The in queue starts at 2 here (the setting's own default is the Xones' 4) */

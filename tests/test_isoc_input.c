@@ -1,8 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
  * The US-366 path (isochronous in and out, ploytec_us3xx_engine): every input frame must reach
- * the host's plain ring or the attached ring in order, a failed packet as its nominal frames of
- * silence; the handshake must be the one Tascam's Windows driver sends, with 'M' and 'B' at
+ * the attached ring in order, a failed packet as its nominal frames of silence; the handshake must be the one Tascam's Windows driver sends, with 'M' and 'B' at
  * the first start only (and 'B' only at 48 kHz); a mixer mode with other channels must refuse to
  * start; MIDI out must go in whole event packets, as many as the endpoint takes.
  *
@@ -67,12 +66,12 @@ static void fill(struct fake_xfer *x, void *arg)
 	}
 }
 
-static struct ozzy_engine *make(struct fake_bus *fb, struct ozzy_shared_memory *shm, bool rings, FILE *trace)
+static struct ozzy_engine *make(struct fake_bus *fb, struct ozzy_shared_memory *shm, FILE *trace)
 {
 	const struct ozzy_device *model = ozzy_device_lookup(0x0644, 0x8041);
 	struct ozzy_engine *e;
 
-	fake_bus_init(fb, shm, rings, trace);
+	fake_bus_init(fb, shm, trace);
 	fb->i_reg[0] = 0x02;   /* the capture: selector 0x02, channel config 0x0F */
 	fb->i_reg[1] = 0x0F;
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
@@ -81,7 +80,6 @@ static struct ozzy_engine *make(struct fake_bus *fb, struct ozzy_shared_memory *
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 2, 512, 0);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_OUT, 0x04, 3, 16, 4);
 	ozzy_engine_attach(e, &fb->bus, shm);
-	ozzy_engine_set_anchors(e, !rings);
 	return e;
 }
 
@@ -114,74 +112,6 @@ static unsigned int count_requests(FILE *t, const char *what)
 }
 
 /* ozzy_isoc_input alone on a ring of 100 frames, which packets of 5 and 6 frames straddle */
-static void test_small_ring(void)
-{
-	static struct ozzy_shared_memory shm;
-	static uint8_t ring[100 * FRAME], xfers[ISOC_IN_TRANSFERS][16 * 512];
-	struct ozzy_isoc_input_config c;
-	struct ozzy_isoc_input in;
-	struct fake_bus fb;
-	struct fake_xfer x;
-	uint64_t f, wrong = 0;
-	unsigned int i, done = 0;
-
-	expect_frames = 0;
-	packet_no = 0;
-	fake_bus_init(&fb, &shm, false, NULL);
-	memset(&c, 0, sizeof(c));
-	c.rate = 48000;
-	c.frame_bytes = FRAME;
-	c.in_addr = 0x81;
-	c.in_max_packet = 512;
-	c.in_interval = 1;
-	for (i = 0; i < ISOC_IN_TRANSFERS; i++)
-		c.xfer[i] = xfers[i];
-	c.xfer_size = sizeof(xfers[0]);
-	c.ring = ring;
-	c.ring_frames = 100;
-	CHECK(ozzy_isoc_input_start(&in, &fb.bus, &c), "input start");
-	while (done++ < 200 && fake_bus_pop(&fb, &x)) {
-		fill(&x, NULL);
-		ozzy_isoc_input_complete(&in, x.pipe, x.xfer, 0, x.packets, x.count);
-	}
-	CHECK(!overflow && in.in_frame == expect_frames, "frames %llu, expected %llu", (unsigned long long)in.in_frame,
-	      (unsigned long long)expect_frames);
-	for (f = expect_frames - 100; f < expect_frames; f++)
-		wrong += memcmp(ring + (f % 100) * FRAME, expect + f * FRAME, FRAME) != 0;
-	CHECK(wrong == 0, "%llu of the last 100 frames wrong in a 100-frame ring", (unsigned long long)wrong);
-}
-
-static void test_host_ring(void)
-{
-	static struct ozzy_shared_memory shm;
-	struct fake_bus fb;
-	struct ozzy_engine *e;
-	uint64_t f, wrong = 0;
-
-	expect_frames = 0;
-	packet_no = 0;
-	e = make(&fb, &shm, false, NULL);
-	CHECK(ozzy_engine_start(e), "start (no rings)");
-	CHECK(shm.audio.device_flags == (OZZY_DEVICE_FLAG_PLAIN_OUTPUT | OZZY_DEVICE_FLAG_PLAIN_INPUT) &&
-	      shm.audio.input_ring_frames == RING && shm.audio.input_bytes_per_frame == FRAME &&
-	      shm.audio.output_bytes_per_frame == 18 && shm.audio.sample_rate == 48000,
-	      "layout: flags %x ring %u frame %u/%u rate %u", (unsigned int)shm.audio.device_flags,
-	      shm.audio.input_ring_frames, shm.audio.input_bytes_per_frame, shm.audio.output_bytes_per_frame,
-	      (unsigned int)shm.audio.sample_rate);
-	CHECK(shm.audio.input_safety_offset_frames >= 16 * 6, "input safety offset %u", shm.audio.input_safety_offset_frames);
-	/* Past the ring's end: ~2.5 times round it (an IN transfer brings ~94 frames) */
-	pump(&fb, e, 500);
-	CHECK(!overflow, "the test's expectation overflowed");
-	CHECK(expect_frames > RING + RING / 2, "only %llu frames", (unsigned long long)expect_frames);
-	for (f = expect_frames > RING ? expect_frames - RING : 0; f < expect_frames; f++)
-		wrong += memcmp(shm.audio.input_buffer + (f % RING) * FRAME, expect + f * FRAME, FRAME) != 0;
-	CHECK(wrong == 0, "%llu of the last %u frames wrong in the host's ring", (unsigned long long)wrong, RING);
-	CHECK(((struct ploytec_us3xx_engine *)e)->input.in_frame == expect_frames, "frame count %llu, expected %llu",
-	      (unsigned long long)((struct ploytec_us3xx_engine *)e)->input.in_frame, (unsigned long long)expect_frames);
-	ozzy_engine_stop(e);
-	free(e);
-}
-
 static void test_attached_ring(void)
 {
 	static struct ozzy_shared_memory shm;
@@ -193,9 +123,9 @@ static void test_attached_ring(void)
 
 	expect_frames = 0;
 	packet_no = 0;
-	e = make(&fb, &shm, true, NULL);
+	e = make(&fb, &shm, NULL);
 	ozzy_engine_set_pcm_ring(e, OZZY_PCM_IN, &ri);
-	CHECK(ozzy_engine_start(e), "start (rings)");
+	CHECK(ozzy_engine_start(e), "start");
 	pump(&fb, e, 300);
 	CHECK(!overflow, "the test's expectation overflowed");
 	CHECK(fb.progress[OZZY_PCM_IN] == expect_frames, "progress %llu, frames %llu",
@@ -219,7 +149,7 @@ static void test_nominal_silence(void)
 
 	all_fail = true;
 	packet_no = 0;
-	e = make(&fb, &shm, false, NULL);
+	e = make(&fb, &shm, NULL);
 	ue = (struct ploytec_us3xx_engine *)e;
 	ozzy_engine_set_rate(e, 44100);
 	CHECK(ozzy_engine_start(e) && shm.audio.sample_rate == 44100, "start at 44.1 kHz");
@@ -250,7 +180,7 @@ static void test_handshake(void)
 		return;
 	/* First start at 48 kHz: the selector written with bits 3-4 (0x02 -> 0x0A), 'M' and 'B', six
 	 * SET_CURs, the five S/PDIF registers */
-	e = make(&fb, &shm, false, t);
+	e = make(&fb, &shm, t);
 	CHECK(ozzy_engine_start(e), "start");
 	CHECK(count_requests(t, "40 49 000a 0000") == 1, "selector write 0x0A");
 	CHECK(count_requests(t, "40 4d 0000 0000 64") == 1 && count_requests(t, "40 42 0000 0000 256") == 1, "'M' and 'B'");
@@ -266,7 +196,7 @@ static void test_handshake(void)
 
 	/* A first start at 96 kHz: 'M', but no 48 kHz reverb block */
 	t = tmpfile();
-	e = make(&fb, &shm, false, t);
+	e = make(&fb, &shm, t);
 	ozzy_engine_set_rate(e, 96000);
 	CHECK(ozzy_engine_start(e), "start at 96 kHz");
 	CHECK(count_requests(t, "40 4d") == 1 && count_requests(t, "40 42") == 0, "96 kHz: 'M' without 'B'");
@@ -275,7 +205,7 @@ static void test_handshake(void)
 	fclose(t);
 
 	/* The mixer bypassed (2 in / 2 out): no start */
-	e = make(&fb, &shm, false, NULL);
+	e = make(&fb, &shm, NULL);
 	fb.i_reg[1] = 0x1F;
 	CHECK(!ozzy_engine_start(e), "started in a mixer mode with other channels");
 	free(e);
@@ -290,7 +220,7 @@ static void test_midi_out(void)
 	struct fake_xfer x;
 	uint32_t sizes[4], n = 0;
 
-	e = make(&fb, &shm, false, NULL);
+	e = make(&fb, &shm, NULL);
 	CHECK(ozzy_engine_start(e), "start");
 	while (fake_bus_pop(&fb, &x))
 		;   /* the streaming transfers: not completed here */
@@ -313,8 +243,6 @@ static void test_midi_out(void)
 
 int main(void)
 {
-	test_small_ring();
-	test_host_ring();
 	test_attached_ring();
 	test_nominal_silence();
 	test_handshake();

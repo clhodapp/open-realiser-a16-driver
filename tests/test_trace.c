@@ -1,14 +1,12 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * Golden trace: what the engine does on the bus for four devices, one per path:
+ * Golden trace: what the engine does on the bus for these devices and paths:
  *   Xone:DB4     interrupt layout, PCM rings attached at packet 20, detached at 300
  *   ESI ESU1808  bulk layout, the S/PDIF mirror (pair 2), the same rings
  *   Akai EIE Pro isochronous out with feedback, MIDI out on the 1 ms timer
  *   PHASE X64    the same path, with its WM8776 writes (inputs 1-2 on Phono)
  *   ESI U168 XT  the interrupt layout with the ESI selector on Internal and its C-port writes
- *   Xone:1D      USB MIDI
- *   US-366       isochronous in and out without feedback, USB-MIDI packets: once with
- *                attached rings, once into the host's plain rings
+ *   US-366       isochronous in and out without feedback, USB-MIDI packets
  * with MIDI going out every 5 completions and MIDI IN bytes coming in. Every submission,
  * control request and progress report is printed, then hashes of the shared memory and the
  * rings. Compared with golden/trace.txt by run.sh; after an intended change: make golden.
@@ -83,7 +81,7 @@ static uint64_t hash(const void *p, size_t n)
 	return h;
 }
 
-static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_t (*eps)[6], bool rings)
+static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_t (*eps)[6])
 {
 	const struct ozzy_device *model = ozzy_device_lookup(vid, pid);
 	static struct ozzy_shared_memory shm;
@@ -103,17 +101,16 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 	memset(in_ring, 0, sizeof(in_ring));
 	for (k = 0; k < sizeof(out_ring); k++)
 		out_ring[k] = (uint8_t)(k * 13 + 5);
-	fake_bus_init(&fb, &shm, rings, stdout);
+	fake_bus_init(&fb, &shm, stdout);
 	st.usb_midi = model->family == OZZY_FAMILY_PLOYTEC_US3XX;
 	fb.i_reg[1] = 0x0F;   /* the US-366's channel config in the capture (others don't read it) */
 
-	printf("== %s%s\n", model->name, rings ? "" : " (no rings)");
+	printf("== %s\n", model->name);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	for (k = 0; eps[k][0] != 0xFF; k++)
 		ozzy_engine_set_endpoint(e, (enum ozzy_pipe_role)eps[k][0], eps[k][1], eps[k][2],
 					 (uint16_t)(eps[k][3] | eps[k][4] << 8), eps[k][5]);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	if (setting >= 0)
 		ozzy_engine_set_setting(e, (unsigned int)setting, (uint8_t)value);
 	printf("start %d\n", ozzy_engine_start(e));
@@ -121,7 +118,7 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 	/* 600 completions besides MIDI IN, whose reads complete every 4th turn */
 	while (done < 600 && fake_bus_pop(&fb, &x)) {
 		bool xone = model->family == OZZY_FAMILY_PLOYTEC_XONE ||
-			    (model->family == OZZY_FAMILY_PLOYTEC_US3XX && rings);
+			    model->family == OZZY_FAMILY_PLOYTEC_US3XX;
 
 		if (x.pipe == MIDI_IN && done % 4) {
 			fake_bus_push(&fb, &x);
@@ -178,15 +175,12 @@ int main(void)
 	/* the US-366's descriptors (#91), alternate setting 2 */
 	static const uint8_t us366[][6] = { { 0, 0x02, 1, 0x00, 0x02, 1 }, { 1, 0x81, 1, 0x00, 0x02, 1 },
 					    { 2, 0x83, 2, 0x00, 0x02, 0 }, { 3, 0x04, 3, 0x10, 0, 4 }, { 0xFF } };
-	static const uint8_t none[][6] = { { 0xFF } };
 
-	run(0x0A4A, 0xFFDB, -1, 0, db4, true);
-	run(0x0A92, 0x0111, OZZY_SETTING_SPDIF_MIRROR, 2, esu, true);
-	run(0x09E8, 0x0010, -1, 0, eie, true);
-	run(0x0A4A, 0x5B01, OZZY_SETTING_WM_INPUT_12, OZZY_WM_IN12_PHONO, eie, true);
-	run(0x2573, 0x0012, OZZY_SETTING_ESI_CLOCK, OZZY_ESI_CLOCK_INTERNAL, db4, true);
-	run(0x0A4A, 0x001E, -1, 0, none, true);
-	run(0x0644, 0x8041, -1, 0, us366, true);
-	run(0x0644, 0x8041, -1, 0, us366, false);
+	run(0x0A4A, 0xFFDB, -1, 0, db4);
+	run(0x0A92, 0x0111, OZZY_SETTING_SPDIF_MIRROR, 2, esu);
+	run(0x09E8, 0x0010, -1, 0, eie);
+	run(0x0A4A, 0x5B01, OZZY_SETTING_WM_INPUT_12, OZZY_WM_IN12_PHONO, eie);
+	run(0x2573, 0x0012, OZZY_SETTING_ESI_CLOCK, OZZY_ESI_CLOCK_INTERNAL, db4);
+	run(0x0644, 0x8041, -1, 0, us366);
 	return 0;
 }

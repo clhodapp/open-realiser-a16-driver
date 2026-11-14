@@ -62,13 +62,12 @@ int main(void)
 	CHECK(model && model->family == OZZY_FAMILY_PLOYTEC_ISOC, "US-144MKII in the device list");
 	for (i = 0; i < sizeof(out_ring); i++)
 		out_ring[i] = (uint8_t)(i * 7 + 3);
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x02, 1, 1024, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 2, 512, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_FEEDBACK, 0x81, 1, 3, 4);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	ozzy_engine_set_setting(e, OZZY_SETTING_OUT_ROUTE_1, 1);   /* outputs 1-2 from playback 3-4 */
 	ozzy_engine_set_setting(e, OZZY_SETTING_IN_ROUTE_1, 1);    /* capture 1-2 from inputs 3-4 */
 	ozzy_engine_set_pcm_ring(e, OZZY_PCM_OUT, &ro);

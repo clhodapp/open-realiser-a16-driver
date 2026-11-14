@@ -68,7 +68,7 @@ static void delivered_in(void *owner)
 	ozzy_engine_plain_in_done((struct ozzy_engine *)owner);
 }
 
-/* PCM out with ozzy_isoc_output at the nominal rate: the platform's buffers or the host's ring */
+/* PCM out with ozzy_isoc_output at the nominal rate: the platform's buffers or the shared memory's ring */
 static bool start_output(struct ploytec_us3xx_engine *ue)
 {
 	struct ozzy_engine *e = &ue->base;
@@ -80,7 +80,6 @@ static bool start_output(struct ploytec_us3xx_engine *ue)
 	out.rate = ue->sample_rate;
 	out.frame_bytes = frame_bytes;
 	out.ring_frames = OZZY_PLAIN_RING_FRAMES;
-	out.anchor_frames = shm->audio.timestamp_frames;   /* 0: none */
 	out.out_addr = ue->out_addr;
 	out.out_max_packet = ue->out_max_packet;
 	out.out_interval = ue->out_interval;
@@ -99,17 +98,14 @@ static bool start_output(struct ploytec_us3xx_engine *ue)
 }
 
 /*
- * PCM in with ozzy_isoc_input. Its transfers go to the platform's PCM in buffers, or in the shared
- * memory's input buffer after the host's plain ring. Received frames go to the attached ring on a
- * ring platform, else to the host's ring.
+ * PCM in with ozzy_isoc_input. Its transfers go to the platform's PCM in buffers, or into the
+ * shared memory's input buffer. Received frames go to the attached ring.
  */
 static bool start_input(struct ploytec_us3xx_engine *ue)
 {
 	struct ozzy_engine *e = &ue->base;
-	volatile struct ozzy_shared_memory *shm = e->shm;
 	struct ozzy_engine_memory *m = &e->mem;
 	uint32_t frame_bytes = e->model->in_channels * 3;
-	uint32_t ring_bytes = OZZY_DMA_ROUND(OZZY_PLAIN_RING_FRAMES * frame_bytes);
 	uint32_t xfer_bytes = OZZY_DMA_ROUND(ozzy_isoc_input_xfer_bytes(ue->in_max_packet, ue->in_interval));
 	struct ozzy_isoc_input_config in;
 	uint32_t i;
@@ -121,12 +117,12 @@ static bool start_input(struct ploytec_us3xx_engine *ue)
 	in.in_max_packet = ue->in_max_packet;
 	in.in_interval = ue->in_interval;
 	if (m->pcm_in_ring) {
-		if (ring_bytes + ISOC_IN_TRANSFERS * xfer_bytes > m->pcm_in_ring_bytes) {
+		if (ISOC_IN_TRANSFERS * xfer_bytes > m->pcm_in_ring_bytes) {
 			ploytec_log("us3xx: PCM in transfers of %u bytes don't fit", xfer_bytes);
 			return false;
 		}
 		for (i = 0; i < ISOC_IN_TRANSFERS; i++)
-			in.xfer[i] = m->pcm_in_ring + ring_bytes + i * xfer_bytes;
+			in.xfer[i] = m->pcm_in_ring + i * xfer_bytes;
 		in.xfer_size = xfer_bytes;
 	} else {
 		if (ISOC_IN_TRANSFERS > OZZY_PCM_OWN_SLOTS)
@@ -135,18 +131,13 @@ static bool start_input(struct ploytec_us3xx_engine *ue)
 			in.xfer[i] = m->pcm_in[i];
 		in.xfer_size = OZZY_PCM_SLOT_MIN;
 	}
-	if (ozzy_engine_ring_platform(e)) {
-		in.deliver = deliver_in;
-		in.done = delivered_in;
-		in.owner = e;
-	} else {
-		in.ring = (uint8_t *)shm->audio.input_buffer;
-		in.ring_frames = OZZY_PLAIN_RING_FRAMES;
-	}
+	in.deliver = deliver_in;
+	in.done = delivered_in;
+	in.owner = e;
 	return ozzy_isoc_input_start(&ue->input, e->bus, &in);
 }
 
-/* --- MIDI: USB-MIDI event packets (usb_midi_engine does the same on the Xone:1D) --- */
+/* --- MIDI: USB-MIDI event packets --- */
 
 static uint8_t *midi_read_slot(struct ploytec_us3xx_engine *ue, uint32_t slot)
 {
@@ -238,11 +229,9 @@ static bool us3xx_start(struct ozzy_engine *e)
 		return false;
 	}
 
-	/* 1. What the host needs: plain frame rings both ways */
-	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT | OZZY_DEVICE_FLAG_PLAIN_INPUT;
+	/* 1. What the host needs: a plain frame ring for output */
+	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT;
 	shm->audio.output_ring_frames = OZZY_PLAIN_RING_FRAMES;
-	shm->audio.input_ring_frames = OZZY_PLAIN_RING_FRAMES;
-	shm->audio.timestamp_frames = e->anchors ? ozzy_anchor_frames(e->settings.value[OZZY_SETTING_IO_BUFFER_MAX], 1) : 0;
 	shm->audio.output_bytes_per_frame = model->out_channels * 3;
 	shm->audio.input_bytes_per_frame = model->in_channels * 3;
 	shm->audio.input_channels = model->in_channels;
@@ -285,7 +274,6 @@ static bool us3xx_start(struct ozzy_engine *e)
 	e->report.in_flight[OZZY_PIPE_MIDI_OUT] = ue->midi_out_addr ? 1 : 0;
 
 	ozzy_store_release_bool(&shm->audio.hardware_present, true);
-	shm->audio.timestamp.sample_time = 0;
 	memset(&ue->encoder, 0, sizeof(ue->encoder));
 	ozzy_store_release_bool(&ue->midi_out_busy, false);
 	ue->running = true;
@@ -391,7 +379,7 @@ static uint32_t us3xx_transfer_frames(const struct ozzy_engine *e, enum ozzy_pcm
 
 static uint32_t us3xx_setting_quirks(const struct ozzy_engine *e)
 {
-	return e->model->quirks | (e->anchors ? OZZY_QUIRK_CLOCK_ANCHORS : 0);
+	return e->model->quirks;
 }
 
 static const struct ozzy_engine_ops ploytec_us3xx_engine_ops = {
