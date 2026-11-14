@@ -49,7 +49,7 @@ static struct ozzy_engine *start(void)
 	struct ozzy_engine *e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 
 	memset(&shm, 0, sizeof(shm));
-	fake_bus_init(&fb, &shm, true, NULL);
+	fake_bus_init(&fb, &shm, NULL);
 	fb.hz = 1000000;   /* 1 tick = 1 us */
 	fb.now = 1000;
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, PCM_OUT, 3, 964, 1);

@@ -40,13 +40,12 @@ static bool submit_out(struct ozzy_isoc_output *out, uint32_t i)
 			ozzy_log("isoc: output transfer of %u bytes doesn't fit its %u-byte buffer", offset, buf_size);
 			return false;
 		}
-		if (c->fill && frames)
+		if (frames)
 			c->fill(c->owner, buf, frames, 0, frames);
 	} else {
 		buf = c->ring;
 		buf_size = c->ring_frames * c->frame_bytes;
-		if (c->fill)
-			c->fill(c->owner, buf, c->ring_frames, first, frames);
+		c->fill(c->owner, buf, c->ring_frames, first, frames);
 	}
 	if (ozzy_bus_submit_isoc(out->bus, c->out_addr, buf, buf_size, t->packets, t->count, (void *)(uintptr_t)i))
 		return true;
@@ -83,7 +82,7 @@ bool ozzy_isoc_output_start(struct ozzy_isoc_output *out, const struct ozzy_bus 
 	out->bus = bus;
 	out->shm = shm;
 	out->config = *config;
-	if (!bus || !shm || !config->out_addr || (!config->xfer[0] && !config->ring))
+	if (!bus || !shm || !config->out_addr || !config->fill || (!config->xfer[0] && !config->ring))
 		return false;
 
 	fb_fits = config->fb_addr && config->fb_buf &&

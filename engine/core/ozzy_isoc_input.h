@@ -4,11 +4,9 @@
  * packets, whatever number of them each microframe (the Tascam US-366: 6 per microframe at
  * 48 kHz, 12 at 96 kHz). An engine owns one and forwards its isochronous completions.
  *
- * Every packet asks for the endpoint's bytes per interval; what arrives is copied, in the
- * completion path, either into a plain frame ring in shared memory (the host reads it by sample
- * time, OZZY_DEVICE_FLAG_PLAIN_INPUT) or to the engine (@deliver: the attached ring, with the
- * input routing). Frames count from 0 at start, as the output's sample time does, so frame f
- * of the ring is the one the device sent at about sample time f. A failed packet leaves the
+ * Every packet asks for the endpoint's bytes per interval; what arrives goes, in the completion
+ * path, to the engine (@deliver: the attached ring, with the input routing). Frames count from
+ * 0 at start. A failed packet leaves the
  * nominal frames of silence, so the input keeps the clock.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
@@ -38,8 +36,6 @@ extern "C" {
  * @in_max_packet: bytes per service interval (each packet asks for this much)
  * @xfer:          one buffer per transfer, @xfer_size bytes each (at least
  *                 ozzy_isoc_input_xfer_bytes)
- * @ring:          the plain frame ring (@ring_frames frames) the frames go to, or NULL:
- *                 @deliver gets them
  * @deliver:       @frames frames from @src (NULL: silence), in order; @done after each
  *                 transfer's (optional)
  */
@@ -51,8 +47,6 @@ struct ozzy_isoc_input_config {
 	uint8_t in_interval;
 	uint8_t *xfer[ISOC_IN_TRANSFERS];
 	uint32_t xfer_size;
-	uint8_t *ring;
-	uint32_t ring_frames;
 	void (*deliver)(void *owner, const uint8_t *src, uint32_t frames);
 	void (*done)(void *owner);
 	void *owner;

@@ -84,7 +84,7 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 		e->settings.value[i] = ozzy_engine_setting_default(e, i);
 	update_routes(e);
 
-	/* Transfers in the shared memory: the PCM rings the host reads and writes (laid out at start) */
+	/* Transfers in the shared memory (laid out at start) */
 	memset(m, 0, sizeof(*m));
 	m->pcm_out_ring = (uint8_t *)shm->audio.output_buffer;
 	m->pcm_out_ring_bytes = sizeof(shm->audio.output_buffer);
@@ -431,9 +431,8 @@ void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t ds
 	uint32_t d = ozzy_mod_u64(first, dst_frames), r, f;
 
 	if (!ring) {
-		if (ozzy_engine_ring_platform(e))
-			for (f = 0; f < frames; f++, d = d + 1 == dst_frames ? 0 : d + 1)
-				memset(dst_ring + d * frame_bytes, 0, frame_bytes);
+		for (f = 0; f < frames; f++, d = d + 1 == dst_frames ? 0 : d + 1)
+			memset(dst_ring + d * frame_bytes, 0, frame_bytes);
 		return;
 	}
 	r = ozzy_mod_u64(e->pcm_pos[OZZY_PCM_OUT], ring->frames);
