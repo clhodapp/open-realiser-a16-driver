@@ -21,19 +21,18 @@ typedef volatile bool     ozzy_atomic_bool;
 
 #define OZZY_SHARED_MEM_NAME            "/ozzy_shared_mem"
 #define OZZY_MAGIC                      0x4F5A5A59   /* "OZZY" */
-#define OZZY_SHARED_VERSION             13           /* bump when ozzy_shared_memory changes layout */
+#define OZZY_SHARED_VERSION             14           /* bump when ozzy_shared_memory changes layout */
 
 /* Each PCM ring's bytes (struct ozzy_audio_buffer): the device's transfers end to end */
 #define OZZY_PCM_RING_BYTES             (1024 * 1024)
 
-/* The isochronous families' plain rings, in frames (OZZY_DEVICE_FLAG_PLAIN_OUTPUT / _INPUT) */
+/* The isochronous families' plain output ring, in frames (OZZY_DEVICE_FLAG_PLAIN_OUTPUT) */
 #define OZZY_PLAIN_RING_FRAMES          10240
 
 /* ozzy_audio_buffer.device_flags */
 #define OZZY_DEVICE_FLAG_PLOYTEC_BULK   (1u << 0)    /* Ploytec 512-byte "bulk" output layout, else 482-byte "interrupt" */
 #define OZZY_DEVICE_FLAG_PLAIN_OUTPUT   (1u << 1)    /* output_buffer is a ring of plain interleaved frames (see below) */
 #define OZZY_DEVICE_FLAG_SPDIF_MIRROR   (1u << 2)    /* Ploytec bulk, 8 out: lanes 9/10 mirror a pair (ESU1808) */
-#define OZZY_DEVICE_FLAG_PLAIN_INPUT    (1u << 3)    /* input_buffer starts with a ring of plain interleaved frames */
 
 /* Isochronous IN transfers (feedback): 2 in flight, up to 32 packets of up to 256 bytes each */
 #define OZZY_ISOC_IN_BUFFER_SIZE        (2 * 32 * 256)
@@ -69,22 +68,16 @@ struct ozzy_audio_buffer {
 		uint32_t lock_rate;            /* Hz while clock_locked */
 	} settings;
 
-	uint8_t _pad1[64];
-	OZZY_CACHE_ALIGN ozzy_atomic_u64 host_write_position;
-	uint8_t _pad2[64];
-
 	/*
-	 * The PCM rings, which the transfers go to and come from as they are (the host writes and
-	 * reads them by sample time, frame f at f % *_ring_frames):
+	 * The PCM rings, which the transfers go to and come from as they are (frame f at
+	 * f % *_ring_frames):
 	 * - Ploytec input: 512-byte sub-packets of 8 frames, end to end (frame f in sub-packet
 	 *   f / 8, at (f % 8) * 64).
 	 * - Ploytec output: sub-packets of 10 frames in the device's layout (512 bulk / 482
 	 *   interrupt bytes, with their MIDI and control bytes), end to end.
 	 * - With OZZY_DEVICE_FLAG_PLAIN_OUTPUT: plain frames of output_bytes_per_frame bytes
 	 *   (interleaved S24_3LE), which isochronous transfers read directly.
-	 * - With OZZY_DEVICE_FLAG_PLAIN_INPUT: plain frames of input_bytes_per_frame bytes at the
-	 *   start of input_buffer, which the engine copies there from its isochronous transfers
-	 *   (they land after the ring); frame f is the f-th the device sent since the start.
+	 * - Isochronous input: the transfers, end to end.
 	 * A ring of transfers holds a whole number of them, so none wraps.
 	 */
 	uint8_t input_buffer[OZZY_PCM_RING_BYTES];

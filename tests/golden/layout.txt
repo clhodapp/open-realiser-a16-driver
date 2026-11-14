@@ -1,4 +1,4 @@
-version 13 size 2117440
+version 14 size 2117248
 magic                              0
 version                            4
 session_id                         8
@@ -37,9 +37,8 @@ audio.settings                     20012
 audio.settings.value               20016
 audio.settings.clock_locked        20042
 audio.settings.lock_rate           20044
-audio.host_write_position          20160
-audio.input_buffer                 20232
-audio.output_buffer                1068808
+audio.input_buffer                 20048
+audio.output_buffer                1068624
 info version 3 size 172
 info.version                       0
 info.size                          4

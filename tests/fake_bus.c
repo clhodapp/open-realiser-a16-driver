@@ -150,28 +150,13 @@ static const struct ozzy_bus_ops fake_ops = {
 	.stats_changed = fb_stats_changed,
 };
 
-static const struct ozzy_bus_ops fake_ops_no_rings = {
-	.submit = fb_submit,
-	.submit_isoc = fb_submit_isoc,
-	.control = fb_control,
-	.clear_halt = fb_clear_halt,
-	.start_timer = fb_start_timer,
-	.stop_timer = fb_stop_timer,
-	.sleep_ms = fb_sleep,
-	.time = fb_time,
-	.abort = fb_abort,
-	.time_hz = fb_time_hz,
-	.stats_changed = fb_stats_changed,
-};
-
-void fake_bus_init(struct fake_bus *fb, struct ozzy_shared_memory *shm, bool rings, FILE *trace)
+void fake_bus_init(struct fake_bus *fb, struct ozzy_shared_memory *shm, FILE *trace)
 {
 	memset(fb, 0, sizeof(*fb));
-	fb->bus.ops = rings ? &fake_ops : &fake_ops_no_rings;
+	fb->bus.ops = &fake_ops;
 	fb->bus.ctx = fb;
 	fb->shm = shm;
 	fb->trace = trace;
-	fb->rings = rings;
 }
 
 void fake_bus_push(struct fake_bus *fb, const struct fake_xfer *x)

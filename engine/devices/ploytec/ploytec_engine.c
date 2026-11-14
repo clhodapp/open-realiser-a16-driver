@@ -342,11 +342,10 @@ static void encode_pcm_out(struct ploytec_engine *pe, uint32_t t)
 	uint32_t frame_bytes, r, f;
 
 	if (!ring || !pe->encode) {
-		/* A platform with rings and none attached (stopped): silence, as Linux's
-		 * init_out_urb, not the last audio encoded into this slot */
-		if (ozzy_engine_ring_platform(&pe->base))
-			for (f = 0; f < pe->out_frames; f++)
-				memset(packet + ploytec_out_frame_offset(pe->out_layout, f), 0, PLOYTEC_OUT_FRAME_SIZE);
+		/* No ring attached (stopped): silence, as Linux's init_out_urb, not the last audio
+		 * encoded into this slot */
+		for (f = 0; f < pe->out_frames; f++)
+			memset(packet + ploytec_out_frame_offset(pe->out_layout, f), 0, PLOYTEC_OUT_FRAME_SIZE);
 		return;
 	}
 	frame_bytes = ring->channels * 3;

@@ -30,7 +30,7 @@ static void duplex(bool interrupt, unsigned int rate)
     struct ozzy_engine *e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
     assert(shm && e);
     struct fake_bus fb;
-    fake_bus_init(&fb, shm, true, NULL);
+    fake_bus_init(&fb, shm, NULL);
     ozzy_engine_attach(e, &fb.bus, shm);
     ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, interrupt ? 3 : 2, interrupt ? 964 : 512, 1);
     ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, interrupt ? 3 : 2, interrupt ? 1024 : 512, 1);

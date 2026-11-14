@@ -59,8 +59,7 @@ enum ozzy_pcm_dir {
  *                for a call in progress. Optional.
  * @pcm_progress: the engine moved PCM through an attached ring (ozzy_engine_set_pcm_ring):
  *                @frames is the ring position after the packet. From the completion path.
- *                Optional: a platform that attaches rings has it, and without a ring
- *                attached its PCM out is silence unless the host fills shared memory itself.
+ *                Without a ring attached, PCM out is silence.
  * @sleep_ms:     sleep (handshake only, never from a completion)
  * @time:         the host's monotonic clock
  * @abort:        cancel every transfer in flight and return once their completions have run
@@ -125,8 +124,7 @@ static inline void ozzy_bus_stop_timer(const struct ozzy_bus *bus)
 
 static inline void ozzy_bus_pcm_progress(const struct ozzy_bus *bus, enum ozzy_pcm_dir dir, uint64_t frames)
 {
-	if (bus->ops->pcm_progress)
-		bus->ops->pcm_progress(bus->ctx, dir, frames);
+	bus->ops->pcm_progress(bus->ctx, dir, frames);
 }
 
 static inline void ozzy_bus_abort(const struct ozzy_bus *bus)

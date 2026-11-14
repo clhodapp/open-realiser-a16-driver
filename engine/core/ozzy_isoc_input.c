@@ -37,7 +37,7 @@ bool ozzy_isoc_input_start(struct ozzy_isoc_input *in, const struct ozzy_bus *bu
 	in->bus = bus;
 	in->config = *config;
 	if (!bus || !config->in_addr || !config->frame_bytes || !config->in_max_packet ||
-	    (!config->ring && !config->deliver) || (config->ring && !config->ring_frames))
+	    !config->deliver)
 		return false;
 	if (config->xfer_size < ozzy_isoc_input_xfer_bytes(config->in_max_packet, config->in_interval)) {
 		ozzy_log("isoc: input transfers of %u bytes don't fit their %u-byte buffers",
@@ -56,8 +56,6 @@ bool ozzy_isoc_input_start(struct ozzy_isoc_input *in, const struct ozzy_bus *bu
 	ozzy_log("isoc in: %u microframe(s) per packet, %u packets per transfer, %u-byte frames", in->uframes,
 		 ozzy_isoc_input_packets(config->in_interval), config->frame_bytes);
 
-	if (config->ring)
-		memset(config->ring, 0, config->ring_frames * config->frame_bytes);
 	in->in_frame = 0;
 	in->logged = false;
 	in->running = true;
@@ -67,40 +65,14 @@ bool ozzy_isoc_input_start(struct ozzy_isoc_input *in, const struct ozzy_bus *bu
 	return true;
 }
 
-/* @frames frames from @src (NULL: silence) into the ring at the frame count, wrapping */
-static void to_ring(struct ozzy_isoc_input *in, const uint8_t *src, uint32_t frames)
-{
-	const struct ozzy_isoc_input_config *c = &in->config;
-	uint32_t pos = ozzy_mod_u64(in->in_frame, c->ring_frames);
-
-	while (frames) {
-		uint32_t n = c->ring_frames - pos < frames ? c->ring_frames - pos : frames;
-		uint8_t *dst = c->ring + pos * c->frame_bytes;
-
-		if (src) {
-			memcpy(dst, src, n * c->frame_bytes);
-			src += n * c->frame_bytes;
-		} else {
-			memset(dst, 0, n * c->frame_bytes);
-		}
-		in->in_frame += n;
-		frames -= n;
-		pos = 0;
-	}
-}
-
 static void take(struct ozzy_isoc_input *in, const uint8_t *src, uint32_t frames)
 {
 	const struct ozzy_isoc_input_config *c = &in->config;
 
 	if (!frames)
 		return;
-	if (c->ring) {
-		to_ring(in, src, frames);
-	} else {
-		c->deliver(c->owner, src, frames);
-		in->in_frame += frames;
-	}
+	c->deliver(c->owner, src, frames);
+	in->in_frame += frames;
 }
 
 bool ozzy_isoc_input_complete(struct ozzy_isoc_input *in, uint8_t pipe, void *xfer, int status,
@@ -130,7 +102,7 @@ bool ozzy_isoc_input_complete(struct ozzy_isoc_input *in, uint8_t pipe, void *xf
 		}
 		take(in, c->xfer[i] + packets[p].offset, actual / c->frame_bytes);
 	}
-	if (!c->ring && c->done)
+	if (c->done)
 		c->done(c->owner);
 	submit_in(in, i);
 	return true;

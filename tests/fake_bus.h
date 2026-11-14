@@ -37,12 +37,11 @@ struct fake_bus {
 	unsigned int stats_changed;        /* stats_changed calls */
 	bool timer_on;
 	uint64_t progress[OZZY_PCM_DIRS];  /* last pcm_progress */
-	bool rings;                        /* has pcm_progress (a ring platform) */
 	struct ozzy_engine *engine;        /* of the last completion: abort completes to it */
 };
 
-/* A bus on @shm; @rings: a platform that attaches PCM rings */
-void fake_bus_init(struct fake_bus *fb, struct ozzy_shared_memory *shm, bool rings, FILE *trace);
+/* A bus on @shm */
+void fake_bus_init(struct fake_bus *fb, struct ozzy_shared_memory *shm, FILE *trace);
 bool fake_bus_pop(struct fake_bus *fb, struct fake_xfer *x);
 void fake_bus_push(struct fake_bus *fb, const struct fake_xfer *x);
 
