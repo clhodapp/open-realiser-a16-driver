@@ -80,7 +80,6 @@ static bool start_output(struct ploytec_us3xx_engine *ue)
 	out.rate = ue->sample_rate;
 	out.frame_bytes = frame_bytes;
 	out.ring_frames = OZZY_PLAIN_RING_FRAMES;
-	out.anchor_frames = shm->audio.timestamp_frames;   /* 0: none */
 	out.out_addr = ue->out_addr;
 	out.out_max_packet = ue->out_max_packet;
 	out.out_interval = ue->out_interval;
@@ -242,7 +241,6 @@ static bool us3xx_start(struct ozzy_engine *e)
 	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT | OZZY_DEVICE_FLAG_PLAIN_INPUT;
 	shm->audio.output_ring_frames = OZZY_PLAIN_RING_FRAMES;
 	shm->audio.input_ring_frames = OZZY_PLAIN_RING_FRAMES;
-	shm->audio.timestamp_frames = e->anchors ? ozzy_anchor_frames(e->settings.value[OZZY_SETTING_IO_BUFFER_MAX], 1) : 0;
 	shm->audio.output_bytes_per_frame = model->out_channels * 3;
 	shm->audio.input_bytes_per_frame = model->in_channels * 3;
 	shm->audio.input_channels = model->in_channels;
@@ -285,7 +283,6 @@ static bool us3xx_start(struct ozzy_engine *e)
 	e->report.in_flight[OZZY_PIPE_MIDI_OUT] = ue->midi_out_addr ? 1 : 0;
 
 	ozzy_store_release_bool(&shm->audio.hardware_present, true);
-	shm->audio.timestamp.sample_time = 0;
 	memset(&ue->encoder, 0, sizeof(ue->encoder));
 	ozzy_store_release_bool(&ue->midi_out_busy, false);
 	ue->running = true;
@@ -391,7 +388,7 @@ static uint32_t us3xx_transfer_frames(const struct ozzy_engine *e, enum ozzy_pcm
 
 static uint32_t us3xx_setting_quirks(const struct ozzy_engine *e)
 {
-	return e->model->quirks | (e->anchors ? OZZY_QUIRK_CLOCK_ANCHORS : 0);
+	return e->model->quirks;
 }
 
 static const struct ozzy_engine_ops ploytec_us3xx_engine_ops = {

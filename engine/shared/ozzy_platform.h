@@ -105,8 +105,7 @@ static inline uint64_t ozzy_div_u64(uint64_t a, uint64_t b)
  * and release stores.
  */
 #if defined(OZZY_LINUX_KERNEL)
-/* The kernel's own primitives: __atomic on 64-bit values would need libatomic on 32-bit ARM.
- * 64-bit values are only written relaxed (the timestamp seqlock covers tearing). */
+/* The kernel's own primitives: __atomic on 64-bit values would need libatomic on 32-bit ARM. */
 #define OZZY_CACHE_ALIGN __attribute__((aligned(64)))
 
 static inline uint32_t ozzy_load_acquire_u32(const volatile uint32_t *p) { return smp_load_acquire(p); }

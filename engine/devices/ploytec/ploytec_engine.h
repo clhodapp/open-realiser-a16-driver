@@ -21,7 +21,6 @@ extern "C" {
 
 /*
  * struct ploytec_engine
- * @hw_sample_time: frames of completed PCM out packets (the device's clock)
  * @sample_rate:    what the device runs at (the S/PDIF lock rate while locked)
  * @default_rate:   the highest rate the device lists (what start asks for without a request)
  * @running:        completions resubmit (cleared by stop and suspend)
@@ -39,7 +38,6 @@ extern "C" {
 
 struct ploytec_engine {
 	struct ozzy_engine base;
-	uint64_t hw_sample_time;
 	enum ploytec_out_layout out_layout;
 	uint32_t sample_rate;
 	uint32_t default_rate;
@@ -58,14 +56,6 @@ struct ploytec_engine {
 	uint32_t in_frames;
 	uint32_t out_queue;    /* PCM transfers in flight this run (OZZY_SETTING_PCM_OUT_QUEUE at start) */
 	uint32_t in_queue;
-	uint32_t anchor_frames;   /* frames between clock anchors: a whole number of out transfers */
-	/* The out completions since the last anchor (update_timestamp): the first one's time and
-	 * frames, and the sums of every one's ticks and frames after the first */
-	uint64_t period_time;
-	uint64_t period_frames;
-	uint64_t period_ticks_sum;
-	uint64_t period_frames_sum;
-	uint32_t period_count;
 };
 
 void ploytec_engine_init(struct ploytec_engine *pe, const struct ozzy_device *model);

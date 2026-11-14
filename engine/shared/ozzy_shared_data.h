@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * The memory the engine shares with the host side of the driver: device status, the PCM and
- * MIDI rings and the clock anchors. Fields both sides touch are volatile and are read and
- * written with the explicit memory ordering of ozzy_platform.h.
+ * The memory the engine shares with the host side of the driver: device status and the PCM and
+ * MIDI rings. Fields both sides touch are volatile and are read and written with the explicit
+ * memory ordering of ozzy_platform.h.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -21,14 +21,10 @@ typedef volatile bool     ozzy_atomic_bool;
 
 #define OZZY_SHARED_MEM_NAME            "/ozzy_shared_mem"
 #define OZZY_MAGIC                      0x4F5A5A59   /* "OZZY" */
-#define OZZY_SHARED_VERSION             12           /* bump when ozzy_shared_memory changes layout */
+#define OZZY_SHARED_VERSION             13           /* bump when ozzy_shared_memory changes layout */
 
 /* Each PCM ring's bytes (struct ozzy_audio_buffer): the device's transfers end to end */
 #define OZZY_PCM_RING_BYTES             (1024 * 1024)
-
-/* Clock anchors are spaced by audio.timestamp_frames, a whole number of transfers.
- * OZZY_SETTING_IO_BUFFER_MAX selects the spacing for hosts that consume anchors. */
-#define OZZY_TIMESTAMP_FRAMES           3200   /* the default spacing */
 
 /* The isochronous families' plain rings, in frames (OZZY_DEVICE_FLAG_PLAIN_OUTPUT / _INPUT) */
 #define OZZY_PLAIN_RING_FRAMES          10240
@@ -45,14 +41,6 @@ typedef volatile bool     ozzy_atomic_bool;
 #define OZZY_MIDI_RING_SIZE             1024
 #define OZZY_MIDI_RING_MASK             (OZZY_MIDI_RING_SIZE - 1)
 
-/* The device's clock: an anchor every audio.timestamp_frames (0: none, the host doesn't read
- * them), as a seqlock (odd sequence while the engine writes) */
-struct ozzy_timestamp {
-	ozzy_atomic_u32 sequence;
-	ozzy_atomic_u64 sample_time;     /* frames */
-	ozzy_atomic_u64 host_time;       /* the host's clock (ozzy_bus_ops.time) */
-};
-
 struct ozzy_audio_buffer {
 	ozzy_atomic_bool hardware_present;
 	ozzy_atomic_bool driver_ready;
@@ -62,7 +50,6 @@ struct ozzy_audio_buffer {
 	/* Frame format and ring layout, set by the engine at each start */
 	uint32_t output_ring_frames;           /* frames in output_buffer (it wraps there) */
 	uint32_t input_ring_frames;            /* frames in input_buffer */
-	uint32_t timestamp_frames;             /* frames between clock anchors */
 	uint32_t output_bytes_per_frame;       /* encoded bytes per output frame (e.g. 48) */
 	uint32_t input_bytes_per_frame;        /* encoded bytes per input frame (e.g. 64) */
 	uint32_t input_channels;               /* channels the device sends (e.g. 8, or 16 for the WZ4) */
@@ -81,8 +68,6 @@ struct ozzy_audio_buffer {
 		uint8_t clock_locked;          /* locked to S/PDIF (clock source Automatic only) */
 		uint32_t lock_rate;            /* Hz while clock_locked */
 	} settings;
-
-	struct ozzy_timestamp timestamp;
 
 	uint8_t _pad1[64];
 	OZZY_CACHE_ALIGN ozzy_atomic_u64 host_write_position;
@@ -146,41 +131,6 @@ struct ozzy_shared_memory {
 
 	OZZY_CACHE_ALIGN struct ozzy_audio_buffer audio;
 };
-
-/*
- * --- The timestamp seqlock ---
- * ozzy_timestamp_write (engine): the odd sequence is visible before the new values, the new
- * values before the even sequence. ozzy_timestamp_read: false if the writer kept it busy (try
- * again next time).
- */
-static inline void ozzy_timestamp_write(volatile struct ozzy_timestamp *ts, uint64_t sample_time, uint64_t host_time)
-{
-	uint32_t seq = ts->sequence;
-
-	ozzy_store_relaxed_u32(&ts->sequence, seq + 1);
-	ozzy_fence_release();
-	ozzy_store_relaxed_u64(&ts->sample_time, sample_time);
-	ozzy_store_relaxed_u64(&ts->host_time, host_time);
-	ozzy_store_release_u32(&ts->sequence, seq + 2);
-}
-
-static inline bool ozzy_timestamp_read(volatile struct ozzy_timestamp *ts, uint64_t *sample_time, uint64_t *host_time)
-{
-	unsigned int tries;
-
-	for (tries = 0; tries < 100; tries++) {
-		uint32_t seq = ozzy_load_acquire_u32(&ts->sequence);
-
-		if (seq & 1)
-			continue;
-		*sample_time = ozzy_load_relaxed_u64(&ts->sample_time);
-		*host_time = ozzy_load_relaxed_u64(&ts->host_time);
-		ozzy_fence_acquire();
-		if (ts->sequence == seq)
-			return true;
-	}
-	return false;
-}
 
 /*
  * --- MIDI rings: the engine fills midi_in and drains midi_out, a client the other way round ---
