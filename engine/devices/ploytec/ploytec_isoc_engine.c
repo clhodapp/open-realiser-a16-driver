@@ -85,7 +85,7 @@ static bool isoc_start(struct ozzy_engine *e)
 		return false;
 	}
 
-	/* 1. What the HAL needs: a plain frame ring for output, Ploytec sub-packets for input */
+	/* 1. What the host needs: a plain frame ring for output, Ploytec sub-packets for input */
 	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT;
 	shm->audio.output_ring_frames = OZZY_PLAIN_RING_FRAMES;
 	shm->audio.input_ring_frames = in_places * pe->in_frames;
@@ -145,7 +145,7 @@ static bool isoc_start(struct ozzy_engine *e)
 	memset(&out, 0, sizeof(out));
 	out.rate = pe->sample_rate;
 	out.frame_bytes = frame_bytes;
-	out.ring_frames = OZZY_PLAIN_RING_FRAMES;   /* the HAL's ring size */
+	out.ring_frames = OZZY_PLAIN_RING_FRAMES;   /* the host's ring size */
 	out.anchor_frames = shm->audio.timestamp_frames;   /* 0: none */
 	out.out_addr = pe->out_addr;
 	out.out_max_packet = pe->out_max_packet;
@@ -156,7 +156,7 @@ static bool isoc_start(struct ozzy_engine *e)
 	out.feedback = feedback;
 	out.fill = fill_out;
 	out.owner = e;
-	/* The platform's per-transfer buffers, or the shared memory's frame ring (the HAL's) */
+	/* The platform's per-transfer buffers, or the shared memory's frame ring (the host's) */
 	if (e->mem.isoc_out[0]) {
 		memcpy(out.xfer, e->mem.isoc_out, sizeof(out.xfer));
 		out.xfer_size = e->mem.isoc_out_size;

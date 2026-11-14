@@ -5,7 +5,7 @@
  * 48 kHz, 12 at 96 kHz). An engine owns one and forwards its isochronous completions.
  *
  * Every packet asks for the endpoint's bytes per interval; what arrives is copied, in the
- * completion path, either into a plain frame ring in shared memory (the HAL reads it by sample
+ * completion path, either into a plain frame ring in shared memory (the host reads it by sample
  * time, OZZY_DEVICE_FLAG_PLAIN_INPUT) or to the engine (@deliver: the attached ring, with the
  * input routing). Frames count from 0 at start, as the output's sample time does, so frame f
  * of the ring is the one the device sent at about sample time f. A failed packet leaves the
@@ -90,7 +90,7 @@ static inline uint32_t ozzy_isoc_input_xfer_bytes(uint16_t max_packet, uint8_t i
 }
 
 /*
- * Frames behind the clock the input is complete at @rate (the HAL's input safety offset): one
+ * Frames behind the clock the input is complete at @rate (the host's input safety offset): one
  * transfer's, the most it can carry, plus the jitter floor. A guess until measured on hardware.
  */
 static inline uint32_t ozzy_isoc_input_safety_offset(uint32_t rate)

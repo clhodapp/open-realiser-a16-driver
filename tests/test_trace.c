@@ -7,8 +7,8 @@
  *   PHASE X64    the same path, with its WM8776 writes (inputs 1-2 on Phono)
  *   ESI U168 XT  the interrupt layout with the ESI selector on Internal and its C-port writes
  *   Xone:1D      USB MIDI
- *   US-366       isochronous in and out without feedback, USB-MIDI packets: once with rings
- *                (Linux, Windows), once into the HAL's plain rings (macOS)
+ *   US-366       isochronous in and out without feedback, USB-MIDI packets: once with
+ *                attached rings, once into the host's plain rings
  * with MIDI going out every 5 completions and MIDI IN bytes coming in. Every submission,
  * control request and progress report is printed, then hashes of the shared memory and the
  * rings. Compared with golden/trace.txt by run.sh; after an intended change: make golden.
@@ -113,7 +113,7 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 		ozzy_engine_set_endpoint(e, (enum ozzy_pipe_role)eps[k][0], eps[k][1], eps[k][2],
 					 (uint16_t)(eps[k][3] | eps[k][4] << 8), eps[k][5]);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* as the macOS kext */
+	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	if (setting >= 0)
 		ozzy_engine_set_setting(e, (unsigned int)setting, (uint8_t)value);
 	printf("start %d\n", ozzy_engine_start(e));

@@ -39,13 +39,6 @@
 #include <linux/compiler.h>
 #define ISOC_FB_LOAD(x)      READ_ONCE(x)
 #define ISOC_FB_STORE(x, v)  WRITE_ONCE(x, v)
-#elif defined(_MSC_VER) && !defined(__clang__)
-#include <stdint.h>
-#include <stdbool.h>
-/* MSVC has no __atomic builtins. The ring holds bytes, which never tear; volatile keeps
- * the compiler from caching or merging the accesses. */
-#define ISOC_FB_LOAD(x)      (*(volatile const uint8_t *)&(x))
-#define ISOC_FB_STORE(x, v)  (*(volatile uint8_t *)&(x) = (v))
 #else
 #include <stdint.h>
 #include <stdbool.h>
@@ -252,8 +245,8 @@ static inline uint32_t isoc_fb_out_frames(struct isoc_fb *fb, uint32_t uframes)
 /*
  * isoc_fb_layout - Frames for each packet of the next OUT transfer: @packets packets
  * of @uframes microframes, each capped at @max_frames (what fits wMaxPacketSize).
- * Fills @frames[] and returns their sum. Each platform then places the frames:
- * copied into the transfer (Linux) or pointed at in a frame ring (macOS).
+ * Fills @frames[] and returns their sum. The caller then copies the frames into the transfer
+ * or points the packets into a frame ring.
  */
 static inline uint32_t isoc_fb_layout(struct isoc_fb *fb, uint32_t packets, uint32_t uframes,
 				      uint32_t max_frames, uint32_t *frames)

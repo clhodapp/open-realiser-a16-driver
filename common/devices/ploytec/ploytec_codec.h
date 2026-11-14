@@ -72,14 +72,13 @@ ploytec_frame_fn ploytec_frame_encoder(unsigned int channels);
 ploytec_frame_fn ploytec_frame_decoder(unsigned int channels);
 
 /*
- * Float codecs, user space only (the Linux and Windows drivers stay integer: they hand
- * S24_3LE to the OS and leave float to its audio engine). PLOYTEC_CODEC_F32 says whether
- * this build has them.
+ * Float codecs, user space only (kernel code doesn't use floating point). PLOYTEC_CODEC_F32
+ * says whether this build has them.
  *
  * Same shape as the S24_3LE codecs: @src / @dest is channels x float, full scale +-1.0.
  * Encoding clamps to the 24-bit range.
  */
-#if !defined(__KERNEL__) && !defined(KERNEL) && !defined(_KERNEL_MODE)
+#if !defined(__KERNEL__)
 #define PLOYTEC_CODEC_F32 1
 
 #include <math.h>

@@ -7,12 +7,6 @@
 
 #if defined(__KERNEL__) && defined(__linux__)
 #include <linux/errno.h>
-#elif defined(KERNEL)
-#include <sys/errno.h>
-#elif defined(_KERNEL_MODE)
-/* The Windows kernel has no errno.h; the values only travel between Ozzy's own code */
-#define EIO     5
-#define EINVAL  22
 #else
 #include <errno.h>
 #endif
@@ -503,7 +497,7 @@ static int hs_clear_pcm_halt(const struct ploytec_host_ops *ops, void *ctx)
 	return ret;
 }
 
-/* Positional: the macOS kext compiles this file as C++11 */
+/* Positional initializer follows struct field order. */
 const struct ploytec_rate_endpoints ploytec_xone_rate_endpoints = { PLOYTEC_EP_RATE_IN, PLOYTEC_EP_RATE_OUT };
 const struct ploytec_rate_endpoints ploytec_isoc_rate_endpoints = { PLOYTEC_EP_RATE_IN, PLOYTEC_ISOC_EP_RATE_OUT };
 

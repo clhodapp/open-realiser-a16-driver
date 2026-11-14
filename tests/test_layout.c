@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * The shared memory layout that the macOS kext and HAL share (engine/shared/ozzy_shared_data.h):
+ * The shared memory layout between the engine and the host (engine/shared/ozzy_shared_data.h):
  * the size and every field's offset. Compared with golden/layout.txt; a change must bump
- * OZZY_SHARED_VERSION. Built as the engine side sees it (OZZY_ENGINE_SIDE). Then struct
+ * OZZY_SHARED_VERSION. Then struct
  * ozzy_info (engine/shared/ozzy_info.h), which every driver hands to the tools as it is: a
  * change must bump OZZY_INFO_VERSION.
  */
@@ -27,7 +27,7 @@ int main(void)
 	F(audio.input_bytes_per_frame); F(audio.input_channels); F(audio.output_channels);
 	F(audio.safety_offset_frames); F(audio.input_safety_offset_frames); F(audio.settings); F(audio.settings.value); F(audio.settings.clock_locked);
 	F(audio.settings.lock_rate); F(audio.timestamp.sequence); F(audio.timestamp.sample_time);
-	F(audio.timestamp.host_time); F(audio.hal_write_position); F(audio.input_buffer); F(audio.output_buffer);
+	F(audio.timestamp.host_time); F(audio.host_write_position); F(audio.input_buffer); F(audio.output_buffer);
 
 	printf("info version %d size %zu\n", OZZY_INFO_VERSION, sizeof(struct ozzy_info));
 	I(version); I(size); I(starts); I(vendor_id); I(product_id); I(family); I(status); I(usb_speed);

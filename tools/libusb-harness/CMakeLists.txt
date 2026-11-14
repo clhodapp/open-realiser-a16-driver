@@ -23,8 +23,7 @@ add_library(ozzy-engine STATIC
   ${OZZY}/engine/devices/usbmidi/usb_midi_engine.c
   ${OZZY}/common/devices/ploytec/ploytec_handshake.c
   ${OZZY}/common/devices/ploytec/ploytec_codec.c
-  ${OZZY}/common/usb_midi.c
-  ${OZZY}/common/midi_ump.c)
+  ${OZZY}/common/usb_midi.c)
 target_compile_definitions(ozzy-engine PUBLIC OZZY_USER_ENGINE)
 target_include_directories(ozzy-engine PUBLIC ${OZZY})
 target_link_libraries(ozzy-engine PUBLIC m)

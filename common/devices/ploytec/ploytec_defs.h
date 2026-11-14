@@ -3,7 +3,7 @@
  * Ploytec USB Protocol Definitions
  *
  * Shared constants for Allen & Heath Xone series devices using the
- * Ploytec USB audio chipset. Used by both Linux and macOS drivers.
+ * Ploytec USB audio chipset. Used by the Linux userspace driver.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

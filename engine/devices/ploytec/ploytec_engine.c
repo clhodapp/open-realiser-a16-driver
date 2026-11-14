@@ -222,7 +222,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	}
 	pe->anchor_frames = e->anchors ? ozzy_anchor_frames(e->settings.value[OZZY_SETTING_IO_BUFFER_MAX], pe->out_frames) : 0;
 
-	/* 1. The format, as the HAL reads it (the platform has set the device names) */
+	/* 1. The format, as the host reads it (the platform has set the device names) */
 	shm->audio.device_flags = (bulk ? OZZY_DEVICE_FLAG_PLOYTEC_BULK : 0) |
 				  (bulk && (model->quirks & OZZY_QUIRK_SPDIF_MIRROR) ? OZZY_DEVICE_FLAG_SPDIF_MIRROR : 0);
 	shm->audio.output_ring_frames = out_places * pe->out_frames;
@@ -232,7 +232,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	shm->audio.input_bytes_per_frame = PLOYTEC_IN_FRAME_SIZE;
 	shm->audio.input_channels = model->in_channels;
 	shm->audio.output_channels = model->out_channels;
-	/* Output is encoded when the transfer out_queue before it completes, so the HAL writes that
+	/* Output is encoded when the transfer out_queue before it completes, so the host writes that
 	 * far ahead of the clock. Input frames are there once their own transfer completes, so the
 	 * input offset could be one transfer plus the completion jitter; it stays in_queue
 	 * transfers, as it ran before the setting, until hardware shows how large that jitter is. */
@@ -316,7 +316,7 @@ static void ploytec_stop(struct ozzy_engine *e)
 	to_ploytec(e)->running = false;
 	if (!shm)
 		return;
-	/* The HAL drops the device */
+	/* The host drops the device */
 	shm->audio.driver_ready = false;
 	shm->audio.hardware_present = false;
 	ploytec_log("engine stopped");
@@ -395,8 +395,8 @@ static void encode_pcm_out(struct ploytec_engine *pe, uint32_t t)
 
 /*
  * update_timestamp - The device's clock: a transfer's frames played. Every anchor_frames an
- * anchor (ozzy_timestamp_write; reader: OzzyHAL::GetZeroTimeStamp), a whole number of
- * transfers, so the clock lands on it; none where the platform doesn't read them (0).
+ * anchor (ozzy_timestamp_write; read by the host), a whole number of transfers, so the clock
+ * lands on it; none where the host doesn't read them (0).
  *
  * The device paces PCM out by taking a packet only when it has room, and the host offers one
  * every service interval, so a transfer completes on the host's 125 us microframe grid (plus

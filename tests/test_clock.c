@@ -43,7 +43,7 @@ int main(void)
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* as the macOS kext */
+	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	CHECK(ozzy_engine_change_setting(e, OZZY_SETTING_PCM_OUT_FRAMES, 15) != OZZY_SETTING_INVALID &&
 	      ozzy_engine_change_setting(e, OZZY_SETTING_IO_BUFFER_MAX, 3) != OZZY_SETTING_INVALID &&
 	      ozzy_engine_change_rate(e, 44100) != OZZY_SETTING_INVALID, "settings refused");

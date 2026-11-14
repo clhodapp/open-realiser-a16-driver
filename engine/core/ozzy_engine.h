@@ -2,8 +2,7 @@
 /*
  * The engine: a device family's protocol on top of a struct ozzy_bus, moving audio and MIDI
  * between USB transfers and the shared memory (engine/shared/ozzy_shared_data.h). One per
- * device. The same code runs in the Linux module, the macOS kext, the Windows driver and the
- * WinUSB harness.
+ * device, shared by the libusb backend and offline tests.
  *
  * A platform:
  *   1. allocates ozzy_engine_size(model) bytes and calls ozzy_engine_init() on them
@@ -59,9 +58,8 @@ struct ozzy_device_profile {
 
 /*
  * struct ozzy_pcm_ring - An interleaved S24_3LE ring the engine encodes PCM out from, or
- * decodes PCM in into, in its completion path: where the OS's audio buffer can be reached
- * from the kernel (the Windows driver's WaveRT buffer). Without one (macOS: the HAL writes
- * the shared memory rings itself) the engine sends and receives the shared memory as it is.
+ * decodes PCM in into, in its completion path. Without an attached ring, the engine
+ * sends and receives the shared memory as it is.
  * @channels: the model's channel count in that direction
  * @start:    ring position of the next packet's first frame (frame @start % @frames)
  */
@@ -73,7 +71,7 @@ struct ozzy_pcm_ring {
 };
 
 /*
- * For pcm_progress: how many boundaries every @step frames (ALSA periods, WaveRT packets) ring
+ * For pcm_progress: how many boundaries every @step frames (host periods) ring
  * position @pos has reached since @next, the next one; @next moves past them.
  */
 static inline uint32_t ozzy_pcm_boundaries(uint64_t *next, uint64_t pos, uint32_t step)
@@ -90,8 +88,7 @@ static inline uint32_t ozzy_pcm_boundaries(uint64_t *next, uint64_t pos, uint32_
 /*
  * struct ozzy_engine_memory - Where the engine's transfers go: every buffer it hands to
  * ozzy_bus_ops.submit / submit_isoc is in here. ozzy_engine_attach() points it into the
- * shared memory (macOS: the HAL reads and writes the PCM rings there; Windows, the harness and
- * the tests use it as it is). A platform whose transfers need memory of their own (Linux:
+ * shared memory. A platform whose transfers need memory of their own (Linux:
  * DMA-capable, a cache line per buffer) has the engine allocate it (ozzy_engine_alloc_memory).
  * PCM transfers go to places in turn, transfer idx to place idx % places:
  * @pcm_out_ring/@pcm_in_ring: the shared memory's rings (@*_ring_bytes); the places are the
@@ -100,7 +97,7 @@ static inline uint32_t ozzy_pcm_boundaries(uint64_t *next, uint64_t pos, uint32_
  * @pcm_out/@pcm_in:  the platform's own: OZZY_PCM_OWN_SLOTS buffers of OZZY_PCM_SLOT_MIN
  *                    bytes, a place each (at least the transfers in flight, 4)
  * @isoc_out:         NULL: isochronous OUT packets point into the shared memory's frame ring,
- *                    which the HAL writes; else one buffer per OUT transfer
+ *                    which the host writes; else one buffer per OUT transfer
  *                    (ISOC_OUT_TRANSFERS, @isoc_out_size bytes each), filled at submit
  * @isoc_in:          the feedback transfers (@isoc_in_size bytes)
  * @midi_in:          MIDI IN transfers, OZZY_MIDI_IN_SIZE bytes (OZZY_DMA_ALIGN aligned)
@@ -218,9 +215,8 @@ struct ozzy_engine_report {
 /*
  * struct ozzy_engine - What every family has, the first member of its own struct.
  * @settings:     what start() sends (ozzy_engine_attach: the defaults)
- * @in_route/@out_route: the route settings' routing, which the ring path applies (on macOS
- *                the HAL routes); updated from ozzy_engine_set_setting() without a lock, as
- *                on Linux: a packet during a change may mix the old and new routing
+ * @in_route/@out_route: routing applied by the ring path, updated without a lock;
+ *                a packet during a change may mix the old and new routing
  * @rate:         the rate start() asks for (ozzy_engine_set_rate; 0: the highest the device
  *                lists)
  * @pcm_ring_set: ozzy_engine_set_pcm_ring(); the completion path picks it up
@@ -278,7 +274,7 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 /*
  * ozzy_engine_alloc_memory - Transfer memory of the platform's own (after ozzy_engine_attach
  * and the endpoints, before ozzy_engine_start): every buffer a separate zeroed allocation from
- * @a, sized for the transfers in flight and the endpoints the engine has, not for the HAL's
+ * @a, sized for the transfers in flight and the endpoints the engine has, not for the host's
  * rings. False if an allocation failed (nothing stays allocated).
  */
 bool ozzy_engine_alloc_memory(struct ozzy_engine *e, const struct ozzy_allocator *a);
@@ -344,10 +340,9 @@ static inline void ozzy_engine_set_usb_speed(struct ozzy_engine *e, enum ozzy_us
 }
 
 /*
- * Whether the platform reads the clock anchors (shm audio.timestamp; macOS: the HAL's zero
- * timestamps, and the WinUSB harness). Without them (Linux, the Windows driver: they report the
- * position per transfer) the families write none and don't offer OZZY_SETTING_IO_BUFFER_MAX.
- * Before starting.
+ * Whether the host consumes shared clock anchors (shm audio.timestamp).
+ * When disabled, families publish no anchors and omit OZZY_SETTING_IO_BUFFER_MAX.
+ * Set before starting.
  */
 static inline void ozzy_engine_set_anchors(struct ozzy_engine *e, bool anchors)
 {
@@ -362,7 +357,7 @@ static inline void ozzy_engine_set_driver_version(struct ozzy_engine *e, const c
 }
 
 /* No more transfers: stop resubmitting and the timer, abort what is in flight, and tell the
- * HAL the device is gone. Process context. */
+ * host the device is gone. Process context. */
 static inline void ozzy_engine_stop(struct ozzy_engine *e)
 {
 	e->ops->stop(e);
@@ -372,8 +367,8 @@ static inline void ozzy_engine_stop(struct ozzy_engine *e)
 
 /*
  * Pause for a restart (ozzy_engine_restart, or the platform's own around a USB reset): like
- * stop, but hardware_present and driver_ready stay set, so the HAL keeps the device published
- * (CoreAudio has stopped IO). ozzy_engine_start() runs the handshake again. Process context.
+ * stop, but hardware_present and driver_ready stay set, so the host keeps the device published
+ * (the host has stopped IO). ozzy_engine_start() runs the handshake again. Process context.
  */
 static inline void ozzy_engine_suspend(struct ozzy_engine *e)
 {
@@ -494,7 +489,7 @@ static inline unsigned int ozzy_engine_host_rates(const struct ozzy_engine *e, u
 }
 
 /*
- * A rate from the host (ALSA hw_params, the HAL, a WaveRT format): checked against the host
+ * A rate from the host: checked against the host
  * rates and logged. OZZY_SETTING_RESTART: ozzy_engine_restart runs the device at it.
  */
 enum ozzy_setting_change ozzy_engine_change_rate(struct ozzy_engine *e, uint32_t rate);
@@ -532,7 +527,7 @@ static inline bool ozzy_engine_ring_platform(const struct ozzy_engine *e)
  * For engines whose PCM is plain interleaved S24_3LE on the wire (isochronous): @frames frames
  * out of the attached ring with the output routing, into @dst_ring (@dst_frames frames,
  * from position @first, wrapping); silence on a ring platform with none attached, nothing
- * written without (macOS: the HAL wrote them). Completion path (ozzy_isoc_output_config.fill).
+ * written without by the host. Completion path (ozzy_isoc_output_config.fill).
  */
 void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t dst_frames, uint64_t first,
 			   uint32_t frames);
@@ -566,7 +561,7 @@ static inline uint8_t ozzy_engine_setting_default(const struct ozzy_engine *e, u
  * once. No checks: ozzy_engine_change_setting is the one with them. */
 void ozzy_engine_set_setting(struct ozzy_engine *e, unsigned int id, uint8_t value);
 
-/* A setting from the user (ALSA control, the HAL, ozzy-cli or the ozzy app): checked, logged and set */
+/* A setting from the user: checked, logged and set */
 enum ozzy_setting_change ozzy_engine_change_setting(struct ozzy_engine *e, unsigned int id, unsigned int value);
 
 /* For the families: publish @e->settings and the clock status of the handshake start() just ran */

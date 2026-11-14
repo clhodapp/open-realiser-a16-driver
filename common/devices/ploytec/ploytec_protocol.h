@@ -6,7 +6,7 @@
  * using the Ploytec USB audio chipset. These functions contain pure
  * computation -- no I/O, no platform headers, no side effects.
  *
- * Used by both Linux (kernel module) and macOS (kext/HAL) drivers.
+ * Used by the Linux userspace driver.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

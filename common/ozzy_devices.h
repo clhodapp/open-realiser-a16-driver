@@ -2,16 +2,9 @@
 /*
  * Ozzy Device List: the table built from ozzy_devices.def
  *
- * ozzy_devices.def has one OZZY_DEVICE(...) row per device. Each consumer
- * defines OZZY_DEVICE to what it needs and includes the .def:
- *   - this header: the shared table (ozzy_device_lookup), used for channels,
- *     rates, names and the family on every platform
- *   - linux/core.c: the USB ID table (rows of the families Linux drives)
- *   - macos/Backends/OzzyKext/GenPersonalities.c: the kext's matching
- *     personalities, generated into Info.plist
- * A row left out with -DOZZY_DISABLE_<key> is left out of all of them. Each
- * platform drives the families it has code for, so a new platform (Windows:
- * an INF generated like the kext's Info.plist) needs no change to the rows.
+ * ozzy_devices.def has one OZZY_DEVICE(...) row per device. This header builds
+ * the table used for numeric USB ID lookup, channels, rates, names and families.
+ * A row can be omitted with -DOZZY_DISABLE_<key>.
  *
  * Pure C with no platform dependencies -- usable in both kernel space
  * and userspace on any platform.
@@ -61,7 +54,7 @@ enum ozzy_status {
  * struct ozzy_device - One row of ozzy_devices.def.
  */
 struct ozzy_device {
-	const char *key;      /* identifier, e.g. "XoneDB4" (kext personality name) */
+	const char *key;      /* identifier, e.g. "XoneDB4" (the <key> of OZZY_DISABLE_<key>) */
 	const char *name;     /* product name, e.g. "Xone:DB4" */
 	uint16_t vid;
 	uint16_t pid;
@@ -143,58 +136,6 @@ static inline uint32_t ozzy_device_latency(const struct ozzy_device *dev, uint32
 		if (hz[i] == rate)
 			return dev->latency[2 * i + (input ? 1 : 0)];
 	return 0;
-}
-
-/* Upper case of an ASCII letter (UTF-16 or char), anything else as it is */
-static inline uint16_t ozzy_ascii_upper(uint16_t c)
-{
-	return c >= 'a' && c <= 'z' ? (uint16_t)(c - 'a' + 'A') : c;
-}
-
-/* Four hex digits at @s, or -1 */
-static inline int ozzy_hex4_u16(const uint16_t *s)
-{
-	int v = 0, i;
-
-	for (i = 0; i < 4; i++) {
-		uint16_t c = ozzy_ascii_upper(s[i]);
-		int d = c >= '0' && c <= '9' ? c - '0' : c >= 'A' && c <= 'F' ? c - 'A' + 10 : -1;
-
-		if (d < 0)
-			return -1;
-		v = v * 16 + d;
-	}
-	return v;
-}
-
-/*
- * ozzy_device_lookup_hwid - The row for a Windows hardware ID, "USB\VID_xxxx&PID_yyyy..."
- * (UTF-16, any case), or NULL. NULL for an interface's ID (with "&MI_"): Ozzy drives whole
- * devices.
- */
-static inline const struct ozzy_device *ozzy_device_lookup_hwid(const uint16_t *id)
-{
-	static const char vid_prefix[] = "USB\\VID_", pid_prefix[] = "&PID_", mi[] = "&MI_";
-	unsigned int i, k;
-	int vid, pid;
-
-	for (i = 0; vid_prefix[i]; i++)
-		if (ozzy_ascii_upper(id[i]) != (uint16_t)vid_prefix[i])
-			return NULL;
-	vid = ozzy_hex4_u16(id + 8);
-	for (i = 0; vid >= 0 && pid_prefix[i]; i++)
-		if (ozzy_ascii_upper(id[12 + i]) != (uint16_t)pid_prefix[i])
-			return NULL;
-	pid = vid >= 0 ? ozzy_hex4_u16(id + 17) : -1;
-	if (vid < 0 || pid < 0)
-		return NULL;
-	for (i = 21; id[i]; i++) {
-		for (k = 0; mi[k] && ozzy_ascii_upper(id[i + k]) == (uint16_t)mi[k]; k++)
-			;
-		if (!mi[k])
-			return NULL;
-	}
-	return ozzy_device_lookup((uint16_t)vid, (uint16_t)pid);
 }
 
 /*

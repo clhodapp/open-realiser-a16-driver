@@ -52,7 +52,7 @@ static bool midi_start(struct ozzy_engine *e)
 	/* The device calls itself "Xone MIDI Device"; use the name on the front panel */
 	ozzy_strlcpy((char *)shm->product_name, "Xone:1D", sizeof(shm->product_name));
 
-	/* No audio: the HAL skips devices without channels */
+	/* No audio: a MIDI-only device publishes no channels */
 	shm->audio.input_channels = 0;
 	shm->audio.output_channels = 0;
 
@@ -88,7 +88,7 @@ static void midi_stop(struct ozzy_engine *e)
 	usb_midi_log("engine stopped");
 }
 
-/* Unpack the event packets into the midi_in ring that OzzyMIDI reads */
+/* Unpack the event packets into the midi_in ring that the host reads */
 static void process_read(struct usb_midi_engine *me, uint32_t slot, uint32_t bytes)
 {
 	volatile struct ozzy_shared_memory *shm = me->base.shm;

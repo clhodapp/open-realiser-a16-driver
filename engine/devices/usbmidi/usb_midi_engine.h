@@ -1,10 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * MIDI-only devices that speak the USB MIDI class protocol but need Ozzy because macOS's class
- * driver won't take them. The Xone:1D's bulk endpoints have wMaxPacketSize 4, which USB doesn't
- * allow for full speed bulk; Linux's snd-usb-audio accepts it, macOS doesn't. MIDI goes through
- * the same shared memory rings as the Ploytec devices, so OzzyMIDI handles both. No audio: the
- * engine publishes 0 channels and the HAL skips the device.
+ * USB MIDI class engine. MIDI uses the shared rings also used by Ploytec devices.
+ * The engine publishes zero audio channels for MIDI-only devices.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
