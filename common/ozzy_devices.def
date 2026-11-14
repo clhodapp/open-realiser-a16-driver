@@ -2,15 +2,12 @@
 /*
  * Ozzy Device List
  *
- * Every device Ozzy drives, one row each. This is the only place a device is
- * added: the Linux USB ID table, the macOS kext's matching personalities
- * (generated into its Info.plist at install time), the engine/ops choice and
- * the channel counts and rates all come from here. See ozzy_devices.h for how
- * the rows are read, and .claude/re/device_inventory.md for candidates.
+ * Device protocol families, channel counts, rates and quirks used by the engine.
+ * See ozzy_devices.h for table lookup and .claude/re/device_inventory.md for sources.
  *
  *   OZZY_DEVICE(key, vid, pid, name, family, in, out, rates, status, quirks, latency)
  *
- *   key        identifier: the kext personality name
+ *   key        device identifier
  *   family     PLOYTEC_XONE  Ploytec junction protocol, bulk/interrupt out (Xone mixers)
  *              PLOYTEC_ISOC  Ploytec bulk in / isochronous out (Akai EIE Pro)
  *              USB_MIDI      USB MIDI class device that needs Ozzy anyway
@@ -25,9 +22,7 @@
  *
  * Each row notes where its numbers come from, and is wrapped in
  * #ifndef OZZY_DISABLE_<key>: building with -DOZZY_DISABLE_<key> leaves the device
- * out everywhere (Linux: make OZZY_DISABLE="<key> ...", macOS:
- * OZZY_DISABLE="<key> ..." ./install.command). A platform only drives the
- * families it has code for: Linux leaves USB_MIDI devices to snd-usb-audio.
+ * out of the device table. Linux normally handles USB_MIDI devices with snd-usb-audio.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

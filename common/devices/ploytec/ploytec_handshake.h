@@ -6,7 +6,7 @@
  * The sequence lives here once; each platform only supplies the host
  * services in struct ploytec_host_ops (control transfers, sleeping, logging).
  *
- * Used by both Linux (kernel module) and macOS (kext) drivers.
+ * Used by the Linux userspace driver.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
  * The US-366 path (isochronous in and out, ploytec_us3xx_engine): every input frame must reach
- * the HAL's plain ring (macOS) or the attached ring (Linux, Windows) in order, a failed packet as
- * its nominal frames of silence; the handshake must be the Windows driver's, with 'M' and 'B' at
+ * the host's plain ring or the attached ring in order, a failed packet as its nominal frames of
+ * silence; the handshake must be the one Tascam's Windows driver sends, with 'M' and 'B' at
  * the first start only (and 'B' only at 48 kHz); a mixer mode with other channels must refuse to
  * start; MIDI out must go in whole event packets, as many as the endpoint takes.
  *
@@ -151,7 +151,7 @@ static void test_small_ring(void)
 	CHECK(wrong == 0, "%llu of the last 100 frames wrong in a 100-frame ring", (unsigned long long)wrong);
 }
 
-static void test_hal_ring(void)
+static void test_host_ring(void)
 {
 	static struct ozzy_shared_memory shm;
 	struct fake_bus fb;
@@ -175,7 +175,7 @@ static void test_hal_ring(void)
 	CHECK(expect_frames > RING + RING / 2, "only %llu frames", (unsigned long long)expect_frames);
 	for (f = expect_frames > RING ? expect_frames - RING : 0; f < expect_frames; f++)
 		wrong += memcmp(shm.audio.input_buffer + (f % RING) * FRAME, expect + f * FRAME, FRAME) != 0;
-	CHECK(wrong == 0, "%llu of the last %u frames wrong in the HAL's ring", (unsigned long long)wrong, RING);
+	CHECK(wrong == 0, "%llu of the last %u frames wrong in the host's ring", (unsigned long long)wrong, RING);
 	CHECK(((struct ploytec_us3xx_engine *)e)->input.in_frame == expect_frames, "frame count %llu, expected %llu",
 	      (unsigned long long)((struct ploytec_us3xx_engine *)e)->input.in_frame, (unsigned long long)expect_frames);
 	ozzy_engine_stop(e);
@@ -314,7 +314,7 @@ static void test_midi_out(void)
 int main(void)
 {
 	test_small_ring();
-	test_hal_ring();
+	test_host_ring();
 	test_attached_ring();
 	test_nominal_silence();
 	test_handshake();

@@ -1,14 +1,9 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * What a driver knows about a device and how it runs it, for ozzy-cli and the ozzy app: one
- * record, the same on every platform. The engine fills it after every handshake
- * (ozzy_engine_publish_info) into the shared memory; each driver hands it out as it is:
- *   - macOS: OzzyHAL's custom property OZZY_PROPERTY_INFO ('ozin'), a CFData of this struct
- *   - Linux: the read-only ALSA bytes control "Ozzy Info"
- *   - Windows: OZZY_KSPROPERTY_INFO (windows/driver/ozzy_ksproperty.h)
- * Only fixed-width fields at their natural alignment, so the kernel and user space of every
- * platform agree on the layout. A reader checks @version and @size and ignores a record it
- * doesn't know.
+ * What the driver knows about a device and how it runs it, for the tools: one record that the
+ * engine writes into the shared memory after every handshake (ozzy_engine_publish_info).
+ * Only fixed-width fields at their natural alignment, so every reader agrees on the layout.
+ * A reader checks @version and @size and ignores a record it doesn't know.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

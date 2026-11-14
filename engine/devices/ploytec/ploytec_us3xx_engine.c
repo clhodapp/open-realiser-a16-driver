@@ -68,7 +68,7 @@ static void delivered_in(void *owner)
 	ozzy_engine_plain_in_done((struct ozzy_engine *)owner);
 }
 
-/* PCM out with ozzy_isoc_output at the nominal rate: the platform's buffers or the HAL's ring */
+/* PCM out with ozzy_isoc_output at the nominal rate: the platform's buffers or the host's ring */
 static bool start_output(struct ploytec_us3xx_engine *ue)
 {
 	struct ozzy_engine *e = &ue->base;
@@ -100,8 +100,8 @@ static bool start_output(struct ploytec_us3xx_engine *ue)
 
 /*
  * PCM in with ozzy_isoc_input. Its transfers go to the platform's PCM in buffers, or in the shared
- * memory's input buffer after the HAL's plain ring. Received frames go to the attached ring on a
- * ring platform, else to the HAL's ring.
+ * memory's input buffer after the host's plain ring. Received frames go to the attached ring on a
+ * ring platform, else to the host's ring.
  */
 static bool start_input(struct ploytec_us3xx_engine *ue)
 {
@@ -238,7 +238,7 @@ static bool us3xx_start(struct ozzy_engine *e)
 		return false;
 	}
 
-	/* 1. What the HAL needs: plain frame rings both ways */
+	/* 1. What the host needs: plain frame rings both ways */
 	shm->audio.device_flags = OZZY_DEVICE_FLAG_PLAIN_OUTPUT | OZZY_DEVICE_FLAG_PLAIN_INPUT;
 	shm->audio.output_ring_frames = OZZY_PLAIN_RING_FRAMES;
 	shm->audio.input_ring_frames = OZZY_PLAIN_RING_FRAMES;

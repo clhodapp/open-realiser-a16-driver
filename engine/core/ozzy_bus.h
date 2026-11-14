@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * What an engine needs from the platform's USB stack: transfers on the shared memory, control
- * requests, a timer and a clock. The macOS kext (KextBus), the Windows driver (kmdf_bus.c)
- * and the WinUSB harness (winusb_bus.c) each fill in a struct ozzy_bus_ops. Completions come back
- * through ozzy_engine_complete() and ozzy_engine_isoc_complete().
+ * USB bus interface: transfers, control requests, a timer and a clock.
+ * The libusb backend and fake test bus implement struct ozzy_bus_ops.
+ * Completions return through ozzy_engine_complete() and ozzy_engine_isoc_complete().
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -62,10 +61,9 @@ enum ozzy_pcm_dir {
  * @pcm_progress: the engine moved PCM through an attached ring (ozzy_engine_set_pcm_ring):
  *                @frames is the ring position after the packet. From the completion path.
  *                Optional: a platform that attaches rings has it, and without a ring
- *                attached its PCM out is silence (macOS has none: the HAL fills the
- *                shared memory itself).
+ *                attached its PCM out is silence unless the host fills shared memory itself.
  * @sleep_ms:     sleep (handshake only, never from a completion)
- * @time:         the platform's clock (macOS mach_absolute_time, Windows QPC)
+ * @time:         the host's monotonic clock
  * @abort:        cancel every transfer in flight and return once their completions have run
  *                (with OZZY_STATUS_ABORTED); the pipes stay usable. Process context, never
  *                from a completion. The engine calls it when it stops or suspends.

@@ -84,7 +84,7 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 		e->settings.value[i] = ozzy_engine_setting_default(e, i);
 	update_routes(e);
 
-	/* Transfers in the shared memory: the PCM rings the HAL reads and writes (laid out at start) */
+	/* Transfers in the shared memory: the PCM rings the host reads and writes (laid out at start) */
 	memset(m, 0, sizeof(*m));
 	m->pcm_out_ring = (uint8_t *)shm->audio.output_buffer;
 	m->pcm_out_ring_bytes = sizeof(shm->audio.output_buffer);

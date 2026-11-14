@@ -4,7 +4,7 @@
  * feedback endpoint (common/isoc_feedback.h, the same pacing as Linux's core). An engine owns
  * one and forwards its isochronous completions.
  *
- * The HAL writes frames into a ring in shared memory (OZZY_DEVICE_FLAG_PLAIN_OUTPUT), and each
+ * The host writes frames into a ring in shared memory (OZZY_DEVICE_FLAG_PLAIN_OUTPUT), and each
  * microframe's packet points straight into it (zero copy; a packet that runs past the end
  * wraps). The output clock is the device's: the frames of completed transfers advance the
  * sample time, and the timestamp anchors use the completion time of the microframe that
@@ -28,17 +28,17 @@ extern "C" {
  * struct ozzy_isoc_output_config
  * @frame_bytes:    bytes per plain frame (channels * 3)
  * @ring_frames:    frames in the output ring
- * @anchor_frames:  timestamp anchor spacing (the HAL's zero timestamp period), 0: none
+ * @anchor_frames:  timestamp anchor spacing (the host's zero timestamp period), 0: none
  * @out_max_packet: bytes per service interval
  * @fb_addr:        0: no feedback endpoint, nominal rate
- * @ring:           the plain frame ring OUT packets point into (the HAL writes it on macOS)
+ * @ring:           the plain frame ring OUT packets point into (the host writes it)
  * @xfer:           instead of @ring, one buffer per OUT transfer (@xfer_size bytes each), its
  *                  packets one after the other from the start; @fill writes each before it
  *                  goes out (platforms whose transfers can't wrap a ring: Linux)
  * @fb_buf:         the feedback transfers (@fb_size bytes)
  * @fill:           optional: called before each OUT transfer to write its @frames frames into
- *                  @dst, from position @first wrapping at @dst_frames; without it the HAL has
- *                  written them (macOS)
+ *                  @dst, from position @first wrapping at @dst_frames; without it the host has
+ *                  written them
  */
 struct ozzy_isoc_output_config {
 	uint32_t rate;
@@ -84,7 +84,7 @@ struct ozzy_isoc_output {
 	struct ozzy_isoc_output_xfer fb_xfer[ISOC_FB_TRANSFERS];
 };
 
-/* Frames the output reads ahead of the clock at @rate (the HAL's safety offset) */
+/* Frames the output reads ahead of the clock at @rate (the host's safety offset) */
 static inline uint32_t ozzy_isoc_output_safety_offset(uint32_t rate)
 {
 	return ISOC_OUT_TRANSFERS * isoc_fb_max_frames(rate, ISOC_TRANSFER_UFRAMES);

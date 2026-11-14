@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * ozzy_midi_queue_write, the MIDI out queue in front of the shared ring (OzzyMIDI, a future
- * Windows MIDI client): bytes reach the ring in order across the queue's wrap, what waits goes
+ * ozzy_midi_queue_write, the MIDI out queue in front of the shared ring (a host-side MIDI
+ * client): bytes reach the ring in order across the queue's wrap, what waits goes
  * first, and what doesn't fit the queue either is counted as dropped.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>

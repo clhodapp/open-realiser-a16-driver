@@ -41,7 +41,7 @@ audio.settings.lock_rate           20112
 audio.timestamp.sequence           20120
 audio.timestamp.sample_time        20128
 audio.timestamp.host_time          20136
-audio.hal_write_position           20224
+audio.host_write_position          20224
 audio.input_buffer                 20296
 audio.output_buffer                1068872
 info version 2 size 176

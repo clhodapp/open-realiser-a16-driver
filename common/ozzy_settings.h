@@ -10,11 +10,7 @@
  *     streaming (as the PHASE X64's own panels stop streaming around a codec change)
  *   - routes and output pairs: which stereo pair goes where, applied by the host's codecs
  *     (ozzy_route.h, the family's encoder), no request and no restart
- * Platforms only map the settings onto their own tooling:
- *   - Linux: one ALSA kcontrol per setting, named after desc->name
- *   - macOS: OzzyHAL; the clock source as kAudioDevicePropertyClockSource, every setting as
- *     the custom property kOzzyPropertySetting; device settings go to the kext with
- *     kOzzyMethodApplySetting
+ * The host presents these settings through its own controls.
  *
  * Pure C with no platform dependencies -- usable in both kernel space
  * and userspace on any platform.
@@ -202,12 +198,11 @@ static inline uint32_t ozzy_pcm_queue(unsigned int value)
 
 /*
  * OZZY_SETTING_IO_BUFFER_MAX values: the largest IO buffer a host that reads the engine's clock
- * anchors (macOS: CoreAudio's zero timestamps) may use, which sets how far apart the anchors
- * are. CoreAudio caps the IO buffer at 3/8 of the anchors' spacing (measured: 640 -> 240
- * frames), so the spacing is 8/3 of the buffer, rounded up to whole out transfers: anchors close
- * together cap the apps' buffer, anchors far apart leave the host's clock running on its own
- * longer between them. The default, 1200 (anchors every 3200 frames), is what ran before the
- * setting. Only offered where the platform reads the anchors (ozzy_engine_set_anchors).
+ * anchors may use, which sets how far apart the anchors are: 8/3 of the buffer, rounded up to
+ * whole out transfers (CoreAudio capped the IO buffer at 3/8 of the spacing, measured 640 -> 240
+ * frames). Anchors close together cap the host's buffer; anchors far apart leave the host's
+ * clock running on its own longer between them. The default, 1200, puts anchors every 3200
+ * frames. Only offered where the host reads the anchors (ozzy_engine_set_anchors).
  */
 #define OZZY_NUM_IO_BUFFERS 4
 
@@ -320,7 +315,7 @@ static const char *const ozzy_esi_clock_names[OZZY_NUM_ESI_CLOCKS] = {
 static const char *const ozzy_esi_level_names[OZZY_NUM_ESI_LEVELS] = { "+4 dBu", "-10 dBV" };
 
 static const struct ozzy_setting_desc ozzy_setting_descs[OZZY_NUM_SETTINGS] = {
-	/* Positional: the macOS kext compiles this as C++11 */
+	/* Positional initializer follows struct field order. */
 	{ "Clock Source", ozzy_clock_source_names, OZZY_NUM_CLOCK_SOURCES, OZZY_CLOCK_AUTOMATIC,
 	  OZZY_QUIRK_DIGITAL_IN, OZZY_SETTING_DEVICE, 0 },
 	/* ALSA names S/PDIF "IEC958" (Documentation/sound/designs/control-names.rst) */

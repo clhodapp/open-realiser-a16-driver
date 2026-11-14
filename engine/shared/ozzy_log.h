@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 /*
  * Engine logging: one line per call, with the component as prefix, wherever the engine runs.
- * (The macOS HAL and MIDI plugins log through macos/Shared/OzzyLog.h, the rest of the Linux
- * module through linux/ozzy_log.h, which takes a device; don't include both.)
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -18,22 +16,12 @@
 #define OZZY_LOG_PREFIX "[ozzy] "
 #define PLOYTEC_LOG_PREFIX "[ploytec] "
 #define USB_MIDI_LOG_PREFIX "[usb-midi] "
-#elif defined(_KERNEL_MODE)
-/* Windows kernel (ACX driver): DebugView / WinDbg, Kd_IHVAUDIO_Mask */
-#include <wdm.h>
-#define OZZY_LOG_LINE(prefix, fmt, ...) \
-	DbgPrintEx(DPFLTR_IHVAUDIO_ID, DPFLTR_ERROR_LEVEL, prefix fmt "\n", ##__VA_ARGS__)
 #elif defined(OZZY_USER_ENGINE)
-/* WinUSB harness: stderr */
+/* Userspace driver and host tests: stderr */
 #include <stdio.h>
 #define OZZY_LOG_LINE(prefix, fmt, ...) fprintf(stderr, prefix fmt "\n", ##__VA_ARGS__)
-#elif defined(KERNEL)
-/* macOS kext */
-#include <IOKit/IOLib.h>
-#define OZZY_LOG_LINE(prefix, fmt, ...) IOLog(prefix fmt "\n", ##__VA_ARGS__)
-#define OZZY_LOG_PREFIX "[OzzyKext] "   /* what macos/debuglogs.command filters on */
 #else
-#error "ozzy_log.h is for engine builds (kext, Windows driver, harness)"
+#error "ozzy_log.h requires a Linux kernel or userspace engine build"
 #endif
 
 #ifndef OZZY_LOG_PREFIX

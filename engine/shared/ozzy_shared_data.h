@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * The shared memory between an engine and its clients: on macOS the kext maps it into OzzyHAL
- * and OzzyMIDI; on Windows the driver and the harness keep it to themselves. C, usable from
- * C++: the engine side (ozzy_platform.h, OZZY_ENGINE_SIDE) sees plain volatile fields, the
- * client side std::atomic ones, with the same layout.
+ * The memory the engine shares with the host side of the driver: device status, the PCM and
+ * MIDI rings and the clock anchors. Fields both sides touch are volatile and are read and
+ * written with the explicit memory ordering of ozzy_platform.h.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -16,83 +15,19 @@
 #include "ozzy_info.h"
 #include "ozzy_stats.h"
 
-#ifdef OZZY_ENGINE_SIDE
 typedef volatile uint32_t ozzy_atomic_u32;
 typedef volatile uint64_t ozzy_atomic_u64;
 typedef volatile bool     ozzy_atomic_bool;
-#else
-#include <atomic>
-typedef std::atomic<uint32_t> ozzy_atomic_u32;
-typedef std::atomic<uint64_t> ozzy_atomic_u64;
-typedef std::atomic<bool>     ozzy_atomic_bool;
-#endif
 
 #define OZZY_SHARED_MEM_NAME            "/ozzy_shared_mem"
 #define OZZY_MAGIC                      0x4F5A5A59   /* "OZZY" */
 #define OZZY_SHARED_VERSION             12           /* bump when ozzy_shared_memory changes layout */
 
-/* OzzyKext user client: external method selectors */
-#define OZZY_METHOD_MIDI_OUT_PENDING    0            /* OzzyMIDI queued bytes in midi_out */
-/*
- * OzzyHAL changes a device setting (common/ozzy_settings.h). Scalars in: setting id, value.
- * The kext stops the transfers, re-runs the handshake with the setting and restarts them, then
- * returns; the result is in audio.settings and audio.sample_rate. The HAL calls it from
- * PerformDeviceConfigurationChange, with IO stopped.
- */
-#define OZZY_METHOD_APPLY_SETTING       1
-/*
- * OzzyHAL changes the sample rate. Scalar in: the rate in Hz, one of ozzy_device_host_rates.
- * Like OZZY_METHOD_APPLY_SETTING: the kext restarts the engine at the rate (unless it runs at
- * it already) and returns; the result is in audio.sample_rate.
- */
-#define OZZY_METHOD_SET_RATE            2
-/*
- * OzzyHAL device property for the settings (common/ozzy_settings.h), for ozzy-cli, the ozzy app or
- * another app. A custom property (declared in kAudioObjectPropertyCustomPropertyInfoList), so its
- * data is a CFPropertyList, no qualifier:
- *   get: CFDictionary, setting name (ozzy_setting_descs[].name) -> CFNumber value, for every
- *        setting the device has, plus "Clock Locked" (CFBoolean) and "Lock Rate" (CFNumber, Hz)
- *        with the clock source; the caller releases it
- *   set: CFDictionary of setting name -> CFNumber value, one or more. Routes apply at once; a
- *        device setting goes through a configuration change, so it reads back changed once
- *        CoreAudio has performed it
- * The device has it if it has any setting.
- */
-#define OZZY_PROPERTY_SETTING           'ozst'
-/*
- * OzzyHAL device property with what the driver knows of the device and its stream: a custom
- * property, get only: CFData holding struct ozzy_info (ozzy_info.h) as of the last handshake;
- * the caller releases it. Changes with OZZY_PROPERTY_SETTING (both are notified together).
- */
-#define OZZY_PROPERTY_INFO              'ozin'
-/*
- * OzzyHAL device property with how the stream has gone: a custom property, get only: CFData
- * holding struct ozzy_stats (ozzy_stats.h), live from the shared memory; the caller releases
- * it. Notified when its incident counters move.
- */
-#define OZZY_PROPERTY_STATS             'ozss'
-/*
- * OzzyHAL device property with the device's clients: a custom property, get only: CFArray of
- * CFDictionary, each "pid" (CFNumber), "bundle" (CFString, may be absent), as CoreAudio told the
- * plug-in of them (AddDeviceClient), and "io" (CFBoolean): it started IO, as far as the plug-in
- * knows (coreaudiod sends StartIO only for the first client, so a later one shows false; CoreAudio's
- * process objects, macOS 14 and later, tell which clients run); the caller releases it. Notified
- * when IO starts or stops.
- */
-#define OZZY_PROPERTY_CLIENTS           'ozcl'
-#define OZZY_AUDIO_PROPERTY_KEY         "OzzyAudio"  /* registry: true if the device has audio channels */
-
 /* Each PCM ring's bytes (struct ozzy_audio_buffer): the device's transfers end to end */
 #define OZZY_PCM_RING_BYTES             (1024 * 1024)
 
-/*
- * Where the platform reads them (ozzy_engine_set_anchors), the engine publishes a timestamp
- * anchor every audio.timestamp_frames (a whole number of transfers, set by
- * OZZY_SETTING_IO_BUFFER_MAX); the HAL reports that spacing as the zero timestamp period.
- * CoreAudio caps the IO buffer size at 3/8 of the period (measured: 640 frames -> 240 frames
- * max), so the default, 3200 frames, allows buffers up to 1200 frames. The largest, 6400, stays
- * well below the rings' frames (at least 10240).
- */
+/* Clock anchors are spaced by audio.timestamp_frames, a whole number of transfers.
+ * OZZY_SETTING_IO_BUFFER_MAX selects the spacing for hosts that consume anchors. */
 #define OZZY_TIMESTAMP_FRAMES           3200   /* the default spacing */
 
 /* The isochronous families' plain rings, in frames (OZZY_DEVICE_FLAG_PLAIN_OUTPUT / _INPUT) */
@@ -110,12 +45,12 @@ typedef std::atomic<bool>     ozzy_atomic_bool;
 #define OZZY_MIDI_RING_SIZE             1024
 #define OZZY_MIDI_RING_MASK             (OZZY_MIDI_RING_SIZE - 1)
 
-/* The device's clock: an anchor every audio.timestamp_frames (0: none, the platform doesn't read
+/* The device's clock: an anchor every audio.timestamp_frames (0: none, the host doesn't read
  * them), as a seqlock (odd sequence while the engine writes) */
 struct ozzy_timestamp {
 	ozzy_atomic_u32 sequence;
 	ozzy_atomic_u64 sample_time;     /* frames */
-	ozzy_atomic_u64 host_time;       /* the platform's clock (ozzy_bus_ops.time) */
+	ozzy_atomic_u64 host_time;       /* the host's clock (ozzy_bus_ops.time) */
 };
 
 struct ozzy_audio_buffer {
@@ -138,7 +73,7 @@ struct ozzy_audio_buffer {
 	/*
 	 * Device settings (common/ozzy_settings.h) as the engine applied them at its last
 	 * handshake, and what the device reported. Written before driver_ready at start, and before
-	 * OZZY_METHOD_APPLY_SETTING returns, which is when the HAL reads them.
+	 * a settings change returns to the host.
 	 */
 	struct {
 		uint32_t available;            /* bit (1 << enum ozzy_setting) per setting the device has */
@@ -150,11 +85,11 @@ struct ozzy_audio_buffer {
 	struct ozzy_timestamp timestamp;
 
 	uint8_t _pad1[64];
-	OZZY_CACHE_ALIGN ozzy_atomic_u64 hal_write_position;
+	OZZY_CACHE_ALIGN ozzy_atomic_u64 host_write_position;
 	uint8_t _pad2[64];
 
 	/*
-	 * The PCM rings, which the transfers go to and come from as they are (the HAL writes and
+	 * The PCM rings, which the transfers go to and come from as they are (the host writes and
 	 * reads them by sample time, frame f at f % *_ring_frames):
 	 * - Ploytec input: 512-byte sub-packets of 8 frames, end to end (frame f in sub-packet
 	 *   f / 8, at (f % 8) * 64).
@@ -184,13 +119,9 @@ struct ozzy_shared_memory {
 	uint32_t magic;                        /* OZZY_MAGIC */
 	uint32_t version;
 	uint32_t session_id;
-#ifdef OZZY_ENGINE_SIDE
 	ozzy_atomic_u32 heartbeat;
-#else
-	ozzy_atomic_u32 heartbeat { 0 };
-#endif
 
-	/* The device, as the HAL publishes it */
+	/* The device, as the host publishes it */
 	uint16_t vendor_id;
 	uint16_t product_id;
 	char manufacturer_name[64];
@@ -219,10 +150,9 @@ struct ozzy_shared_memory {
 /*
  * --- The timestamp seqlock ---
  * ozzy_timestamp_write (engine): the odd sequence is visible before the new values, the new
- * values before the even sequence. ozzy_timestamp_read (engine side and clients): false if
- * the writer kept it busy (try again next time).
+ * values before the even sequence. ozzy_timestamp_read: false if the writer kept it busy (try
+ * again next time).
  */
-#ifdef OZZY_ENGINE_SIDE
 static inline void ozzy_timestamp_write(volatile struct ozzy_timestamp *ts, uint64_t sample_time, uint64_t host_time)
 {
 	uint32_t seq = ts->sequence;
@@ -251,30 +181,12 @@ static inline bool ozzy_timestamp_read(volatile struct ozzy_timestamp *ts, uint6
 	}
 	return false;
 }
-#else
-static inline bool ozzy_timestamp_read(struct ozzy_timestamp *ts, uint64_t *sample_time, uint64_t *host_time)
-{
-	for (unsigned int tries = 0; tries < 100; tries++) {
-		uint32_t seq = ts->sequence.load(std::memory_order_acquire);
-
-		if (seq & 1)
-			continue;
-		*sample_time = ts->sample_time.load(std::memory_order_relaxed);
-		*host_time = ts->host_time.load(std::memory_order_relaxed);
-		std::atomic_thread_fence(std::memory_order_acquire);
-		if (ts->sequence.load(std::memory_order_relaxed) == seq)
-			return true;
-	}
-	return false;
-}
-#endif
 
 /*
  * --- MIDI rings: the engine fills midi_in and drains midi_out, a client the other way round ---
  * ozzy_midi_ring_push appends what fits (returns how many), ozzy_midi_ring_pop takes up to
  * @max bytes (returns how many). Either side can call either one.
  */
-#ifdef OZZY_ENGINE_SIDE
 typedef volatile struct ozzy_midi_buffer ozzy_midi_ring;
 
 /* Append @count bytes to @ring; what doesn't fit is dropped. Returns how many went in. */
@@ -306,41 +218,10 @@ static inline uint32_t ozzy_midi_ring_pop(ozzy_midi_ring *ring, uint8_t *dst, ui
 	ozzy_store_release_u32(&ring->read_index, r);
 	return i;
 }
-#else
-typedef struct ozzy_midi_buffer ozzy_midi_ring;
-
-static inline uint32_t ozzy_midi_ring_push(ozzy_midi_ring *ring, const uint8_t *bytes, uint32_t count)
-{
-	uint32_t w = ring->write_index.load(std::memory_order_relaxed);
-	uint32_t r = ring->read_index.load(std::memory_order_acquire);
-	uint32_t i;
-
-	for (i = 0; i < count && ((w + 1) & OZZY_MIDI_RING_MASK) != r; i++) {
-		ring->buffer[w] = bytes[i];
-		w = (w + 1) & OZZY_MIDI_RING_MASK;
-	}
-	ring->write_index.store(w, std::memory_order_release);
-	return i;
-}
-
-static inline uint32_t ozzy_midi_ring_pop(ozzy_midi_ring *ring, uint8_t *dst, uint32_t max)
-{
-	uint32_t r = ring->read_index.load(std::memory_order_relaxed);
-	uint32_t w = ring->write_index.load(std::memory_order_acquire);
-	uint32_t i;
-
-	for (i = 0; i < max && r != w; i++) {
-		dst[i] = ring->buffer[r];
-		r = (r + 1) & OZZY_MIDI_RING_MASK;
-	}
-	ring->read_index.store(r, std::memory_order_release);
-	return i;
-}
-#endif
 
 /*
  * struct ozzy_midi_queue - MIDI out waiting for room in midi_out, oldest first: a producer that
- * gets its bytes pushed (CoreMIDI, a Windows MIDI client) keeps them here, as the device takes
+ * gets its bytes pushed (a host MIDI client) keeps them here, as the device takes
  * 2500 bytes/s and the ring holds 1 KB. @buf: the producer's storage, @mask + 1 bytes (a power
  * of two); @dropped: bytes lost because @buf was full too.
  */

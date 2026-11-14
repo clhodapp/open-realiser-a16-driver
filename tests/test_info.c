@@ -27,7 +27,7 @@ int main(void)
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	ozzy_engine_set_anchors(e, true);   /* as the macOS kext */
+	ozzy_engine_set_anchors(e, true);   /* a host that reads the anchors */
 	ozzy_engine_set_usb_speed(e, OZZY_USB_SPEED_HIGH);
 	ozzy_engine_set_driver_version(e, "test-1234");
 	CHECK(info->version == 0, "info before the first start");
@@ -77,8 +77,8 @@ int main(void)
 
 	ozzy_engine_stop(e);
 
-	/* A platform that doesn't read the anchors (Linux, the Windows driver): none written, none
-	 * published, the IO buffer setting not offered */
+	/* A host that doesn't read the anchors (the libusb driver): none written, none published,
+	 * the IO buffer setting not offered */
 	memset(&shm, 0, sizeof(shm));
 	fake_bus_init(&fb, &shm, true, NULL);
 	ozzy_engine_attach(e, &fb.bus, &shm);

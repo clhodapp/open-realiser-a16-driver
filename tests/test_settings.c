@@ -115,7 +115,7 @@ int main(void)
 
 	ozzy_engine_stop(e);
 	CHECK(queued(&fb) == 0, "%u transfers in flight after stop", queued(&fb));
-	CHECK(!shm.audio.driver_ready && !shm.audio.hardware_present, "the HAL still sees the device after stop");
+	CHECK(!shm.audio.driver_ready && !shm.audio.hardware_present, "the host still sees the device after stop");
 	free(e);
 	return CHECK_DONE("settings");
 }

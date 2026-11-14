@@ -39,7 +39,7 @@ static inline void ploytec_report(struct ozzy_engine *e, const struct ploytec_ha
 
 /*
  * PCM transfers: any whole number of sub-packets, at the engine's places in turn
- * (ozzy_engine_pcm_layout: in the shared memory's rings end to end, where the HAL reads and
+ * (ozzy_engine_pcm_layout: in the shared memory's rings end to end, where the host reads and
  * writes them by sample time; or the platform's own buffers). Transfer indices wrap at
  * ploytec_pcm_wrap, a multiple of the places, so a transfer keeps its place in the ring (2^32
  * is one only when the places are a power of two).
