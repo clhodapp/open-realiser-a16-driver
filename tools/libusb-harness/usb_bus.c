@@ -141,13 +141,6 @@ static int bus_clear(void *ctx, uint8_t ep)
             (unsigned long long)usb_now(), ep, ret);
     return ret;
 }
-static bool bus_timer(void *ctx, uint32_t us)
-{
-    struct usb_bus *b = ctx;
-    b->timer_us = us; b->timer_next = usb_now() + (uint64_t)us * 1000;
-    return us != 0;
-}
-static void bus_timer_stop(void *ctx) { ((struct usb_bus *)ctx)->timer_us = 0; }
 static void bus_progress(void *ctx, enum ozzy_pcm_dir dir, uint64_t frames)
 {
     struct usb_bus *b = ctx;
@@ -179,7 +172,7 @@ static void bus_abort(void *ctx)
 
 static const struct ozzy_bus_ops ops = {
     .submit = bus_submit, .control = bus_control, .clear_halt = bus_clear,
-    .start_timer = bus_timer, .stop_timer = bus_timer_stop, .pcm_progress = bus_progress,
+    .pcm_progress = bus_progress,
     .sleep_ms = bus_sleep, .time = bus_time, .abort = bus_abort, .time_hz = bus_hz,
 };
 
@@ -233,7 +226,6 @@ bool usb_bus_configure(struct usb_bus *b, bool detach)
     }
     const struct ozzy_usb_endpoint *bound[OZZY_PIPE_ROLES];
     ozzy_engine_bind_endpoints(b->engine, eps, n, bound);
-    if (!bound[OZZY_PIPE_MIDI_IN]) fprintf(stderr, "No optional MIDI IN endpoint; audio-only validation\n");
     for (unsigned int role = OZZY_PIPE_PCM_OUT; role <= OZZY_PIPE_PCM_IN; role++) {
         if (!bound[role] || (bound[role]->attributes & 3) < 2 ||
             (bound[role]->max_packet != 512 &&
@@ -260,16 +252,11 @@ int usb_bus_poll(struct usb_bus *b, unsigned int ms)
     struct timeval wait = { ms / 1000, (int)(ms % 1000) * 1000 };
     int ret = libusb_handle_events_timeout(b->usb, &wait);
     if (ret && ret != LIBUSB_ERROR_INTERRUPTED) b->failed = true;
-    if (b->timer_us && usb_now() >= b->timer_next && !b->failed) {
-        ozzy_engine_timer(b->engine);
-        b->timer_next = usb_now() + (uint64_t)b->timer_us * 1000;
-    }
     return ret;
 }
 
 void usb_bus_release(struct usb_bus *b)
 {
-    bus_timer_stop(b);
     bus_abort(b);
     for (int i = 255; i >= 0; i--) {
         /* The interfaces stay at their streaming alternate setting: releasing them

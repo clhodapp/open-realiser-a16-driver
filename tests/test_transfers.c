@@ -81,7 +81,6 @@ static void run(uint16_t vid, uint16_t pid, uint16_t out_max_packet, unsigned in
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, PCM_OUT, out_max_packet <= 512 ? 2 : 3, out_max_packet, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, PCM_IN, 2, 512, 0);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	CHECK(ozzy_engine_has_setting(e, OZZY_SETTING_PCM_OUT_FRAMES) &&
 	      ozzy_engine_has_setting(e, OZZY_SETTING_PCM_IN_FRAMES), "%s: no transfer size settings", model->name);

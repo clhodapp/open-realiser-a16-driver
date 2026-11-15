@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
  * Ploytec junction devices with bulk or interrupt PCM out (the Xones and their relatives).
- * PCM and MIDI out share every output packet; PCM in and MIDI in have their own endpoints.
+ * PCM and MIDI out share every output packet; PCM in has its own endpoint.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -24,7 +24,6 @@ extern "C" {
  * @sample_rate:    what the device runs at (the S/PDIF lock rate while locked)
  * @default_rate:   the highest rate the device lists (what start asks for without a request)
  * @running:        completions resubmit (cleared by stop and suspend)
- * @pcm_in_int1024: PCM IN is interrupt, wMaxPacketSize 1024 (ploytec_midi.h)
  * @encode/@decode: frame codecs for the model's channel counts
  * @mirror:         ESU1808 S/PDIF mirror (bulk layout, 8 out)
  * @cport:          C-port bytes (ploytec_cport.h) the control bytes still have to carry, from
@@ -43,7 +42,6 @@ struct ploytec_engine {
 	uint32_t default_rate;
 	volatile bool running;
 	bool streamed;         /* has streamed since attach: a start is a restart */
-	bool pcm_in_int1024;
 	struct ploytec_midi midi;
 	ploytec_frame_fn encode;
 	ploytec_frame_fn decode;
