@@ -204,7 +204,11 @@ impl Engine {
                     self.set_pipe(direction, ep.pipe());
                 }
                 None => self.log(format_args!(
-                    "  no endpoint for PCM {direction} on interface {}",
+                    "  no endpoint for pipe role {} on interface {}",
+                    match direction {
+                        Direction::Out => 0,
+                        Direction::In => 1,
+                    },
                     direction.interface()
                 )),
             }
@@ -518,8 +522,11 @@ impl Engine {
     fn submit<B: Bus + ?Sized>(&mut self, bus: &mut B, transfer: Transfer) {
         if let Err(transfer) = bus.submit(transfer) {
             self.log(format_args!(
-                "PCM {} submission failed (idx: {})",
-                transfer.direction(),
+                "{} submission failed (idx: {})",
+                match transfer.direction() {
+                    Direction::Out => "output",
+                    Direction::In => "input",
+                },
                 transfer.id()
             ));
         }
