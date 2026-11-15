@@ -52,8 +52,6 @@ int main(void)
     usb_bus_init(&b, NULL, NULL, &e, NULL);
     b.types[0x86] = LIBUSB_TRANSFER_TYPE_BULK;
     e.pipe[OZZY_PIPE_PCM_IN].address = 0x86;
-    assert(b.bus.ops->submit(&b, 0x83, data, 9, NULL));
-    assert(!b.pending_count); /* Missing optional MIDI is not an audio failure. */
     for (unsigned int i = 0; i < 8; i++) assert(b.bus.ops->submit(&b, 0x86, data, 512, (void *)(uintptr_t)i));
     assert(b.pending_count == 8);
     b.bus.ops->abort(&b);
@@ -61,14 +59,13 @@ int main(void)
     assert(last_status == OZZY_STATUS_ABORTED && !b.failed);
 
     usb_bus_init(&b, NULL, NULL, &e, NULL);
-    b.types[0x83] = LIBUSB_TRANSFER_TYPE_BULK;
-    assert(b.bus.ops->submit(&b, 0x83, data, 9, NULL));
-    assert(queued[0]->timeout == 0); /* MIDI can legitimately remain idle. */
-    b.bus.ops->abort(&b);
+    assert(!b.bus.ops->submit(&b, 0x83, data, 9, NULL));
+    assert(b.failed && !b.pending_count); /* An endpoint the interface lacks fails the bus. */
 
     usb_bus_init(&b, NULL, NULL, &e, NULL);
     b.types[0x86] = LIBUSB_TRANSFER_TYPE_INTERRUPT;
     assert(b.bus.ops->submit(&b, 0x86, data, 512, NULL));
+    assert(queued[0]->timeout == 2000);
     queued[0]->status = LIBUSB_TRANSFER_COMPLETED;
     queued[0]->actual_length = 511;
     usb_bus_poll(&b, 0);
