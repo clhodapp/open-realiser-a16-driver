@@ -4,20 +4,29 @@ This project builds a Linux userspace driver for the Smyth Realiser A16 on
 Ozzy's USB protocol engine. The MIT license, upstream history and upstream
 README are retained. See [README.ozzy.md](../../README.ozzy.md) for that history.
 
-The A16 bridge lives in `tools/libusb-harness/`, with PipeWire processing in
-`tools/pipewire-upmix/`. Shared protocol code lives in `common/` and `engine/`.
+The driver is a Cargo workspace of two crates:
 
-`crates/a16-engine` is a Rust port of that protocol engine, without
-dependencies outside std. The bridge does not use it yet. `cargo test` runs its
-tests, which include `tests/a16_trace.rs`: a trace of the engine on a fake bus
-whose SHA-256 must match the trace the C engine produced.
+- `crates/a16-engine`: the USB protocol engine, a Rust port of Ozzy's C engine,
+  without dependencies outside std. `tests/a16_trace.rs` checks a trace of the
+  engine on a fake bus against the SHA-256 of the trace the C engine produced.
+- `crates/open-realiser-a16-driver`: the libusb bus (`bus.rs`, with the libusb
+  calls behind the `Usb` trait of `usb.rs` and made in `libusb.rs`), the USB side
+  of the PipeWire bridge with its recovery (`bridge.rs`), the PipeWire card and
+  streams (`nodes.rs`), the queues and level check (`live.rs`), the profiles
+  (`profiles.rs`, with the table `tools/libusb-harness/layouts/generate.py`
+  writes), and the binaries `a16-driver`, `a16-usb` and `a16-static-dsp`.
 
-Run `nix flake check` to build the package and execute its CTest suite and shared
-engine host tests. Tests
-cover fake-bus startup, USB transfer cleanup, profile generation, PipeWire
-argument handling, live audio buffering and static upmixing. They run without
-USB hardware or an active PipeWire server. The GitHub workflow runs these checks
-on x86-64 and ARM64 Linux.
+`tools/libusb-harness/` keeps the profile data and generator and the harness
+notes; `tools/pipewire-upmix/` keeps the upmixer configuration, its generator and
+the launchers.
+
+`cargo test --workspace` runs every test: the engine's, the bus on scripted libusb
+calls, the bridge's USB lifecycle on a fake A16 and a fake clock
+(`tests/lifecycle.rs`), the command lines, and the Python checks of `tools/`
+(generated files current, configuration discovery, static upmixing). They run
+without USB hardware or a PipeWire server. `nix flake check` builds the package,
+which runs them in the sandbox. The GitHub workflow runs these checks on x86-64
+and ARM64 Linux.
 
 The A16 drops off USB during its boot if playback is running when it leaves
 its boot splash, about 43.5 s after a power-up;

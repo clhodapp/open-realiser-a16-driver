@@ -161,13 +161,13 @@ For development:
 
 ```sh
 nix develop path:.
-cmake -S tools/libusb-harness -B build-userspace -DCMAKE_BUILD_TYPE=Debug
-cmake --build build-userspace -j4
-ctest --test-dir build-userspace --output-on-failure
+cargo build
+cargo test --workspace
+./target/debug/a16-usb --help
 ```
 
-On another Linux distribution, install a C11 compiler, CMake, pkg-config and
-libusb development headers, then use the same CMake commands.
+On another Linux distribution, follow the build steps of the
+[README](../../README.md).
 
 ## Inspect before streaming
 
@@ -255,19 +255,13 @@ restart behavior. No encoded Dolby/DTS mode is exposed.
 
 ## Offline verification
 
-CTest covers an A16 fake-bus duplex run, 384 independent single-bit encoder
-vectors (16 channels × 24 bits), stereo capture decoding, WAV validation,
-CLI rejection of unbounded runs, and the actual libusb backend's cancellation,
+`cargo test --workspace` covers an A16 fake-bus duplex run, 384 independent
+single-bit encoder vectors (16 channels × 24 bits), stereo capture decoding, WAV
+validation, CLI rejection of unbounded runs, and the libusb bus's cancellation,
 disconnect, submission failure, short control response and short PCM paths
-through mocked USB I/O. Tests perform no hardware transfers.
+through scripted libusb calls (`crates/open-realiser-a16-driver/tests/usb_bus.rs`).
+Tests perform no hardware transfers.
 
 ```sh
-nix develop path:. -c sh -c 'cmake -S tools/libusb-harness -B build-userspace-asan -DCMAKE_BUILD_TYPE=Debug -DHARNESS_SANITIZERS=ON && cmake --build build-userspace-asan -j4 && ctest --test-dir build-userspace-asan --output-on-failure'
-```
-
-If the shell preloads the sandbox's udev bridge, GCC's sanitizer runtime must
-precede it. Keep the bridge loaded and prepend libasan for the test command:
-
-```sh
-nix develop path:. -c sh -c 'LD_PRELOAD="$(cc -print-file-name=libasan.so)${LD_PRELOAD:+:$LD_PRELOAD}" ctest --test-dir build-userspace-asan --output-on-failure'
+nix develop path:. -c cargo test --workspace
 ```
