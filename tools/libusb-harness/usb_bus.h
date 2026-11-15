@@ -32,6 +32,9 @@ uint64_t usb_now(void);
 void usb_bus_init(struct usb_bus *b, libusb_context *usb, libusb_device_handle *handle,
                   struct ozzy_engine *engine, FILE *trace);
 bool usb_bus_configure(struct usb_bus *b, bool detach);
+/* After ozzy_engine_suspend cancelled the transfers: accept submissions again,
+ * so ozzy_engine_start can stream on the same bus. */
+void usb_bus_resume(struct usb_bus *b);
 int usb_bus_poll(struct usb_bus *b, unsigned int timeout_ms);
 void usb_bus_release(struct usb_bus *b);
 #endif

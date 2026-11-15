@@ -278,6 +278,11 @@ done:
     return ok;
 }
 
+void usb_bus_resume(struct usb_bus *b)
+{
+    b->draining = false;
+}
+
 int usb_bus_poll(struct usb_bus *b, unsigned int ms)
 {
     struct timeval wait = { ms / 1000, (int)(ms % 1000) * 1000 };

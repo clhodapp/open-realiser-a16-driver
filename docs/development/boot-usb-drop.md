@@ -86,12 +86,10 @@ playback stops. Both recover when the stream breaks:
   device reset. The A16 stalls `0x72` and is otherwise unaffected, so this
   step does nothing on the A16.
 
-## Implications for this driver
+## How this driver handles it
 
-- Starting playback at attach time hits the boot step whenever the attach
-  follows a power-up.
-- Streaming only while a client plays avoids the drop unless something is
-  playing at the boot step.
-- Recovery needs a port reset right after the re-enumeration, retried a
-  bounded number of times, followed by the handshake. Probing the A16 before
-  the reset, or waiting a fixed time, is not needed.
+The PipeWire bridge streams only while a client plays or records, so the drop
+happens only if a client is active at the boot step. After the drop, or any
+other USB failure, the bridge resets the A16's port as soon as the A16 is back,
+retries the reset up to three times, reopens the A16 and resumes the stream.
+[PIPEWIRE.md](../../tools/libusb-harness/PIPEWIRE.md) describes the limits.

@@ -79,9 +79,22 @@ Node properties expose `a16.profile`, `a16.speakers`, `a16.room.required`,
 The bridge runs until SIGINT/SIGTERM. For a bounded session, add `--seconds 60`.
 `--detach` explicitly permits temporarily detaching an existing kernel driver.
 It requires access to the A16 USB device and the user's local PipeWire socket.
-Exactly one high-speed A16 must be connected. Automatic reconnect after USB or
-PipeWire disconnection is not implemented: the bridge exits and can be restarted.
+Exactly one high-speed A16 must be connected when the bridge starts.
 No root privileges are normally required with suitable USB permissions.
+
+The bridge publishes both nodes and opens the A16 at startup, but runs the
+handshake and streams over USB only while the playback or return node is active.
+It stops streaming five seconds after the last client goes idle. Starting a
+stream takes about 0.6 s for the handshake; audio a client sends in that time
+overflows the playback queue and is dropped.
+
+After a USB failure, including the A16 dropping off USB during its boot
+([boot-usb-drop.md](../../docs/development/boot-usb-drop.md)), the bridge closes
+the A16, waits for it to come back, resets its USB port (up to three attempts per
+reopen) and reopens it, resuming the stream if a client is active. The nodes
+stay published throughout. If the A16 stays away for 30 seconds the bridge exits
+with status 0; more than five failures within two minutes end it with status 1.
+A PipeWire disconnection ends the bridge.
 
 It exposes two selectable desktop nodes:
 
@@ -169,10 +182,10 @@ of repeating old samples; source underflow emits silence and reprimes. Full
 queues drop incoming frames and increment overrun counts. Capture is discarded
 when inactive, with queued old frames flushed on the next source activation.
 Stats every five seconds report frames, queue levels, underruns/overruns and
-resampling ratios. SIGINT/SIGTERM, stream errors, or USB failures stop both sides,
-cancel transfers, release interfaces, and restore previous alternate settings
-using the same backend lifecycle as the WAV harness. USB rate/register state is
-not restored. A service/unit and hotplug restart policy are future work.
+resampling ratios while streaming. SIGINT/SIGTERM or stream errors stop both
+sides, cancel transfers, release interfaces, and restore previous alternate
+settings using the same backend lifecycle as the WAV harness. USB rate/register
+state is not restored.
 
 ## Validation
 
