@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "open-realiser-a16-driver"
+version = "0.1.0"
+description = "Userspace USB audio driver and upmixer for the Smyth Realiser A16"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+a16-engine = { path = "../a16-engine" }
+libc = "0.2"
+pipewire = "0.10.1"
+rusb = "0.9.4"
+
+[build-dependencies]
+pkg-config = "0.3"
