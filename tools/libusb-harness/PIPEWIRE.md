@@ -64,8 +64,10 @@ list. `a16.room.required` still describes the complete base room assignments.
 Unknown speaker identities or malformed configuration cause startup to fail.
 
 Changing a profile recreates only the playback sink, which can briefly interrupt
-playback while clients relink. The stereo capture source and USB engine remain
-active. Native and Pulse clients see the same selected profile.
+playback while clients relink. The stereo capture source and USB engine remain;
+the capture source follows the sink's graph, so recording pauses until the
+session manager has configured the new sink. Native and Pulse clients see the
+same selected profile.
 
 **The user must align the A16 PCM room to the profile's declared assignments.**
 A single elevated front/rear row can use Pulse's top-front/top-rear names with
@@ -176,18 +178,41 @@ For automated checks, verify output frame count and diagnostics as well as statu
 
 ## Timing and lifecycle
 
+The playback node drives the PipeWire graph. It is a driver node
+(`node.driver`, `priority.driver` 1500) and the return node is in its node group
+(`node.group = a16`), so clients of either node run on the cycles the playback
+node starts. A timer on PipeWire's data thread starts each cycle at the graph's
+quantum and rate: it fills the graph clock (start time, position, duration, the
+playback queue level as delay, `rate_diff` and the next start) and triggers the
+graph. Each USB out transfer that completes adds 80 frames the A16 has taken. A
+completion is reported late but never early, so the earliest-reported of the
+last 64 completions dates them. A delay-locked loop, as in PipeWire's ALSA
+driver, steers the cycle rate so the graph keeps pace with the A16, and reports
+the measured ratio as `rate_diff`. The loop locks once the A16 clock has run for
+0.2 s.
+
+The timer runs uncorrected at the graph's rate, with `rate_diff` 1.0, whenever
+there is no A16 clock: before USB streaming starts (the first client's first
+cycles run before the A16 streams), while the bridge recovers from a USB
+failure, and whenever no out transfer has completed for 0.1 s. Clients keep
+running on those cycles, and the loop locks afresh when the A16 streams again.
+When a client joins the A16 nodes to another device whose driver priority is
+higher, that device drives the graph and the A16 nodes follow it.
+
 All engine/libusb calls remain on the USB event thread. PipeWire RT callbacks
 perform bounded copies through atomic single-producer/single-consumer queues;
 they do not allocate, log, block, invoke libusb, or resample. Each queue holds at
 most 16384 frames. Sinc resampling through libsamplerate runs on the USB thread,
 with bounded, smoothed queue-level feedback (maximum correction +/-0.5%) to track
-clock drift. Capture and playback have independent controllers. Outgoing float
+clock drift. Capture and playback have independent controllers. While the graph runs on the
+A16 clock, their ratios settle near 1.0. Outgoing float
 samples are clipped to 24-bit range, with nonfinite values replaced by silence.
 
 The initial queue target is 2048 frames (42.7 ms) per direction, in addition to
 PipeWire buffering, USB transfers and the A16's processing latency. This is a
 conservative first implementation, not a low-latency tuned driver. No latency
-measurement or compensation is currently advertised to PipeWire. Lossless bit
+measurement or compensation is advertised to PipeWire beyond the playback
+queue level, which the graph clock carries as its delay. Lossless bit
 identity is not promised: adaptive resampling may change samples.
 
 No playback data means silence. An underrun reprimes the playback queue instead
@@ -195,7 +220,8 @@ of repeating old samples; source underflow emits silence and reprimes. Full
 queues drop incoming frames and increment overrun counts. Capture is discarded
 when inactive, with queued old frames flushed on the next source activation.
 Stats every five seconds report frames, queue levels, underruns/overruns and
-resampling ratios while streaming. SIGINT/SIGTERM or stream errors stop both
+resampling ratios while streaming, then which clock the graph's last cycle
+followed (`graph=a16` or `graph=timer`) and its `rate_diff`. SIGINT/SIGTERM or stream errors stop both
 sides, cancel transfers and release the interfaces, using the same backend
 lifecycle as the WAV harness. The interfaces stay at their streaming alternate
 setting, and USB rate/register state is not restored.
@@ -204,7 +230,9 @@ setting, and USB rate/register state is not restored.
 
 `nix build` runs the tests of the Cargo workspace, including concurrent queue
 ordering across 32-bit counter wrap, capacity limits, PCM conversion/clipping,
-simulated +/-300 ppm clock drift for ten minutes, the return-level check, the
+simulated +/-300 ppm clock drift for ten minutes, the graph clock's loop on a fake
+A16 clock (it converges to the A16 rate through 1.5 ms of completion jitter,
+holds 1.0 without a clock, and locks again after a gap), the return-level check, the
 engine and libusb bus tests, and the USB lifecycle on a fake A16
 (`crates/open-realiser-a16-driver/tests/lifecycle.rs`): on-demand start, boot-time
 drops and their recovery timing, control timeouts and the exit statuses. Hardware
