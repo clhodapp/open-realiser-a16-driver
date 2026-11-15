@@ -23,10 +23,13 @@
 /* How long the A16 may stay off the bus after its boot-time drop before the driver exits.
  * The A16 re-enumerates within a second after that drop. */
 #define LOST_WAIT_NS 3000000000ULL
-/* The boot-time drop comes about 43.5 s after a power-up enumerates the A16, and sooner
- * when the cable is connected partway through a boot. Only a failure while a client is
- * active and within this long of the driver first opening the A16 counts as that drop. */
-#define BOOT_WINDOW_NS 50000000000ULL
+/* The A16 drops off USB when it receives playback from about 43.5 s after a power-up
+ * enumerates it until about 50 s, and sooner when the cable is connected partway through
+ * a boot. Only a failure while a client is active and within this long of the driver
+ * first opening the A16 counts as such a drop. */
+#define BOOT_WINDOW_NS 60000000000ULL
+/* After a boot-time drop, how long the reopened A16 gets without streaming. */
+#define BOOT_HOLD_NS 3000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
 /* Reopens tried on an A16 that is on the bus, after a USB failure. */
@@ -67,8 +70,10 @@ struct live {
     bool detach, configured, attached, streaming, hotplug_registered;
     /* Set by the hotplug callback when the open A16 leaves the bus. */
     bool gone;
-    /* When the driver opened the A16 as enumerated, without a reset; 0 after a reopen. */
+    /* When the driver first opened the A16 as enumerated, without a reset. */
     uint64_t enumerated_open;
+    /* No streaming before this time, after a boot-time drop. */
+    uint64_t hold_until;
     struct usb_bus bus;
     struct ozzy_engine *engine;
     struct ozzy_shared_memory *shm;
@@ -421,7 +426,8 @@ static bool a16_open(struct live *l, bool reset) {
     l->bus.on_progress = on_progress;
     l->bus.audio_data = l;
     l->gone = false;
-    l->enumerated_open = reset ? 0 : usb_now();
+    if (!reset)
+        l->enumerated_open = usb_now();
     return true;
 }
 /* Run the handshake and start streaming. */
@@ -622,7 +628,7 @@ int main(int argc, char **argv) {
                 a16_pause(l);
                 fprintf(stderr, "USB streaming stopped: no active client\n");
             }
-        } else if (wanted) {
+        } else if (wanted && usb_now() >= l->hold_until) {
             if (a16_stream(l)) {
                 idle_since = usb_now();
                 fprintf(stderr, "USB streaming started\n");
@@ -664,6 +670,11 @@ int main(int argc, char **argv) {
                 break;
             }
             fprintf(stderr, "A16 reopened after a USB reset\n");
+            if (boot_drop) {
+                l->hold_until = usb_now() + BOOT_HOLD_NS;
+                fprintf(stderr, "No USB streaming for %llu s after the boot-time drop\n",
+                        (unsigned long long)(BOOT_HOLD_NS / 1000000000ULL));
+            }
             continue;
         }
         if (l->streaming && usb_now() - last >= 5000000000ULL) {

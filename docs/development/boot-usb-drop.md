@@ -26,7 +26,13 @@ the USB cable already connected.
 - Playback that stops before the boot step leaves nothing behind.
 - The drop time follows the boot, not the start of playback. Playback started anywhere from 0.3 to 12.4 s after enumeration dropped at 43.1 to 43.6 s.
 - The A16 keeps accepting playback transfers at the sample rate until the drop, so a filling buffer is not the cause.
-- After the drop the A16 re-enumerates within 0.5 to 0.9 s.
+- After the drop the A16 re-enumerates within 0.3 to 0.8 s.
+- Playback that resumes soon after the drop can make the A16 drop again. In one
+  boot, streaming resumed 1.0 to 1.4 s after each re-enumeration, and the A16
+  dropped at 43.6, 46.1, 48.2 and 50.2 s. A stream started at 51.8 s ran
+  without dropping, as did one resumed about 8 s after the first drop in
+  another boot. During those repeated drops the LED next to the SD card
+  flashed repeatedly, and the boot took longer than usual.
 - The boot step coincides with the A16 leaving its boot splash for the main menu. What the A16 does internally at that point is not known.
 
 ## Cable replug and mid-boot connection
@@ -91,5 +97,6 @@ playback stops. Both recover when the stream breaks:
 The PipeWire bridge streams only while a client plays or records, so the drop
 happens only if a client is active at the boot step. After the drop, or any
 other USB failure, the bridge resets the A16's port as soon as the A16 is back,
-retries the reset up to three times, reopens the A16 and resumes the stream.
+retries the reset up to three times and reopens the A16. After a boot-time
+drop it streams nothing for 3 s before resuming the stream.
 [PIPEWIRE.md](../../tools/libusb-harness/PIPEWIRE.md) describes the limits.
