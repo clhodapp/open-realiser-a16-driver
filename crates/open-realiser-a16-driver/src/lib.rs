@@ -7,6 +7,7 @@
 
 pub mod bridge;
 pub mod bus;
+pub mod graph_clock;
 pub mod libusb;
 pub mod live;
 pub mod nodes;
