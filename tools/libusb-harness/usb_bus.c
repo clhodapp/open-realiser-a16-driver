@@ -78,9 +78,6 @@ static void LIBUSB_CALL completed(struct libusb_transfer *t)
 static bool bus_submit(void *ctx, uint8_t ep, void *buf, uint32_t size, void *token)
 {
     struct usb_bus *b = ctx;
-    /* The shared Xone engine always polls MIDI IN, even for audio-only profiles.
-     * There is no MIDI consumer here; an absent optional endpoint is not an audio failure. */
-    if (!b->types[ep] && ep == 0x83 && !b->draining && !b->failed) return true;
     if (b->draining || b->failed || !size || size > INT_MAX ||
         (b->types[ep] != LIBUSB_TRANSFER_TYPE_BULK && b->types[ep] != LIBUSB_TRANSFER_TYPE_INTERRUPT)) {
         b->failed = true;
@@ -90,10 +87,8 @@ static bool bus_submit(void *ctx, uint8_t ep, void *buf, uint32_t size, void *to
     struct libusb_transfer *t = libusb_alloc_transfer(0);
     if (!p || !t) { free(p); if (t) libusb_free_transfer(t); b->failed = true; return false; }
     p->bus = b; p->transfer = t; p->token = token;
-    bool pcm = ep == b->engine->pipe[OZZY_PIPE_PCM_IN].address ||
-               ep == b->engine->pipe[OZZY_PIPE_PCM_OUT].address;
-    /* Idle MIDI has no completion deadline; audio must make progress. */
-    unsigned int timeout = pcm ? 2000 : 0;
+    /* A PCM transfer that has not completed after 2 s fails the stream. */
+    unsigned int timeout = 2000;
     if (b->types[ep] == LIBUSB_TRANSFER_TYPE_BULK)
         libusb_fill_bulk_transfer(t, b->handle, ep, buf, (int)size, completed, p, timeout);
     else
