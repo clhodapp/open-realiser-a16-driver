@@ -161,6 +161,13 @@ enum ozzy_quirk {
 	 * output pair. Defaults: the converters' power-up state, and the selector Ozzy always wrote.
 	 */
 	OZZY_QUIRK_ESI_CPORT = 1u << 21,
+
+	/*
+	 * No MIDI IN reads. The Ploytec chip of the device lists the MIDI IN endpoint, but the
+	 * device has no MIDI input and sends nothing on it (Smyth Realiser A16: no data in 108 s
+	 * of streaming and polling).
+	 */
+	OZZY_QUIRK_NO_MIDI_IN = 1u << 22,
 };
 
 #endif /* OZZY_QUIRKS_H */

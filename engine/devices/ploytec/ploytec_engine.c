@@ -266,7 +266,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	e->report.output = bulk ? OZZY_INFO_OUTPUT_PLOYTEC_BULK : OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT;
 	e->report.in_flight[OZZY_PIPE_PCM_OUT] = (uint8_t)pe->out_queue;
 	e->report.in_flight[OZZY_PIPE_PCM_IN] = (uint8_t)pe->in_queue;
-	e->report.in_flight[OZZY_PIPE_MIDI_IN] = PLOYTEC_MIDI_IN_XFERS;
+	e->report.in_flight[OZZY_PIPE_MIDI_IN] = (model->quirks & OZZY_QUIRK_NO_MIDI_IN) ? 0 : PLOYTEC_MIDI_IN_XFERS;
 	ploytec_midi_init(&pe->midi, pe->sample_rate, pe->pcm_in_int1024);
 	pe->encode = ploytec_frame_encoder(model->out_channels);
 	pe->decode = ploytec_frame_decoder(model->in_channels);
@@ -287,7 +287,8 @@ static bool ploytec_start(struct ozzy_engine *e)
 	pe->cport_idle_left = 0;
 	cport_queue(pe);
 
-	/* 5. in_queue / out_queue transfers in flight per PCM pipe, PLOYTEC_MIDI_IN_XFERS MIDI IN reads */
+	/* 5. in_queue / out_queue transfers in flight per PCM pipe, PLOYTEC_MIDI_IN_XFERS MIDI IN reads
+	 * (none on a device with OZZY_QUIRK_NO_MIDI_IN) */
 	pe->running = true;
 	pe->streamed = true;
 	for (i = 0; i < pe->in_queue || i < pe->out_queue; i++) {
@@ -296,8 +297,9 @@ static bool ploytec_start(struct ozzy_engine *e)
 		if (i < pe->out_queue)
 			submit_pcm_out(pe, i);
 	}
-	for (i = 0; i < PLOYTEC_MIDI_IN_XFERS; i++)
-		submit_midi_in(pe, i);
+	if (!(model->quirks & OZZY_QUIRK_NO_MIDI_IN))
+		for (i = 0; i < PLOYTEC_MIDI_IN_XFERS; i++)
+			submit_midi_in(pe, i);
 
 	ozzy_store_release_bool(&shm->audio.driver_ready, true);
 	return true;
