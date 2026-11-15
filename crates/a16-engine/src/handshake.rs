@@ -65,6 +65,17 @@ pub(crate) const RESTART_QUIET: Duration = Duration::from_millis(120);
 struct Handshake<'a, B: ?Sized> {
     bus: &'a mut B,
     log: &'a mut dyn FnMut(&str),
+    /// The step of the seven the log numbers that is running, for the failure line.
+    step: u32,
+}
+
+/// The `ret` the failure line reports: the bus error code, or `-EINVAL` for a rate mismatch.
+fn failure_code(error: &HandshakeError) -> i32 {
+    const EINVAL: i32 = 22;
+    match error {
+        HandshakeError::Control { error, .. } | HandshakeError::ClearHalt { error, .. } => error.0,
+        HandshakeError::RateMismatch { .. } => -EINVAL,
+    }
 }
 
 impl<B: Bus + ?Sized> Handshake<'_, B> {
@@ -230,7 +241,8 @@ impl<B: Bus + ?Sized> Handshake<'_, B> {
             let endpoint = direction.endpoint();
             if let Err(error) = self.bus.clear_halt(endpoint) {
                 self.log(format_args!(
-                    "clear halt on PCM {direction} failed: {error}"
+                    "clear halt on PCM {direction} failed (ret={})",
+                    error.0
                 ));
                 return Err(HandshakeError::ClearHalt { endpoint, error });
             }
@@ -238,29 +250,37 @@ impl<B: Bus + ?Sized> Handshake<'_, B> {
         Ok(())
     }
 
+    /// Log the start of the next numbered step.
+    fn begin_step(&mut self, what: fmt::Arguments<'_>) {
+        self.step += 1;
+        let step = self.step;
+        self.log(format_args!("[{step}/7] {what}..."));
+    }
+
     fn run(&mut self, rate: SampleRate) -> Result<(), HandshakeError> {
-        self.log(format_args!("[1/7] reading firmware version..."));
+        self.begin_step(format_args!("reading firmware version"));
         self.read_firmware()?;
-        self.log(format_args!("[2/7] reading hardware status..."));
+        self.begin_step(format_args!("reading hardware status"));
         self.read_status()?;
-        self.log(format_args!("[3/7] reading current sample rate..."));
+        self.begin_step(format_args!("reading current sample rate"));
         self.read_rate()?;
         self.select_automatic_clock()?;
-        self.log(format_args!("[4/7] setting sample rate to {rate}..."));
+        self.begin_step(format_args!("setting sample rate to {rate}"));
         self.set_rate(rate)?;
         // The official driver reads the rate back and waits 50 ms
-        self.log(format_args!("[5/7] verifying sample rate..."));
+        self.begin_step(format_args!("verifying sample rate"));
         let actual = self.read_rate()?;
         if actual != rate.hz() {
+            self.log(format_args!("device runs at {actual} Hz instead of {rate}"));
             return Err(HandshakeError::RateMismatch {
                 requested: rate,
                 actual,
             });
         }
         self.bus.sleep(Duration::from_millis(50));
-        self.log(format_args!("[6/7] reading hardware status..."));
+        self.begin_step(format_args!("reading hardware status"));
         self.read_status()?;
-        self.log(format_args!("[7/7] confirming device status..."));
+        self.begin_step(format_args!("confirming device status"));
         self.confirm_status()?;
         self.clear_pcm_halts()
     }
@@ -281,12 +301,15 @@ pub(crate) fn handshake<B: Bus + ?Sized>(
     rate: SampleRate,
     log: &mut dyn FnMut(&str),
 ) -> Result<(), HandshakeError> {
-    let mut hs = Handshake { bus, log };
+    let mut hs = Handshake { bus, log, step: 0 };
     hs.log(format_args!("--- begin handshake sequence ---"));
     let result = hs.run(rate);
     match &result {
         Ok(_) => hs.log(format_args!("--- handshake complete, device ready ---")),
-        Err(error) => hs.log(format_args!("handshake failed: {error}")),
+        Err(error) => {
+            let (step, ret) = (hs.step, failure_code(error));
+            hs.log(format_args!("handshake failed at step {step} (ret={ret})"));
+        }
     }
     result
 }
