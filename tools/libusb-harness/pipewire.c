@@ -20,11 +20,13 @@
 #define BLOCK 80u
 /* USB streaming stops after this long without an active playback or return client. */
 #define IDLE_STOP_NS 5000000000ULL
-/* After a USB failure, how long the A16 may stay away before the driver exits. The A16
- * re-enumerates within a second after its boot-time drop. */
+/* After a USB failure, how long the A16 may stay off the bus before the driver exits. The
+ * A16 re-enumerates within a second after its boot-time drop. */
 #define LOST_WAIT_NS 5000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
+/* Reopens tried on an A16 that is on the bus, after a USB failure. */
+#define REOPEN_TRIES 3
 /* More failures than RECOVERY_LIMIT within RECOVERY_WINDOW_NS end the driver. */
 #define RECOVERY_LIMIT 5
 #define RECOVERY_WINDOW_NS 120000000000ULL
@@ -436,16 +438,26 @@ static void a16_pause(struct live *l) {
 }
 /*
  * After a USB failure: close the A16, wait for it to come back, and reopen it
- * with a port reset. 1 when it is open again, 0 when it stayed away for
- * LOST_WAIT_NS, -1 on SIGINT/SIGTERM.
+ * with a port reset. A single reset can take several seconds while the kernel
+ * retries, so LOST_WAIT_NS counts only time the A16 is absent from the bus,
+ * and REOPEN_TRIES bounds the reopens of an A16 that is present.
+ * 1 when it is open again, 0 when it stayed away or would not reopen,
+ * -1 on SIGINT/SIGTERM.
  */
 static int a16_recover(struct live *l) {
     a16_close(l);
-    uint64_t deadline = usb_now() + LOST_WAIT_NS;
+    uint64_t absent_since = usb_now();
+    unsigned int reopens = 0;
     while (!stopping) {
-        if (a16_open(l, true))
-            return 1;
-        if (usb_now() >= deadline)
+        libusb_device *dev = find_a16(l->usb);
+        if (dev) {
+            libusb_unref_device(dev);
+            if (a16_open(l, true))
+                return 1;
+            if (++reopens >= REOPEN_TRIES)
+                return 0;
+            absent_since = usb_now();
+        } else if (usb_now() - absent_since >= LOST_WAIT_NS)
             return 0;
         pause_ms(100);
     }
