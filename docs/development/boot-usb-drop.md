@@ -44,9 +44,9 @@ started right after such a replug streams without a drop. A cable connected
 partway through a boot reaches the splash-to-menu change less than 43.5 s
 after the A16 enumerates, so no timer counted from enumeration can place it.
 
-## No readiness signal
+## No readiness signal found
 
-No readable register changes across the boot:
+None of the registers read so far changed across the boot:
 
 - vendor request `0x49` (`'I'`), which returns the same byte for wIndex 0, 1 and 2
 - vendor request `0x56` (`'V'`), which the Ploytec engine reads as the USB chip's firmware version
