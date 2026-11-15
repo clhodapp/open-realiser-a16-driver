@@ -13,7 +13,8 @@ Files:
   lists mean unassigned/unselectable, not a playable zero-channel layout.
 - `generate.py`: generator; `--check` verifies that generated artifacts are current.
 - `catalog.json`: complete advertised maps, source aliases, required rooms and audit.
-- `../profiles_generated.inc`: generated C data. Builds do not need the workbook.
+- `crates/open-realiser-a16-driver/src/profiles_generated.rs` at the repository
+  root: the generated Rust table. Builds do not need the workbook.
 
 Regenerate from this directory after editing bank bindings:
 

@@ -177,7 +177,7 @@ For automated checks, verify output frame count and diagnostics as well as statu
 ## Timing and lifecycle
 
 All engine/libusb calls remain on the USB event thread. PipeWire RT callbacks
-perform bounded copies through C11-atomic single-producer/single-consumer queues;
+perform bounded copies through atomic single-producer/single-consumer queues;
 they do not allocate, log, block, invoke libusb, or resample. Each queue holds at
 most 16384 frames. Sinc resampling through libsamplerate runs on the USB thread,
 with bounded, smoothed queue-level feedback (maximum correction +/-0.5%) to track
@@ -202,10 +202,14 @@ setting, and USB rate/register state is not restored.
 
 ## Validation
 
-`nix build` runs nine tests, including concurrent queue ordering across 32-bit
-counter wrap, capacity limits, PCM conversion/clipping, simulated +/-300 ppm
-clock drift for ten minutes, and existing engine/backend tests. Hardware evidence
-is under workspace `experiments/pipewire-*`:
+`nix build` runs the tests of the Cargo workspace, including concurrent queue
+ordering across 32-bit counter wrap, capacity limits, PCM conversion/clipping,
+simulated +/-300 ppm clock drift for ten minutes, the return-level check, the
+engine and libusb bus tests, and the USB lifecycle on a fake A16
+(`crates/open-realiser-a16-driver/tests/lifecycle.rs`): on-demand start, boot-time
+drops and their recovery timing, control timeouts and the exit statuses. Hardware
+evidence, gathered with the C implementation the Rust one replaced, is under
+workspace `experiments/pipewire-*`:
 
 - 30-second idle bridge run, both nodes published, correct 16-channel map,
   successful shutdown and interface restoration.

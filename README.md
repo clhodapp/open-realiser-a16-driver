@@ -22,15 +22,29 @@ The package is `open-realiser-a16-driver`; `nix run path:. -- --help` opens the
 driver help. The flake's `overlays.default` adds it to a package set as
 `pkgs.open-realiser-a16-driver.open-realiser-a16-driver`. Both x86-64 and ARM64 Linux package definitions are provided.
 
-Without Nix, install a C11 compiler, CMake, pkg-config, libusb, PipeWire development
-headers, libsamplerate, and Python 3, then:
+The driver is a Cargo workspace. `crates/a16-engine` is the USB protocol engine;
+`crates/open-realiser-a16-driver` holds the libusb bus, the PipeWire bridge and the
+`a16-driver`, `a16-usb` and `a16-static-dsp` binaries. `nix develop path:.` opens a
+shell with the Rust toolchain, the native libraries and cargo-purifier's `cargo`, which
+builds with the dependencies `Cargo.lock` and `cargo-purifier.lock.json` record:
 
 ```sh
-cmake -S . -B build-userspace -DCMAKE_BUILD_TYPE=Release
-cmake --build build-userspace -j
-ctest --test-dir build-userspace --output-on-failure
-cmake --install build-userspace --prefix "$HOME/.local"
+cargo build --release
+cargo test --workspace
 ```
+
+Without Nix, install Rust 1.88 or later, clang (for bindgen), pkg-config, libusb,
+PipeWire development headers, libsamplerate, and Python 3, then:
+
+```sh
+cargo build --release
+cargo test --workspace
+install -Dm755 target/release/a16-driver target/release/a16-usb target/release/a16-static-dsp \
+  tools/pipewire-upmix/a16-upmix tools/pipewire-upmix/a16-play-static -t "$HOME/.local/bin"
+install -Dm644 tools/pipewire-upmix/a16-upmix.conf -t "$HOME/.local/share/a16-userspace-driver"
+```
+
+After changing dependencies, run `cargo-purifier lock` and commit both lockfiles.
 
 ## Use the A16 as a soundcard
 
