@@ -51,7 +51,6 @@ struct TraceBus {
     out: String,
     queue: VecDeque<Transfer>,
     rate: [u8; 3],
-    now: Duration,
     /// What an 'I' read answers, plus its wIndex.
     i_val: u8,
 }
@@ -123,12 +122,6 @@ impl Bus for TraceBus {
 
     fn sleep(&mut self, duration: Duration) {
         let _ = writeln!(self.out, "sleep {}", duration.as_millis());
-        self.now += duration;
-    }
-
-    fn now(&mut self) -> Duration {
-        self.now += Duration::from_micros(125);
-        self.now
     }
 
     fn abort(&mut self) -> Vec<Transfer> {
@@ -305,7 +298,6 @@ fn scenario(out: &mut String, interrupt: bool, first_rate: u32, i_val: u8) {
             out: std::mem::take(out),
             queue: VecDeque::new(),
             rate: [0; 3],
-            now: Duration::ZERO,
             i_val,
         },
         in_count: 0,

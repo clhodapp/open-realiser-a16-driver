@@ -20,7 +20,6 @@ mod handshake;
 pub mod protocol;
 mod ring;
 mod settings;
-mod stats;
 mod usb;
 
 pub use bus::{Bus, BusError, ControlSetup, Status, Transfer, TransferId};
@@ -29,9 +28,8 @@ pub use device::{
     VENDOR_ID,
 };
 pub use engine::{Engine, EngineState, Logger, StartError};
-pub use handshake::{HandshakeError, HandshakeInfo};
+pub use handshake::HandshakeError;
 pub use protocol::{FirmwareVersion, OutLayout};
 pub use ring::PcmRing;
 pub use settings::{Setting, SettingChange, SettingError, Settings, pcm_frames, pcm_queue};
-pub use stats::{DirectionStats, Stats};
 pub use usb::{Pipe, TransferType, UsbEndpoint};

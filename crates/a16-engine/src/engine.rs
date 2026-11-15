@@ -7,10 +7,9 @@ use std::time::Duration;
 
 use crate::bus::{Bus, Status, Transfer, TransferId};
 use crate::codec::{self, IN_FRAME_BYTES, IN_SAMPLES_BYTES, OUT_FRAME_BYTES, OUT_SAMPLES_BYTES};
-use crate::handshake::{self, HandshakeError, HandshakeInfo, RESTART_QUIET};
+use crate::handshake::{self, HandshakeError, RESTART_QUIET};
 use crate::protocol::{FRAMES_PER_IN_SUBPACKET, FRAMES_PER_OUT_SUBPACKET, OutLayout};
 use crate::settings::{self, MAX_TRANSFER_FRAMES, Setting, SettingChange, SettingError, Settings};
-use crate::stats::Stats;
 use crate::usb::{Pipe, UsbEndpoint};
 use crate::{Direction, PcmRing, PerDirection, SampleRate};
 
@@ -18,9 +17,6 @@ use crate::{Direction, PcmRing, PerDirection, SampleRate};
 /// transfers' completions. A guess, to be measured on hardware; far below what the defaults
 /// queue.
 const SAFETY_MIN: Duration = Duration::from_millis(1);
-
-/// A completion this much later than the queued transfers cover is late: jitter, not a stop.
-const STATS_JITTER: Duration = Duration::from_millis(1);
 
 /// Where the engine is.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -95,18 +91,11 @@ pub struct Engine {
     state: EngineState,
     /// Has streamed since it was made: a start is a restart, which settles first.
     streamed: bool,
-    starts: u32,
     frames: PerDirection<u32>,
     in_flight: PerDirection<u32>,
     sample_rate: Option<SampleRate>,
     safety_offset: PerDirection<u32>,
-    handshake: Option<HandshakeInfo>,
     rings: PerDirection<Option<Attached>>,
-    stats: Stats,
-    /// Per direction, the time of the last completion since the start, and the gap past
-    /// which a completion is late (None: not measured).
-    stats_last: PerDirection<Option<Duration>>,
-    stats_late: PerDirection<Option<Duration>>,
     log: Logger,
 }
 
@@ -165,14 +154,9 @@ impl Engine {
             layout: OutLayout::default(),
             state: EngineState::Stopped,
             streamed: false,
-            starts: 0,
             sample_rate: None,
             safety_offset: PerDirection::default(),
-            handshake: None,
             rings: PerDirection::default(),
-            stats: Stats::default(),
-            stats_last: PerDirection::default(),
-            stats_late: PerDirection::default(),
             log: Box::new(|line| eprintln!("a16-engine: {line}")),
         }
     }
@@ -353,20 +337,6 @@ impl Engine {
         self.safety_offset[direction]
     }
 
-    /// What the device reported in the last handshake that succeeded.
-    pub fn handshake(&self) -> Option<&HandshakeInfo> {
-        self.handshake.as_ref()
-    }
-
-    /// Starts that succeeded.
-    pub fn starts(&self) -> u32 {
-        self.starts
-    }
-
-    pub fn stats(&self) -> &Stats {
-        &self.stats
-    }
-
     // --- PCM rings ---
 
     /// Attach `ring` for its direction, replacing (and returning) the one attached. The next
@@ -420,13 +390,11 @@ impl Engine {
             bus.sleep(RESTART_QUIET);
         }
         let rate = self.requested_rate.unwrap_or_default();
-        let info =
-            handshake::handshake(bus, rate, &mut *self.log).map_err(StartError::Handshake)?;
+        handshake::handshake(bus, rate, &mut *self.log).map_err(StartError::Handshake)?;
         self.sample_rate = Some(rate);
         self.safety_offset = self
             .safety_offset
             .map(|_, queued| safety_offset(queued, rate));
-        self.handshake = Some(info);
 
         self.state = EngineState::Streaming;
         self.streamed = true;
@@ -447,8 +415,6 @@ impl Engine {
                 self.submit(bus, Transfer::new(Direction::Out, TransferId(i), buffer));
             }
         }
-        self.starts += 1;
-        self.start_stats(rate);
         Ok(())
     }
 
@@ -495,7 +461,7 @@ impl Engine {
     pub fn stop<B: Bus + ?Sized>(&mut self, bus: &mut B) {
         self.state = EngineState::Stopped;
         self.log(format_args!("engine stopped"));
-        self.reclaim(bus.abort());
+        drop(bus.abort());
     }
 
     /// Pause for a restart, or for a pause the platform makes around a USB reset: like stop,
@@ -505,7 +471,7 @@ impl Engine {
             self.state = EngineState::Suspended;
         }
         self.log(format_args!("engine suspended"));
-        self.reclaim(bus.abort());
+        drop(bus.abort());
     }
 
     /// Take the rate and settings that changed: suspend, then start again. If the device
@@ -520,13 +486,6 @@ impl Engine {
         result
     }
 
-    /// Transfers back from [`Bus::abort`]: a stop, so what follows is no gap.
-    fn reclaim(&mut self, transfers: Vec<Transfer>) {
-        for transfer in transfers {
-            self.stats_last[transfer.direction()] = None;
-        }
-    }
-
     // --- The completion path ---
 
     /// A transfer the engine submitted came back. While streaming, the next one goes out:
@@ -538,15 +497,8 @@ impl Engine {
         status: Status,
     ) {
         let direction = transfer.direction();
-        self.count_completion(bus, direction, status);
         if self.state != EngineState::Streaming || status == Status::Aborted {
             return;
-        }
-        if let Status::Completed(bytes) = status
-            && bytes != self.transfer_bytes(direction)
-        {
-            self.stats.directions[direction].short_transfers += 1;
-            bus.stats_changed();
         }
         let next = transfer.id().after(self.in_flight[direction]);
         match direction {
@@ -639,56 +591,6 @@ impl Engine {
         }
         attached.position += frames as u64;
         bus.pcm_progress(Direction::In, attached.position, &mut attached.ring);
-    }
-
-    // --- Stats ---
-
-    /// At a start: each direction's late gap, the transfers it keeps queued plus the jitter.
-    fn start_stats(&mut self, rate: SampleRate) {
-        for direction in Direction::ALL {
-            let queued = u64::from(self.in_flight[direction]) * u64::from(self.frames[direction]);
-            self.stats_last[direction] = None;
-            self.stats_late[direction] = (queued != 0).then(|| {
-                Duration::from_nanos(queued * 1_000_000_000 / u64::from(rate.hz())) + STATS_JITTER
-            });
-        }
-    }
-
-    fn count_completion<B: Bus + ?Sized>(
-        &mut self,
-        bus: &mut B,
-        direction: Direction,
-        status: Status,
-    ) {
-        if self.pipes[direction].is_none() {
-            return;
-        }
-        if status == Status::Aborted {
-            self.stats_last[direction] = None;
-            return;
-        }
-        let now = bus.now();
-        let stats = &mut self.stats.directions[direction];
-        let mut incident = false;
-        if let Some(last) = self.stats_last[direction]
-            && now > last
-        {
-            let gap = now - last;
-            stats.max_gap = stats.max_gap.max(gap);
-            if self.stats_late[direction].is_some_and(|late| gap > late) {
-                stats.late += 1;
-                incident = true;
-            }
-        }
-        self.stats_last[direction] = Some(now);
-        stats.transfers += 1;
-        if status == Status::Failed {
-            stats.errors += 1;
-            incident = true;
-        }
-        if incident {
-            bus.stats_changed();
-        }
     }
 }
 

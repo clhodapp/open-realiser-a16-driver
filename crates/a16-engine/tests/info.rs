@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-//! What the engine reports about the stream on the A16: a start sets the pipes, the format
-//! and what the handshake read; a restart at another rate updates them and counts the start.
+//! What the engine reports about the stream on the A16: a start sets the pipes and the format;
+//! a restart at another rate updates them.
 
 mod common;
 
@@ -12,22 +12,14 @@ fn after_start_and_restart() {
     let mut bus = FakeBus::new();
     bus.i_reg[0] = 0x16;
     let mut e = a16_engine();
-    assert_eq!(
-        (e.starts(), e.handshake(), e.sample_rate()),
-        (0, None, None)
-    );
+    assert_eq!(e.sample_rate(), None);
     e.start(&mut bus).expect("start");
 
-    assert_eq!(e.starts(), 1);
     assert_eq!(
         e.out_layout(),
         OutLayout::Interrupt,
         "964-byte interrupt out endpoint"
     );
-    let hs = *e.handshake().expect("handshake info");
-    assert_eq!(hs.firmware.to_string(), "1.0.0");
-    assert_eq!(hs.input_selector, 0x16);
-    assert_eq!(hs.rate, SampleRate::Hz48000);
     assert_eq!(e.sample_rate(), Some(SampleRate::Hz48000));
     assert_eq!(
         (
@@ -55,11 +47,9 @@ fn after_start_and_restart() {
         (4, 4)
     );
 
-    // Another rate: the restart runs at it, and counts
+    // Another rate: the restart runs at it
     e.change_rate(SampleRate::Hz44100);
     e.restart(&mut bus).expect("rate restart");
     assert_eq!(e.sample_rate(), Some(SampleRate::Hz44100));
-    assert_eq!(e.handshake().map(|hs| hs.boot_rate), Some(48000));
-    assert_eq!(e.starts(), 2);
     e.stop(&mut bus);
 }

@@ -21,11 +21,6 @@ pub struct FakeBus {
     pub rate: [u8; 3],
     /// What an 'I' read of wIndex 0-3 answers.
     pub i_reg: [u8; 4],
-    /// The clock: it ticks a nanosecond per read unless `fixed_clock`, which leaves it to the
-    /// test.
-    pub now: Duration,
-    pub fixed_clock: bool,
-    pub stats_changed: u32,
     /// The last pcm_progress per direction.
     pub progress: PerDirection<u64>,
     /// One line per call, if tracing.
@@ -140,13 +135,6 @@ impl Bus for FakeBus {
 
     fn sleep(&mut self, _duration: Duration) {}
 
-    fn now(&mut self) -> Duration {
-        if !self.fixed_clock {
-            self.now += Duration::from_nanos(1);
-        }
-        self.now
-    }
-
     fn abort(&mut self) -> Vec<Transfer> {
         let aborted: Vec<Transfer> = self.queue.drain(..).collect();
         self.line(format_args!("abort {}", aborted.len()));
@@ -160,10 +148,6 @@ impl Bus for FakeBus {
         };
         self.line(format_args!("progress {dir} {position}"));
         self.progress[direction] = position;
-    }
-
-    fn stats_changed(&mut self) {
-        self.stats_changed += 1;
     }
 }
 
