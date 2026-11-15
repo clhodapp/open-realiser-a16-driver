@@ -7,6 +7,11 @@ README are retained. See [README.ozzy.md](../../README.ozzy.md) for that history
 The A16 bridge lives in `tools/libusb-harness/`, with PipeWire processing in
 `tools/pipewire-upmix/`. Shared protocol code lives in `common/` and `engine/`.
 
+`crates/a16-engine` is a Rust port of that protocol engine, without
+dependencies outside std. The bridge does not use it yet. `cargo test` runs its
+tests, which include `tests/a16_trace.rs`: a trace of the engine on a fake bus
+whose SHA-256 must match the trace the C engine produced.
+
 Run `nix flake check` to build the package and execute its CTest suite and shared
 engine host tests. Tests
 cover fake-bus startup, USB transfer cleanup, profile generation, PipeWire
