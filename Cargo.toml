@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 [workspace]
 resolver = "3"
-members = ["crates/a16-engine", "crates/open-realiser-a16-driver"]
+members = ["crates/a16-control", "crates/a16-engine", "crates/open-realiser-a16-driver"]
 
 [workspace.package]
 edition = "2024"

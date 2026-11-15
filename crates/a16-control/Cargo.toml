@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "a16-control"
+version = "0.1.0"
+description = "Client for the TCP command server of the Smyth Realiser A16"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[[bin]]
+name = "a16-ctl"
+path = "src/bin/a16-ctl.rs"

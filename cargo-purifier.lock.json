@@ -1,8 +1,19 @@
 {
-  "cargoLock": "sha256-U7/SRIvlACSbirghAxfRw8kgXr2E9N4yxiE8YUyLNOg=",
-  "contentHash": "sha256-EmvufnRo4VBqg3DtZNC60cLQRr+ByJGOdJ9+uucPzUY=",
+  "cargoLock": "sha256-uKtPatn8RWn4VG4RaaadJExj0BdBEaZ3JRI7JPUoIV4=",
+  "contentHash": "sha256-lqvoxTcJ8z1jhVvmOue2M+ULsuslPduvizvRmWLqNf0=",
   "git": [],
   "packages": {
+    "a16-control": {
+      "bins": [
+        "a16-ctl"
+      ],
+      "lib": {
+        "kinds": [
+          "lib"
+        ],
+        "name": "a16_control"
+      }
+    },
     "a16-engine": {
       "bins": [],
       "lib": {
