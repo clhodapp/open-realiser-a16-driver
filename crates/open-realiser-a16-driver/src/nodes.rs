@@ -3,11 +3,15 @@
 //! sink and the `a16.capture` source. The card and the streams live on PipeWire's thread
 //! loop; the streams' process callbacks run on its realtime data thread, where they make
 //! only bounded copies through the queues and touch only atomics.
+//!
+//! The sink is a driver: when it drives its graph, a timer on the data thread starts each
+//! cycle, filling the graph's clock and triggering the graph, at the A16's rate as
+//! [`Cycles`] follows it. The source is in the sink's node group, so it follows that graph.
 
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 use std::ptr;
 use std::sync::Arc;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicPtr, Ordering};
 
 use pipewire::context::ContextRc;
 use pipewire::core::CoreRc;
@@ -16,6 +20,7 @@ use pipewire::sys as pw;
 use pipewire::thread_loop::ThreadLoopRc;
 
 use crate::bridge::{RATE, Shared};
+use crate::graph_clock::Cycles;
 use crate::live::{self, TARGET};
 
 /// One stream and what its callbacks reach.
@@ -28,6 +33,229 @@ struct Endpoint {
     /// The capture queue has filled to its target since it last ran dry (source only, on
     /// the data thread).
     capture_primed: bool,
+    /// The graph's position, as PipeWire last set it.
+    position: AtomicPtr<spa::spa_io_position>,
+    /// The data loop the stream runs on.
+    data_loop: *mut pw::pw_loop,
+    /// The sink's cycle timer, on the data loop; null for the source.
+    timer: *mut spa::spa_source,
+    /// When the sink's cycles start (on the data thread).
+    cycles: Cycles,
+}
+
+/// `priority.driver` of the sink. Of the drivers in one graph, the one with the highest
+/// priority drives it.
+const DRIVER_PRIORITY: &str = "1500";
+/// The cycle the timer runs before the graph has set its position.
+const DEFAULT_QUANTUM: u64 = 1024;
+
+/// `CLOCK_MONOTONIC`, in nanoseconds.
+fn monotonic_ns() -> u64 {
+    let mut ts = libc::timespec {
+        tv_sec: 0,
+        tv_nsec: 0,
+    };
+    // SAFETY: a valid timespec to fill
+    unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut ts) };
+    ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64
+}
+
+/// Run `f` with `endpoint` on the endpoint's data loop and wait for it.
+///
+/// # Safety
+///
+/// The endpoint and its data loop must be live; the caller must not be holding anything
+/// the data loop waits for.
+unsafe fn on_data_loop(
+    endpoint: *mut Endpoint,
+    f: unsafe extern "C" fn(
+        *mut spa::spa_loop,
+        bool,
+        u32,
+        *const c_void,
+        usize,
+        *mut c_void,
+    ) -> c_int,
+) {
+    // SAFETY: the caller's live endpoint and loop
+    unsafe {
+        let data_loop = (*endpoint).data_loop;
+        spa::spa_loop_invoke(
+            (*data_loop).loop_.cast(),
+            Some(f),
+            0,
+            ptr::null(),
+            0,
+            true,
+            endpoint.cast(),
+        );
+    }
+}
+
+/// Arm the sink's timer to fire at `nsec` on `CLOCK_MONOTONIC`, or disarm it with 0.
+///
+/// # Safety
+///
+/// On the data loop, with the endpoint's timer live.
+unsafe fn set_timer(e: &Endpoint, nsec: u64) {
+    let mut value = libc::timespec {
+        tv_sec: (nsec / 1_000_000_000) as libc::time_t,
+        tv_nsec: (nsec % 1_000_000_000) as libc::c_long,
+    };
+    let mut interval = libc::timespec {
+        tv_sec: 0,
+        tv_nsec: 0,
+    };
+    // SAFETY: the caller's live timer on its loop
+    unsafe {
+        spa::spa_loop_utils_update_timer(
+            (*e.data_loop).utils.cast(),
+            e.timer,
+            ptr::addr_of_mut!(value).cast(),
+            ptr::addr_of_mut!(interval).cast(),
+            true,
+        );
+    }
+}
+
+unsafe extern "C" fn add_timer(
+    _loop: *mut spa::spa_loop,
+    _async: bool,
+    _seq: u32,
+    _data: *const c_void,
+    _size: usize,
+    user_data: *mut c_void,
+) -> c_int {
+    // SAFETY: on the data loop, with the endpoint on_data_loop passes
+    unsafe {
+        let e = &mut *user_data.cast::<Endpoint>();
+        e.timer =
+            spa::spa_loop_utils_add_timer((*e.data_loop).utils.cast(), Some(cycle), user_data);
+    }
+    0
+}
+
+unsafe extern "C" fn remove_timer(
+    _loop: *mut spa::spa_loop,
+    _async: bool,
+    _seq: u32,
+    _data: *const c_void,
+    _size: usize,
+    user_data: *mut c_void,
+) -> c_int {
+    // SAFETY: on the data loop, with the endpoint on_data_loop passes
+    unsafe {
+        let e = &mut *user_data.cast::<Endpoint>();
+        if !e.timer.is_null() {
+            spa::spa_loop_utils_destroy_source((*e.data_loop).utils.cast(), e.timer);
+            e.timer = ptr::null_mut();
+        }
+    }
+    0
+}
+
+unsafe extern "C" fn start_timer(
+    _loop: *mut spa::spa_loop,
+    _async: bool,
+    _seq: u32,
+    _data: *const c_void,
+    _size: usize,
+    user_data: *mut c_void,
+) -> c_int {
+    // SAFETY: on the data loop, with the endpoint on_data_loop passes
+    unsafe {
+        let e = &mut *user_data.cast::<Endpoint>();
+        if !e.timer.is_null() {
+            let now = monotonic_ns();
+            e.cycles.start(now);
+            set_timer(e, now);
+        }
+    }
+    0
+}
+
+unsafe extern "C" fn stop_timer(
+    _loop: *mut spa::spa_loop,
+    _async: bool,
+    _seq: u32,
+    _data: *const c_void,
+    _size: usize,
+    user_data: *mut c_void,
+) -> c_int {
+    // SAFETY: on the data loop, with the endpoint on_data_loop passes
+    unsafe {
+        let e = &mut *user_data.cast::<Endpoint>();
+        if !e.timer.is_null() {
+            set_timer(e, 0);
+        }
+    }
+    0
+}
+
+/// The sink's timer, on the data thread: start a cycle. While the sink drives its graph,
+/// fill the graph's clock and trigger the graph; while it follows another driver, only
+/// keep the schedule.
+unsafe extern "C" fn cycle(data: *mut c_void, _expirations: u64) {
+    // SAFETY: data is the sink's Endpoint, which outlives its timer. PipeWire's position is
+    // live while set, and the driver alone writes its clock, on this thread
+    unsafe {
+        let e = &mut *data.cast::<Endpoint>();
+        let now = monotonic_ns();
+        let driving = pw::pw_stream_is_driving(e.stream);
+        let position = e.position.load(Ordering::Acquire);
+        let (duration, rate) = if position.is_null() {
+            (DEFAULT_QUANTUM, RATE)
+        } else {
+            let clock = &(*position).clock;
+            (
+                if clock.target_duration == 0 {
+                    DEFAULT_QUANTUM
+                } else {
+                    clock.target_duration
+                },
+                if clock.target_rate.denom == 0 {
+                    RATE
+                } else {
+                    clock.target_rate.denom
+                },
+            )
+        };
+        let c = e
+            .cycles
+            .wake(now, duration, rate, e.shared.a16_clock.read());
+        let shared = &e.shared;
+        shared
+            .graph_rate_diff
+            .store(c.rate_diff.to_bits(), Ordering::Relaxed);
+        shared.graph_locked.store(c.locked, Ordering::Relaxed);
+        set_timer(e, c.next_nsec);
+        if !driving {
+            return;
+        }
+        if !position.is_null() {
+            let clock = &mut (*position).clock;
+            clock.nsec = c.nsec;
+            clock.rate = spa::spa_fraction {
+                num: 1,
+                denom: rate,
+            };
+            clock.position += clock.duration;
+            clock.duration = duration;
+            let queued = u64::from(shared.sink.fifo.available());
+            clock.delay = (queued * u64::from(rate) / u64::from(RATE)) as i64;
+            clock.rate_diff = c.rate_diff;
+            clock.next_nsec = c.next_nsec;
+        }
+        pw::pw_stream_trigger_process(e.stream);
+    }
+}
+
+unsafe extern "C" fn io_changed(data: *mut c_void, id: u32, area: *mut c_void, _size: u32) {
+    // SAFETY: data is the Endpoint the listener was added with
+    let e = unsafe { &*data.cast::<Endpoint>() };
+    if id == spa::SPA_IO_Position {
+        e.position.store(area.cast(), Ordering::Release);
+    }
 }
 
 /// The card, on PipeWire's loop thread.
@@ -50,6 +278,9 @@ struct Nodes {
     profile_save: bool,
     sink: Option<Box<Endpoint>>,
     source: Option<Box<Endpoint>>,
+    /// The data loop the streams run on, and its name.
+    data_loop: *mut pw::pw_loop,
+    data_loop_name: String,
 }
 
 const DEVICE_PROPS: [(&CStr, &CStr); 5] = [
@@ -183,9 +414,11 @@ impl Nodes {
             (c"stream.dont-remix", "true".to_owned()),
             (c"node.group", "a16".to_owned()),
             (c"resample.quality", "4".to_owned()),
+            (c"node.loop.name", self.data_loop_name.clone()),
         ];
         if !source {
             items.extend([
+                (c"priority.driver", DRIVER_PRIORITY.to_owned()),
                 (c"a16.profile", profile.name.to_owned()),
                 (c"a16.room.required", profile.room.to_owned()),
                 (c"a16.speakers", profile.speakers.clone()),
@@ -209,6 +442,10 @@ impl Nodes {
             source,
             channels,
             capture_primed: false,
+            position: AtomicPtr::new(ptr::null_mut()),
+            data_loop: self.data_loop,
+            timer: ptr::null_mut(),
+            cycles: Cycles::default(),
         });
         let name = if source {
             c"A16 return"
@@ -227,6 +464,13 @@ impl Nodes {
                 return false;
             }
             let data = ptr::addr_of_mut!(*endpoint).cast::<c_void>();
+            if !source {
+                on_data_loop(ptr::addr_of_mut!(*endpoint), add_timer);
+                if endpoint.timer.is_null() {
+                    pw::pw_stream_destroy(endpoint.stream);
+                    return false;
+                }
+            }
             pw::pw_stream_add_listener(
                 endpoint.stream,
                 &mut endpoint.listener,
@@ -263,12 +507,16 @@ impl Nodes {
             } else {
                 spa::SPA_DIRECTION_INPUT
             };
+            let mut flags = pw::pw_stream_flags_PW_STREAM_FLAG_MAP_BUFFERS
+                | pw::pw_stream_flags_PW_STREAM_FLAG_RT_PROCESS;
+            if !source {
+                flags |= pw::pw_stream_flags_PW_STREAM_FLAG_DRIVER;
+            }
             let connected = pw::pw_stream_connect(
                 endpoint.stream,
                 direction,
                 pw::PW_ID_ANY,
-                pw::pw_stream_flags_PW_STREAM_FLAG_MAP_BUFFERS
-                    | pw::pw_stream_flags_PW_STREAM_FLAG_RT_PROCESS,
+                flags,
                 &mut param,
                 1,
             ) >= 0;
@@ -282,9 +530,13 @@ impl Nodes {
     }
 
     fn destroy_sink(&mut self) {
-        if let Some(endpoint) = self.sink.take() {
-            // SAFETY: the stream is live; destroying it stops its data callback first
-            unsafe { pw::pw_stream_destroy(endpoint.stream) };
+        if let Some(mut endpoint) = self.sink.take() {
+            // SAFETY: the timer and the stream are live; removing the timer on the data loop
+            // ends its callbacks, and destroying the stream stops its data callback first
+            unsafe {
+                on_data_loop(ptr::addr_of_mut!(*endpoint), remove_timer);
+                pw::pw_stream_destroy(endpoint.stream);
+            }
         }
     }
 
@@ -544,10 +796,17 @@ unsafe extern "C" fn state_changed(
     state: pw::pw_stream_state,
     error: *const c_char,
 ) {
-    // SAFETY: data is the Endpoint the listener was added with; PipeWire's strings
+    // SAFETY: data is the Endpoint the listener was added with; PipeWire's strings. The
+    // data loop never waits for the thread loop this runs on
     unsafe {
-        let e = &*data.cast::<Endpoint>();
         let streaming = state == pw::pw_stream_state_PW_STREAM_STATE_STREAMING;
+        if !(*data.cast::<Endpoint>()).source {
+            on_data_loop(
+                data.cast(),
+                if streaming { start_timer } else { stop_timer },
+            );
+        }
+        let e = &*data.cast::<Endpoint>();
         if streaming && e.source {
             e.shared.source.reset.store(true, Ordering::SeqCst);
         }
@@ -727,6 +986,8 @@ impl PipeWire {
                 profile_save: false,
                 sink: None,
                 source: None,
+                data_loop: ptr::null_mut(),
+                data_loop_name: String::new(),
             }),
             core_listener: None,
             core: None,
@@ -749,8 +1010,23 @@ impl PipeWire {
         );
         let n = &mut *this.nodes;
         n.core = core.as_raw_ptr();
+        // SAFETY: the context is live; its data loop lives as long as it does
+        unsafe {
+            let data_loop = pw::pw_context_get_data_loop(context.as_raw_ptr());
+            if data_loop.is_null() {
+                return Err(failed());
+            }
+            n.data_loop = pw::pw_data_loop_get_loop(data_loop);
+            if n.data_loop.is_null() || (*n.data_loop).name.is_null() {
+                return Err(failed());
+            }
+            n.data_loop_name = CStr::from_ptr((*n.data_loop).name)
+                .to_string_lossy()
+                .into_owned();
+        }
         n.stream_events.version = pw::PW_VERSION_STREAM_EVENTS;
         n.stream_events.state_changed = Some(state_changed);
+        n.stream_events.io_changed = Some(io_changed);
         n.stream_events.process = Some(process);
         n.proxy_events.version = pw::PW_VERSION_PROXY_EVENTS;
         n.proxy_events.bound = Some(device_bound);
