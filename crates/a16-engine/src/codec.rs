@@ -51,7 +51,7 @@ pub fn decode_frame(samples: &mut [u8; IN_SAMPLES_BYTES], frame: &[u8; IN_FRAME_
 mod tests {
     use super::*;
 
-    /// Every channel and bit on its own, as test_a16.c checks the C encoder.
+    /// Every channel and bit on its own, as the C harness checked the C encoder.
     #[test]
     fn single_bit_vectors() {
         for channel in 0..16 {

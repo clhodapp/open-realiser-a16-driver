@@ -7,9 +7,9 @@
 //!   96 kHz     the interrupt layout at 96 kHz
 //!   selector   the interrupt layout with the 'I' selector already at Automatic (no write)
 //! Every submission, control request and progress report is printed, then hashes of the
-//! rings. Compared with `golden/trace.txt`, which is the C engine's golden trace
-//! (`tests/golden/trace.txt` at the repository root) without what only the C shared memory
-//! had: each submission's offset in it and its hash.
+//! rings. Compared with `golden/trace.txt`: the golden trace of the C engine this crate
+//! ports, without what only the C shared memory had, each submission's offset in it and its
+//! hash.
 
 mod common;
 
