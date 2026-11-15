@@ -18,8 +18,6 @@
 
 #define RATE 48000u
 #define BLOCK 80u
-/* USB streaming stops after this long without an active playback or return client. */
-#define IDLE_STOP_NS 5000000000ULL
 /* How long the A16 may stay off the bus after its boot-time drop before the driver exits.
  * The A16 re-enumerates within a second after that drop. */
 #define LOST_WAIT_NS 3000000000ULL
@@ -33,10 +31,10 @@
  */
 #define BOOT_FIRST_NS 50000000000ULL
 #define BOOT_EXTEND_NS 5000000000ULL
-/* After a boot-time drop, no request goes to the A16 before this long after the drop,
- * or before its port reset finishes if that is later. The A16 answered requests sent
- * 6 to 8 s after a drop, and stopped answering some sent 4 s after one. */
-#define BOOT_QUIET_NS 9000000000ULL
+/* After a USB failure, no request goes to the reopened A16 before this long after the
+ * failure, or before its port reset finishes if that is later. After a boot-time drop the
+ * A16 answered requests sent 6 to 8 s later, and stopped answering some sent 4 s later. */
+#define RECOVERY_QUIET_NS 9000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
 /* Reopens tried on an A16 that is on the bus, after a USB failure. */
@@ -464,10 +462,6 @@ static bool a16_stream(struct live *l) {
     l->streaming = true;
     return true;
 }
-static void a16_pause(struct live *l) {
-    ozzy_engine_suspend(l->engine);
-    l->streaming = false;
-}
 /*
  * After a USB failure: close the A16 and reopen it with a port reset. With
  * boot_drop, the A16 may be off the bus for up to LOST_WAIT_NS first;
@@ -629,30 +623,28 @@ int main(int argc, char **argv) {
                             : "No A16 on the bus; exactly one high-speed A16 must be connected\n");
         goto done;
     }
-    uint64_t start = usb_now(), last = start, idle_since = start, failures[RECOVERY_LIMIT] = {0};
+    uint64_t start = usb_now(), last = start, failures[RECOVERY_LIMIT] = {0};
     unsigned int failure_count = 0;
+    /* Set once streaming has started: from then on the A16 streams until the driver exits,
+     * with silence while no client plays, so a client starting later loses no audio. */
+    bool keep_streaming = false;
     result = 0;
     fprintf(stderr, "READY: A16 attached, 16ch out/2ch in, 48000 Hz; USB streaming starts when a client "
-                    "plays or records\n");
+                    "first plays or records\n");
     while (!stopping && !atomic_load(&l->failed) &&
            (!seconds || usb_now() - start < (uint64_t)seconds * 1000000000ULL)) {
-        bool wanted = atomic_load(&l->sink.active) || atomic_load(&l->source.active), broken = false;
+        bool wanted = keep_streaming || atomic_load(&l->sink.active) || atomic_load(&l->source.active),
+             broken = false;
         if (l->streaming) {
             usb_bus_poll(&l->bus, 1);
             if (l->bus.failed || l->gone)
                 broken = true;
-            else if (wanted)
-                idle_since = usb_now();
-            else if (usb_now() - idle_since >= IDLE_STOP_NS) {
-                a16_pause(l);
-                fprintf(stderr, "USB streaming stopped: no active client\n");
-            }
         } else if (wanted && usb_now() >= l->hold_until) {
             if (a16_stream(l)) {
-                idle_since = usb_now();
+                keep_streaming = true;
                 if (l->last_failure)
                     fprintf(stderr, "USB streaming started, %.2f s after the last failure\n",
-                            (double)(idle_since - l->last_failure) / 1e9);
+                            (double)(usb_now() - l->last_failure) / 1e9);
                 else
                     fprintf(stderr, "USB streaming started\n");
             } else
@@ -695,12 +687,10 @@ int main(int argc, char **argv) {
             l->last_failure = now;
             uint64_t reopened = usb_now();
             fprintf(stderr, "A16 reopened %.2f s after the failure\n", (double)(reopened - now) / 1e9);
-            if (boot_drop) {
-                l->hold_until = reopened > now + BOOT_QUIET_NS ? reopened : now + BOOT_QUIET_NS;
+            l->hold_until = reopened > now + RECOVERY_QUIET_NS ? reopened : now + RECOVERY_QUIET_NS;
+            if (boot_drop)
                 l->boot_until = l->hold_until + BOOT_EXTEND_NS;
-                fprintf(stderr, "No USB requests until %.2f s after the boot-time drop\n",
-                        (double)(l->hold_until - now) / 1e9);
-            }
+            fprintf(stderr, "No USB requests until %.2f s after the failure\n", (double)(l->hold_until - now) / 1e9);
             continue;
         }
         if (l->streaming && usb_now() - last >= 5000000000ULL) {
