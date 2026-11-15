@@ -19,6 +19,7 @@ use std::time::Duration;
 use a16_engine::{Direction, Engine, PcmRing, SampleRate};
 
 use crate::bus::{Audio, Log, UsbBus};
+use crate::graph_clock::{A16Clock, Earliest};
 use crate::live::{self, Clock, Fifo, Level};
 use crate::profiles::Effective;
 use crate::samplerate::Resampler;
@@ -84,6 +85,11 @@ pub struct Shared {
     pub failed: AtomicBool,
     output_ratio: AtomicU64,
     capture_ratio: AtomicU64,
+    /// The frames the A16 has consumed and when, which clock the PipeWire graph.
+    pub a16_clock: A16Clock,
+    /// The sink's last cycle: its `rate_diff`, and whether it followed the A16 clock.
+    pub graph_rate_diff: AtomicU64,
+    pub graph_locked: AtomicBool,
     /// The selected profile, an index of `effective`.
     pub profile: AtomicUsize,
     pub effective: Vec<Effective>,
@@ -97,6 +103,9 @@ impl Shared {
             failed: AtomicBool::new(false),
             output_ratio: AtomicU64::new(0),
             capture_ratio: AtomicU64::new(0),
+            a16_clock: A16Clock::default(),
+            graph_rate_diff: AtomicU64::new(1f64.to_bits()),
+            graph_locked: AtomicBool::new(false),
             profile: AtomicUsize::new(profile),
             effective,
         }
@@ -120,6 +129,9 @@ pub struct AudioPath {
     /// The A16 has returned a sustained audio level, so it has finished booting.
     pub booted: bool,
     return_level: Level,
+    /// The frames the A16 has taken in out transfers since the bridge started.
+    out_frames: u64,
+    earliest: Earliest,
     log: Log,
 }
 
@@ -135,8 +147,15 @@ impl AudioPath {
             output_primed: false,
             booted: false,
             return_level: Level::default(),
+            out_frames: 0,
+            earliest: Earliest::default(),
             log,
         })
+    }
+
+    /// Date the A16's frames afresh: the stream starts again.
+    pub fn restart_clock(&mut self) {
+        self.earliest.reset();
     }
 
     fn reset_output(&mut self) {
@@ -151,8 +170,13 @@ const BLOCK_SECONDS: f64 = BLOCK as f64 / RATE as f64;
 
 impl Audio for AudioPath {
     /// The next out transfer's 80 frames, from the playback queue: silence until the queue
-    /// has filled to its target, and after it runs dry until it fills again.
-    fn before_out(&mut self, ring: &mut PcmRing) {
+    /// has filled to its target, and after it runs dry until it fills again. The transfer
+    /// that completed at `now` carried 80 frames the A16 has taken, which advances the
+    /// graph's clock.
+    fn before_out(&mut self, ring: &mut PcmRing, now: u64) {
+        self.out_frames += BLOCK as u64;
+        let sample = self.earliest.date(self.out_frames, now);
+        self.shared.a16_clock.publish(sample);
         let out = ring.as_bytes_mut();
         out.fill(0);
         let shared = Arc::clone(&self.shared);
@@ -350,6 +374,7 @@ impl<U: Usb> Bridge<U> {
 
     /// Run the handshake and start streaming.
     fn stream(&mut self) -> bool {
+        self.audio.restart_clock();
         self.shared.sink.reset.store(true, Ordering::SeqCst);
         self.shared.source.reset.store(true, Ordering::SeqCst);
         self.bus.resume();
@@ -516,7 +541,7 @@ impl<U: Usb> Bridge<U> {
             if self.streaming && self.now() - last >= STATS_NS {
                 let s = &self.shared;
                 let line = format!(
-                    "stats usb={}/{} pw={}/{} queues={}/{} xruns={},{}/{},{} ratios={:.7}/{:.7}",
+                    "stats usb={}/{} pw={}/{} queues={}/{} xruns={},{}/{},{} ratios={:.7}/{:.7} graph={} rate_diff={:.7}",
                     self.bus.progress[0],
                     self.bus.progress[1],
                     s.sink.frames.load(Ordering::SeqCst),
@@ -529,6 +554,12 @@ impl<U: Usb> Bridge<U> {
                     s.source.overruns.load(Ordering::SeqCst),
                     f64::from_bits(s.output_ratio.load(Ordering::SeqCst)),
                     f64::from_bits(s.capture_ratio.load(Ordering::SeqCst)),
+                    if s.graph_locked.load(Ordering::Relaxed) {
+                        "a16"
+                    } else {
+                        "timer"
+                    },
+                    f64::from_bits(s.graph_rate_diff.load(Ordering::Relaxed)),
                 );
                 self.log(format_args!("{line}"));
                 last = self.now();
