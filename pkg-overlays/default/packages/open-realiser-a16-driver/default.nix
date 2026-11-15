@@ -18,18 +18,29 @@
   pipewire,
 }:
 let
+  # The flake's source, a path already in the store, so the builder can
+  # read the lockfiles while evaluating without anything being built or
+  # added to the store. srcFilter picks the files the builds see.
   root = ../../../..;
-  src = lib.fileset.toSource {
-    inherit root;
-    fileset = lib.fileset.unions [
-      (root + "/Cargo.toml")
-      (root + "/Cargo.lock")
-      (root + "/cargo-purifier.lock.json")
-      (root + "/crates")
-      (root + "/tools")
-    ];
+  sources = [
+    "Cargo.toml"
+    "Cargo.lock"
+    "cargo-purifier.lock.json"
+    "crates"
+    "tools"
+  ];
+  project = cargo-purifier.buildCargoProject {
+    src = root;
+    srcFilter =
+      path: type:
+      let
+        relative = lib.removePrefix "${toString root}/" (toString path);
+        name = baseNameOf path;
+      in
+      lib.elem (builtins.head (lib.splitString "/" relative)) sources
+      && !(type == "directory" && name == "target")
+      && !(lib.hasPrefix "result" name);
   };
-  project = cargo-purifier.buildCargoProject { inherit src; };
   # pipewire-rs generates its bindings with bindgen; the crate links
   # libsamplerate through pkg-config.
   native = [
