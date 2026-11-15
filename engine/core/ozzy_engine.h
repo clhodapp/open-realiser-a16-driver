@@ -24,7 +24,6 @@
 #include "../../common/ozzy_ep.h"
 #include "../../common/ozzy_settings.h"
 #include "../../common/ozzy_devices.h"
-#include "../../common/ozzy_route.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -153,10 +152,9 @@ struct ozzy_allocator {
 struct ozzy_engine;
 
 /*
- * struct ozzy_engine_ops - One per device family. Optional: @setting_quirks, @transfer_frames
- * (default: 0, no PCM), @setting_default (the family's
- * own default value of a setting, or -1: the setting's). @stop and @suspend end resubmitting (completions
- * with OZZY_STATUS_ABORTED resubmit nothing); the wrappers then abort what is in flight.
+ * struct ozzy_engine_ops - One per device family. Optional: @transfer_frames (default: 0, no
+ * PCM). @stop and @suspend end resubmitting (completions with OZZY_STATUS_ABORTED resubmit
+ * nothing); the wrappers then abort what is in flight.
  */
 struct ozzy_engine_ops {
 	void (*set_endpoint)(struct ozzy_engine *e, enum ozzy_pipe_role role, uint8_t address,
@@ -165,9 +163,7 @@ struct ozzy_engine_ops {
 	void (*stop)(struct ozzy_engine *e);
 	void (*suspend)(struct ozzy_engine *e);
 	void (*complete)(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status, uint32_t bytes);
-	uint32_t (*setting_quirks)(const struct ozzy_engine *e);
 	uint32_t (*transfer_frames)(const struct ozzy_engine *e, enum ozzy_pcm_dir dir);
-	int (*setting_default)(const struct ozzy_engine *e, unsigned int id);
 };
 
 /*
@@ -190,11 +186,8 @@ struct ozzy_engine_report {
 
 /*
  * struct ozzy_engine - What every family has, the first member of its own struct.
- * @settings:     what start() sends (ozzy_engine_attach: the defaults)
- * @in_route/@out_route: routing applied by the ring path, updated without a lock;
- *                a packet during a change may mix the old and new routing
- * @rate:         the rate start() asks for (ozzy_engine_set_rate; 0: the highest the device
- *                lists)
+ * @settings:     what start() runs with (ozzy_engine_attach: the defaults)
+ * @rate:         the rate start() asks for (ozzy_engine_set_rate; 0: the family's default)
  * @pcm_ring_set: ozzy_engine_set_pcm_ring(); the completion path picks it up
  * @pcm_ring/@pcm_pos: the rings as the completion path has them, and the ring position of
  *                each one's next frame (ozzy_engine_take_pcm_ring; completion path only)
@@ -216,8 +209,6 @@ struct ozzy_engine {
 	const struct ozzy_device *model;
 	struct ozzy_device_profile profile;
 	struct ozzy_settings settings;
-	struct ozzy_route in_route;
-	struct ozzy_route out_route;
 	uint32_t rate;
 	const struct ozzy_pcm_ring *volatile pcm_ring_set[OZZY_PCM_DIRS];
 	const struct ozzy_pcm_ring *pcm_ring[OZZY_PCM_DIRS];
@@ -342,20 +333,11 @@ static inline void ozzy_engine_suspend(struct ozzy_engine *e)
 }
 
 /*
- * ozzy_engine_restart - Take the rate and device settings that changed: suspend, then the
- * handshake again (a family's start may select the interfaces again first: ozzy_engine_reselect).
- * False if the device didn't take it; the engine is stopped then. Process context, not
+ * ozzy_engine_restart - Take the rate and settings that changed: suspend, then the handshake
+ * again. False if the device didn't take it; the engine is stopped then. Process context, not
  * concurrently with itself or stop.
  */
 bool ozzy_engine_restart(struct ozzy_engine *e);
-/*
- * The bus's reselect (SET_INTERFACE 0, then the profile's alternate setting, on each interface
- * that has one), from a family's start when it is a restart. The WZ4 stops streaming for good when a
- * restart keeps OUT dry, and the halts the handshake clears don't bring it back; SET_INTERFACE
- * does (#85). The official driver goes further on every rate change (SET_CONFIGURATION 0 then 1,
- * .claude/re/ploytec_sample_rates.md §5a).
- */
-void ozzy_engine_reselect(struct ozzy_engine *e);
 
 /*
  * The shared memory's stats (ozzy_stats.h): a completion on @pipe, from the completion path;
@@ -384,9 +366,8 @@ static inline void ozzy_engine_set_pcm_ring(struct ozzy_engine *e, enum ozzy_pcm
 
 /*
  * The sample rate the next ozzy_engine_start() asks for, in Hz (0, or one the model doesn't
- * list: the highest it lists). Like a device setting, a running engine takes it with a
- * restart (ozzy_engine_suspend, abort, ozzy_engine_start). Locked to S/PDIF the device runs
- * at the lock rate instead; shm->audio.sample_rate says what it runs at.
+ * list: the family's default). Like a setting, a running engine takes it with a restart
+ * (ozzy_engine_suspend, abort, ozzy_engine_start); shm->audio.sample_rate says what it runs at.
  */
 static inline void ozzy_engine_set_rate(struct ozzy_engine *e, uint32_t rate)
 {
@@ -395,10 +376,9 @@ static inline void ozzy_engine_set_rate(struct ozzy_engine *e, uint32_t rate)
 
 /* What a setting or rate change from the host comes to (ozzy_engine_change_setting/_rate) */
 enum ozzy_setting_change {
-	OZZY_SETTING_INVALID = -1,   /* the device has no such setting, value or rate (now) */
+	OZZY_SETTING_INVALID = -1,   /* no such setting, value or rate */
 	OZZY_SETTING_SAME = 0,       /* the value it already has */
-	OZZY_SETTING_ROUTED = 1,     /* a route: applied, the next packet has it */
-	OZZY_SETTING_RESTART = 2,    /* a device setting or rate: ozzy_engine_restart applies it */
+	OZZY_SETTING_RESTART = 2,    /* a setting or rate: ozzy_engine_restart applies it */
 };
 
 /*
@@ -416,17 +396,9 @@ static inline uint32_t ozzy_engine_safety_offset(uint32_t queued_frames, uint32_
 	return queued_frames > floor ? queued_frames : floor;
 }
 
-/* The rates the host may pick now: ozzy_device_host_rates with the last handshake's clock status */
-static inline unsigned int ozzy_engine_host_rates(const struct ozzy_engine *e, uint32_t *out)
-{
-	uint32_t lock = e->shm && e->shm->audio.settings.clock_locked ? e->shm->audio.settings.lock_rate : 0;
-
-	return ozzy_device_host_rates(e->model, lock, out);
-}
-
 /*
- * A rate from the host: checked against the host
- * rates and logged. OZZY_SETTING_RESTART: ozzy_engine_restart runs the device at it.
+ * A rate from the host: checked against the rates the model lists and logged.
+ * OZZY_SETTING_RESTART: ozzy_engine_restart runs the device at it.
  */
 enum ozzy_setting_change ozzy_engine_change_rate(struct ozzy_engine *e, uint32_t rate);
 
@@ -453,33 +425,20 @@ static inline uint32_t ozzy_engine_transfer_frames(const struct ozzy_engine *e, 
 	return 0;
 }
 
-/* --- Device settings (common/ozzy_settings.h) --- */
+/* --- Settings (common/ozzy_settings.h) --- */
 
-/* The model's quirks as far as settings go (a family drops what its transport can't do) */
-uint32_t ozzy_engine_setting_quirks(const struct ozzy_engine *e);
-bool ozzy_engine_has_setting(const struct ozzy_engine *e, unsigned int id);
-/* How many values setting @id has on this device (0: it doesn't have it) */
-unsigned int ozzy_engine_setting_values(const struct ozzy_engine *e, unsigned int id);
 /* The frames a PCM transfer in @dir must be a multiple of on this device (ozzy_pcm_step); 0: any */
 uint32_t ozzy_engine_pcm_step(const struct ozzy_engine *e, enum ozzy_pcm_dir dir);
-/* The value setting @id starts with on this device (ozzy_engine_attach): the family's default if
- * it has one, else the setting's */
-static inline uint8_t ozzy_engine_setting_default(const struct ozzy_engine *e, unsigned int id)
-{
-	int v = e->ops->setting_default ? e->ops->setting_default(e, id) : -1;
 
-	return v >= 0 ? (uint8_t)v : ozzy_setting_descs[id].def;
-}
-
-/* A device setting takes effect with the next start (ozzy_engine_restart); a route setting at
- * once. No checks: ozzy_engine_change_setting is the one with them. */
+/* A setting takes effect with the next start (ozzy_engine_restart). No checks:
+ * ozzy_engine_change_setting is the one with them. */
 void ozzy_engine_set_setting(struct ozzy_engine *e, unsigned int id, uint8_t value);
 
 /* A setting from the user: checked, logged and set */
 enum ozzy_setting_change ozzy_engine_change_setting(struct ozzy_engine *e, unsigned int id, unsigned int value);
 
-/* For the families: publish @e->settings and the clock status of the handshake start() just ran */
-void ozzy_engine_publish_settings(struct ozzy_engine *e, const struct ozzy_clock_status *clock);
+/* For the families: publish @e->settings as the start just ran them */
+void ozzy_engine_publish_settings(struct ozzy_engine *e);
 
 /* shm->info from the engine, the model and @e->report (ozzy_engine_start does it); the
  * platform may call it again after changing what it shows (the USB speed) */

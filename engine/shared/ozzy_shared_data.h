@@ -21,14 +21,13 @@ typedef volatile bool     ozzy_atomic_bool;
 
 #define OZZY_SHARED_MEM_NAME            "/ozzy_shared_mem"
 #define OZZY_MAGIC                      0x4F5A5A59   /* "OZZY" */
-#define OZZY_SHARED_VERSION             15           /* bump when ozzy_shared_memory changes layout */
+#define OZZY_SHARED_VERSION             16           /* bump when ozzy_shared_memory changes layout */
 
 /* Each PCM ring's bytes (struct ozzy_audio_buffer): the device's transfers end to end */
 #define OZZY_PCM_RING_BYTES             (1024 * 1024)
 
 /* ozzy_audio_buffer.device_flags */
 #define OZZY_DEVICE_FLAG_PLOYTEC_BULK   (1u << 0)    /* Ploytec 512-byte "bulk" output layout, else 482-byte "interrupt" */
-#define OZZY_DEVICE_FLAG_SPDIF_MIRROR   (1u << 2)    /* Ploytec bulk, 8 out: lanes 9/10 mirror a pair (ESU1808) */
 
 #define OZZY_MIDI_RING_SIZE             1024
 #define OZZY_MIDI_RING_MASK             (OZZY_MIDI_RING_SIZE - 1)
@@ -44,21 +43,17 @@ struct ozzy_audio_buffer {
 	uint32_t input_ring_frames;            /* frames in input_buffer */
 	uint32_t output_bytes_per_frame;       /* encoded bytes per output frame (e.g. 48) */
 	uint32_t input_bytes_per_frame;        /* encoded bytes per input frame (e.g. 64) */
-	uint32_t input_channels;               /* channels the device sends (e.g. 8, or 16 for the WZ4) */
-	uint32_t output_channels;              /* channels the device receives (e.g. 8, or 2 for the WZ4) */
+	uint32_t input_channels;               /* channels the device sends (2) */
+	uint32_t output_channels;              /* channels the device receives (16) */
 	uint32_t safety_offset_frames;         /* how far ahead of the clock the engine reads output */
 	uint32_t input_safety_offset_frames;   /* how far behind the clock input is complete (0: as output) */
 
 	/*
-	 * Device settings (common/ozzy_settings.h) as the engine applied them at its last
-	 * handshake, and what the device reported. Written before driver_ready at start, and before
-	 * a settings change returns to the host.
+	 * Settings (common/ozzy_settings.h) as the engine ran them at its last start. Written
+	 * before driver_ready.
 	 */
 	struct {
-		uint32_t available;            /* bit (1 << enum ozzy_setting) per setting the device has */
 		uint8_t value[OZZY_NUM_SETTINGS];
-		uint8_t clock_locked;          /* locked to S/PDIF (clock source Automatic only) */
-		uint32_t lock_rate;            /* Hz while clock_locked */
 	} settings;
 
 	/*

@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * struct ozzy_info (engine/shared/ozzy_info.h), what ozzy-cli and the ozzy app show: a start
- * publishes it with the model, the pipes, the stream format and what the handshake read; a
- * restart at another rate updates it and counts the start; the USB speed the platform sets
- * shows.
+ * struct ozzy_info (engine/shared/ozzy_info.h) on the Realiser A16: a start publishes it with
+ * the model, the pipes, the stream format and what the handshake read; a restart at another rate
+ * updates it and counts the start; the USB speed the platform sets shows.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -15,7 +14,7 @@
 
 int main(void)
 {
-	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0xFFDB);   /* Xone:DB4 */
+	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0x5A16);
 	static struct ozzy_shared_memory shm;
 	const struct ozzy_info *info = &shm.info;
 	struct fake_bus fb;
@@ -34,7 +33,7 @@ int main(void)
 	CHECK(info->version == OZZY_INFO_VERSION && info->size == sizeof(*info), "version %u size %u",
 	      info->version, info->size);
 	CHECK(info->starts == 1, "starts %u", info->starts);
-	CHECK(info->vendor_id == 0x0A4A && info->product_id == 0xFFDB, "USB ID %04x:%04x", info->vendor_id,
+	CHECK(info->vendor_id == 0x0A4A && info->product_id == 0x5A16, "USB ID %04x:%04x", info->vendor_id,
 	      info->product_id);
 	CHECK(info->family == OZZY_FAMILY_PLOYTEC_XONE && info->status == model->status, "family %u status %u",
 	      info->family, info->status);
@@ -44,12 +43,12 @@ int main(void)
 	CHECK(info->firmware_valid && info->firmware[0] == 1, "firmware %u.%u.%u", info->firmware[0],
 	      info->firmware[1], info->firmware[2]);
 	CHECK(info->input_selector_valid, "input selector not read");
-	CHECK(info->sample_rate == shm.audio.sample_rate && info->sample_rate == 96000, "rate %u", info->sample_rate);
+	CHECK(info->sample_rate == shm.audio.sample_rate && info->sample_rate == 48000, "rate %u", info->sample_rate);
 	CHECK(info->device_rates == model->rates, "device rates %#x", info->device_rates);
-	CHECK(info->host_rates == model->rates, "host rates %#x (not locked: all the device lists)", info->host_rates);
-	CHECK(info->in_channels == 8 && info->out_channels == 8, "channels %u / %u", info->in_channels,
+	CHECK(info->in_channels == 2 && info->out_channels == 16, "channels %u / %u", info->in_channels,
 	      info->out_channels);
-	CHECK(info->transfer_frames[OZZY_PCM_OUT] && info->transfer_frames[OZZY_PCM_IN], "transfer frames %u / %u",
+	CHECK(info->transfer_frames[OZZY_PCM_OUT] == 80 && info->transfer_frames[OZZY_PCM_IN] == 80,
+	      "transfer frames %u / %u",
 	      info->transfer_frames[OZZY_PCM_OUT], info->transfer_frames[OZZY_PCM_IN]);
 	CHECK(info->out_bytes_per_frame == shm.audio.output_bytes_per_frame &&
 	      info->in_bytes_per_frame == shm.audio.input_bytes_per_frame, "bytes per frame");

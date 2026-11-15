@@ -21,17 +21,11 @@ void ploytec_decode_pcm_in(struct ozzy_engine *e, ploytec_frame_fn decode, uint3
 	r = ozzy_mod_u64(e->pcm_pos[OZZY_PCM_IN], ring->frames);
 	for (f = 0; f < frames; f++) {
 		uint8_t *dst = ring->base + r * frame_bytes;
-		uint8_t decoded[PLOYTEC_MAX_IN_CHANNELS * 3];
 
-		if (f >= got) {
+		if (f >= got)
 			memset(dst, 0, frame_bytes);
-		} else if (e->in_route.identity) {
+		else
 			decode(dst, packet + f * PLOYTEC_IN_FRAME_SIZE);
-		} else {
-			/* Input routing (US-144MKII, US-600): decode, then move the pairs */
-			decode(decoded, packet + f * PLOYTEC_IN_FRAME_SIZE);
-			ozzy_route_frame(dst, decoded, &e->in_route, 2 * 3);
-		}
 		if (++r == ring->frames)
 			r = 0;
 	}

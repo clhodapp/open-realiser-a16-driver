@@ -2,8 +2,8 @@
 /*
  * Ploytec USB Protocol Helpers
  *
- * Platform-independent protocol logic for Allen & Heath Xone devices
- * using the Ploytec USB audio chipset. These functions contain pure
+ * Platform-independent protocol logic for the Ploytec USB audio chipset
+ * of the Realiser A16. These functions contain pure
  * computation -- no I/O, no platform headers, no side effects.
  *
  * Used by the Linux userspace driver.
@@ -44,8 +44,6 @@ extern "C" {
  */
 enum ploytec_ctrl_reg {
 	PLOYTEC_REG_AJ_INPUT_SEL    = 0,  /* AJ input selector / digital status */
-	PLOYTEC_REG_US3XX_CONFIG    = 1,  /* US3XX / mixer / CPLD config */
-	PLOYTEC_REG_DIGITAL_OUT_SEL = 2,  /* digital output selector (write only) */
 };
 
 /*
@@ -57,7 +55,7 @@ enum ploytec_ctrl_reg {
  *
  * Confirmed bits:
  *   0x02 - clock source: set = automatic (S/PDIF in when valid), clear = internal
- *   0x04 - digital signal lock (detected via (byte & 0x05) == 0x04)
+ *   0x04 - digital signal lock
  *
  * Partially understood bits (device-dependent mode/config):
  *   0x01, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -65,7 +63,7 @@ enum ploytec_ctrl_reg {
  */
 enum ploytec_aj_input_flags {
 	PLOYTEC_AJ_MODE0_BIT        = 0x01,  /* mode/config, device-dependent */
-	PLOYTEC_AJ_INPUT_SELECT_BIT = 0x02,  /* clock source: set = automatic (ploytec_aj_clock_byte) */
+	PLOYTEC_AJ_INPUT_SELECT_BIT = 0x02,  /* clock source: set = automatic */
 	PLOYTEC_AJ_DIGITAL_LOCK_BIT = 0x04,  /* digital signal lock */
 	PLOYTEC_AJ_MODE3_BIT        = 0x08,  /* mode/config, device-dependent */
 	PLOYTEC_AJ_MODE4_BIT        = 0x10,  /* mode/config, device-dependent */
@@ -73,46 +71,6 @@ enum ploytec_aj_input_flags {
 	PLOYTEC_AJ_MODE6_BIT        = 0x40,  /* mode/config, device-dependent */
 	PLOYTEC_AJ_MODE7_BIT        = 0x80,  /* mode/config, device-dependent */
 };
-
-/* Digital lock is detected when (byte & LOCK_MASK) == LOCK_VALUE */
-#define PLOYTEC_AJ_DIGITAL_LOCK_MASK   0x05
-#define PLOYTEC_AJ_DIGITAL_LOCK_VALUE  0x04
-
-/*
- * ploytec_aj_clock_byte - The selector byte @b with bit 1 for clock source @clock
- * (enum ozzy_clock_source). The official updateAjInputSelector sets bit 1 for
- * ClockSource (AjExtData[1]) 0 and clears it otherwise; Tascam's Control Panel calls 0
- * "Automatic" (the default) and 1 "Internal". Not yet seen on a device.
- */
-static inline uint8_t ploytec_aj_clock_byte(uint8_t b, uint8_t clock)
-{
-	return clock == 0 ? (uint8_t)(b | PLOYTEC_AJ_INPUT_SELECT_BIT) :
-			    (uint8_t)(b & ~PLOYTEC_AJ_INPUT_SELECT_BIT);
-}
-
-/*
- * ploytec_aj_locked - Whether the selector byte reports digital lock.
- */
-static inline bool ploytec_aj_locked(uint8_t b)
-{
-	return (b & PLOYTEC_AJ_DIGITAL_LOCK_MASK) == PLOYTEC_AJ_DIGITAL_LOCK_VALUE;
-}
-
-/*
- * ESI U-series selector states (updateAjInputSelector_Esu186): the byte keeps the
- * PRESERVE_MASK bits it reads and gets one of three states, from the driver's
- * clock setting (AjExtData+4): 2 -> STATE_A, 1 -> STATE_B, else STATE_C. STATE_B
- * also sends the 'A' request with bit 0 set. Which state is which clock source
- * ("Internal (Analoge audio only)" / "External SPDIF" in ESI's 2.0 driver) is open;
- * STATE_A is the one the driver reports as its default (*param_1 = 0x32).
- */
-#define PLOYTEC_AJ_ESU_PRESERVE_MASK   0x4C
-#define PLOYTEC_AJ_ESU_STATE_A         0x32
-#define PLOYTEC_AJ_ESU_STATE_B         0xB0
-#define PLOYTEC_AJ_ESU_STATE_C         0xB2
-
-/* ESI CPLD byte ('I' wIndex 1, setEsuCpldByte): wValue = setting | 0xE7, setting 0 at start */
-#define PLOYTEC_ESI_CPLD_BASE          0xE7
 
 /*
  * struct ploytec_aj_input_status - Decoded AJ Input Selector register (wIndex=0).

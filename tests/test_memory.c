@@ -82,13 +82,13 @@ static void fill(struct fake_xfer *x, void *arg)
 		x->buf[i] = (uint8_t)fake_rand(&seed);
 }
 
-/* Xone:DB4 with 4 PCM slots: the frames of OUT transfer n >= 4 are ring frames (n - 4) * 80.. */
-static void xone(void)
+/* The A16 with 4 PCM slots: the frames of OUT transfer n >= 4 are ring frames (n - 4) * 80.. */
+static void a16(void)
 {
-	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0xFFDB);
+	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0x5A16);
 	static struct ozzy_shared_memory shm;
-	static uint8_t ring[800 * 24];
-	struct ozzy_pcm_ring ro = { ring, 800, 8, 0 };
+	static uint8_t ring[800 * 48];
+	struct ozzy_pcm_ring ro = { ring, 800, 16, 0 };
 	struct platform_memory pm = { { 0 } };
 	struct ozzy_allocator a = { pm_alloc, pm_free, &pm };
 	struct fake_bus fb;
@@ -106,7 +106,7 @@ static void xone(void)
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	CHECK(ozzy_engine_alloc_memory(e, &a), "alloc");
 	ozzy_engine_set_pcm_ring(e, OZZY_PCM_OUT, &ro);
-	CHECK(ozzy_engine_start(e), "Xone start");
+	CHECK(ozzy_engine_start(e), "A16 start");
 
 	for (i = 0; i < 400 && fake_bus_pop(&fb, &x); i++) {
 		outside += !in_platform_memory(&pm, x.buf, x.size);
@@ -116,24 +116,24 @@ static void xone(void)
 			for (f = 0; n >= 4 && f < 80; f++) {   /* the default transfer: 80 frames */
 				uint8_t enc[48];
 
-				ploytec_encode_frame_8ch(enc, ring + (((n - 4) * 80 + f) % 800) * 24);
+				ploytec_encode_frame_16ch(enc, ring + (((n - 4) * 80 + f) % 800) * 48);
 				wrong += memcmp(enc, x.buf + ploytec_out_frame_offset(PLOYTEC_OUT_LAYOUT_INT, f), 48) != 0;
 			}
 			outs += n >= 4;
 		}
 		fake_bus_complete(&fb, e, &x, fill, NULL);
 	}
-	CHECK(!outside, "Xone: %u transfers outside the platform's memory", outside);
-	CHECK(outs > 50 && !wrong, "Xone: %u ring-encoded OUT transfers, %u wrong frames", outs, wrong);
+	CHECK(!outside, "A16: %u transfers outside the platform's memory", outside);
+	CHECK(outs > 50 && !wrong, "A16: %u ring-encoded OUT transfers, %u wrong frames", outs, wrong);
 	CHECK(all_zero(shm.audio.output_buffer, sizeof(shm.audio.output_buffer)) &&
-	      all_zero(shm.audio.input_buffer, sizeof(shm.audio.input_buffer)), "Xone: the shared memory's PCM buffers were touched");
+	      all_zero(shm.audio.input_buffer, sizeof(shm.audio.input_buffer)), "A16: the shared memory's PCM buffers were touched");
 	ozzy_engine_stop(e);
-	platform_memory_done(&pm, e, "Xone");
+	platform_memory_done(&pm, e, "A16");
 	free(e);
 }
 
 int main(void)
 {
-	xone();
+	a16();
 	return CHECK_DONE("platform memory");
 }

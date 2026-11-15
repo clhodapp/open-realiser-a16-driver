@@ -28,23 +28,9 @@ struct ozzy_engine *ozzy_engine_init(void *mem, const struct ozzy_device *model)
 	return (struct ozzy_engine *)mem;
 }
 
-/* The routing from the route settings (common/ozzy_settings.h) */
-static void update_routes(struct ozzy_engine *e)
-{
-	uint32_t available = 0;
-	unsigned int i;
-
-	for (i = 0; i < OZZY_NUM_SETTINGS; i++)
-		if (ozzy_engine_has_setting(e, i))
-			available |= 1u << i;
-	ozzy_settings_route(&e->in_route, &e->settings, available, true, e->model->in_channels);
-	ozzy_settings_route(&e->out_route, &e->settings, available, false, e->model->out_channels);
-}
-
 void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volatile struct ozzy_shared_memory *shm)
 {
 	struct ozzy_engine_memory *m = &e->mem;
-	unsigned int i;
 
 	ozzy_engine_free_memory(e);
 	e->bus = bus;
@@ -61,9 +47,6 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 	if (!shm->product_name[0])
 		ozzy_strlcpy((char *)shm->product_name, e->model->name, sizeof(shm->product_name));
 	ozzy_settings_defaults(&e->settings);
-	for (i = 0; i < OZZY_NUM_SETTINGS; i++)
-		e->settings.value[i] = ozzy_engine_setting_default(e, i);
-	update_routes(e);
 
 	/* Transfers in the shared memory (laid out at start) */
 	memset(m, 0, sizeof(*m));
@@ -72,16 +55,6 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 	m->pcm_in_ring = (uint8_t *)shm->audio.input_buffer;
 	m->pcm_in_ring_bytes = sizeof(shm->audio.input_buffer);
 	m->pcm_out_slots = m->pcm_in_slots = 1;
-}
-
-uint32_t ozzy_engine_setting_quirks(const struct ozzy_engine *e)
-{
-	return e->ops->setting_quirks ? e->ops->setting_quirks(e) : e->model->quirks;
-}
-
-unsigned int ozzy_engine_setting_values(const struct ozzy_engine *e, unsigned int id)
-{
-	return ozzy_setting_values(ozzy_engine_setting_quirks(e), e->model->in_channels, e->model->out_channels, id);
 }
 
 uint32_t ozzy_engine_pcm_step(const struct ozzy_engine *e, enum ozzy_pcm_dir dir)
@@ -94,14 +67,9 @@ uint32_t ozzy_engine_pcm_step(const struct ozzy_engine *e, enum ozzy_pcm_dir dir
 			     e->shm->audio.output_bytes_per_frame : e->shm->audio.input_bytes_per_frame);
 }
 
-bool ozzy_engine_has_setting(const struct ozzy_engine *e, unsigned int id)
-{
-	return ozzy_engine_setting_values(e, id) > 0;
-}
-
 enum ozzy_setting_change ozzy_engine_change_setting(struct ozzy_engine *e, unsigned int id, unsigned int value)
 {
-	if (id >= OZZY_NUM_SETTINGS || value >= ozzy_engine_setting_values(e, id))
+	if (id >= OZZY_NUM_SETTINGS || value >= ozzy_setting_descs[id].num_values)
 		return OZZY_SETTING_INVALID;
 	if (!ozzy_setting_value_fits(id, value, ozzy_engine_pcm_step(e, OZZY_PCM_OUT), ozzy_engine_pcm_step(e, OZZY_PCM_IN))) {
 		ozzy_log("%s: %s isn't whole packets of the endpoint", ozzy_setting_descs[id].name,
@@ -112,21 +80,15 @@ enum ozzy_setting_change ozzy_engine_change_setting(struct ozzy_engine *e, unsig
 		return OZZY_SETTING_SAME;
 	ozzy_log("%s: %s", ozzy_setting_descs[id].name, ozzy_setting_descs[id].value_names[value]);
 	ozzy_engine_set_setting(e, id, (uint8_t)value);
-	return ozzy_setting_descs[id].kind == OZZY_SETTING_DEVICE ? OZZY_SETTING_RESTART : OZZY_SETTING_ROUTED;
+	return OZZY_SETTING_RESTART;
 }
 
 enum ozzy_setting_change ozzy_engine_change_rate(struct ozzy_engine *e, uint32_t rate)
 {
-	uint32_t rates[OZZY_MAX_RATES], current = e->shm ? e->shm->audio.sample_rate : 0;
-	unsigned int i, n = ozzy_engine_host_rates(e, rates);
+	uint32_t current = e->shm ? e->shm->audio.sample_rate : 0;
 
-	for (i = 0; i < n && rates[i] != rate; i++)
-		;
-	if (i == n) {
-		if (e->shm && e->shm->audio.settings.clock_locked)
-			ozzy_log("%u Hz: locked to S/PDIF at %u Hz", rate, (unsigned int)e->shm->audio.settings.lock_rate);
-		else
-			ozzy_log("%u Hz: not a rate the device has", rate);
+	if (!ozzy_device_has_rate(e->model, rate)) {
+		ozzy_log("%u Hz: not a rate the device has", rate);
 		return OZZY_SETTING_INVALID;
 	}
 	if (rate == current)
@@ -267,10 +229,8 @@ void ozzy_engine_publish_info(struct ozzy_engine *e)
 	volatile struct ozzy_shared_memory *shm = e->shm;
 	const struct ozzy_device *model = e->model;
 	const struct ozzy_engine_report *r = &e->report;
-	struct ozzy_device every_rate;
 	struct ozzy_info info;
-	uint32_t rates[OZZY_MAX_RATES], hz[OZZY_MAX_RATES];
-	unsigned int i, k, n, nall;
+	unsigned int i;
 
 	if (!shm)
 		return;
@@ -294,30 +254,18 @@ void ozzy_engine_publish_info(struct ozzy_engine *e)
 	memcpy(info.firmware, r->firmware, sizeof(info.firmware));
 	info.input_selector_valid = r->input_selector_valid;
 	info.input_selector = r->input_selector;
-	info.clock_locked = shm->audio.settings.clock_locked;
 
 	info.sample_rate = shm->audio.sample_rate;
 	info.boot_rate = r->boot_rate;
-	info.lock_rate = info.clock_locked ? shm->audio.settings.lock_rate : 0;
 	info.device_rates = model->rates;
-	/* The host rates as OZZY_RATE_* bits: their places among all the rates there are */
-	memset(&every_rate, 0, sizeof(every_rate));
-	every_rate.rates = (1u << OZZY_MAX_RATES) - 1;
-	nall = ozzy_device_rates(&every_rate, hz);
-	n = ozzy_engine_host_rates(e, rates);
-	for (i = 0; i < n; i++)
-		for (k = 0; k < nall; k++)
-			if (rates[i] == hz[k])
-				info.host_rates |= 1u << k;
 	info.in_channels = model->in_channels;
 	info.out_channels = model->out_channels;
-	info.transfer_frames[OZZY_PCM_OUT] = model->out_channels ? ozzy_engine_transfer_frames(e, OZZY_PCM_OUT) : 0;
-	info.transfer_frames[OZZY_PCM_IN] = model->in_channels ? ozzy_engine_transfer_frames(e, OZZY_PCM_IN) : 0;
-	info.out_bytes_per_frame = model->out_channels ? shm->audio.output_bytes_per_frame : 0;
-	info.in_bytes_per_frame = model->in_channels ? shm->audio.input_bytes_per_frame : 0;
+	info.transfer_frames[OZZY_PCM_OUT] = ozzy_engine_transfer_frames(e, OZZY_PCM_OUT);
+	info.transfer_frames[OZZY_PCM_IN] = ozzy_engine_transfer_frames(e, OZZY_PCM_IN);
+	info.out_bytes_per_frame = shm->audio.output_bytes_per_frame;
+	info.in_bytes_per_frame = shm->audio.input_bytes_per_frame;
 	info.safety_offset_frames = shm->audio.safety_offset_frames;
-	info.input_safety_offset_frames = model->in_channels ? (shm->audio.input_safety_offset_frames ?
-				shm->audio.input_safety_offset_frames : shm->audio.safety_offset_frames) : 0;
+	info.input_safety_offset_frames = shm->audio.input_safety_offset_frames;
 	if (e->driver_version)
 		ozzy_strlcpy(info.driver_version, e->driver_version, sizeof(info.driver_version));
 	for (i = 0; i < OZZY_PIPE_ROLES; i++) {
@@ -328,20 +276,6 @@ void ozzy_engine_publish_info(struct ozzy_engine *e)
 		info.pipes[i].in_flight = e->pipe[i].address ? r->in_flight[i] : 0;
 	}
 	memcpy((void *)&shm->info, &info, sizeof(info));
-}
-
-void ozzy_engine_reselect(struct ozzy_engine *e)
-{
-	const struct ozzy_bus *bus = e->bus;
-	unsigned int i;
-	bool any = false;
-
-	for (i = 0; i < e->profile.interface_count && i < 4; i++)
-		any |= e->profile.alt_settings[i] != 0;
-	if (!any || !bus || !bus->ops->reselect)
-		return;
-	if (!bus->ops->reselect(bus->ctx, e->profile.alt_settings))
-		ozzy_log("selecting the alternate settings again failed");
 }
 
 bool ozzy_engine_restart(struct ozzy_engine *e)
@@ -359,26 +293,17 @@ void ozzy_engine_set_setting(struct ozzy_engine *e, unsigned int id, uint8_t val
 	if (id >= OZZY_NUM_SETTINGS)
 		return;
 	e->settings.value[id] = value;
-	if (ozzy_setting_descs[id].kind != OZZY_SETTING_DEVICE)
-		update_routes(e);
 }
 
-void ozzy_engine_publish_settings(struct ozzy_engine *e, const struct ozzy_clock_status *clock)
+void ozzy_engine_publish_settings(struct ozzy_engine *e)
 {
 	volatile struct ozzy_shared_memory *shm = e->shm;
-	uint32_t available = 0;
 	unsigned int i;
 
 	if (!shm)
 		return;
-	for (i = 0; i < OZZY_NUM_SETTINGS; i++) {
-		if (ozzy_engine_has_setting(e, i))
-			available |= 1u << i;
+	for (i = 0; i < OZZY_NUM_SETTINGS; i++)
 		shm->audio.settings.value[i] = e->settings.value[i];
-	}
-	shm->audio.settings.available = available;
-	shm->audio.settings.lock_rate = clock->locked ? clock->lock_rate : 0;
-	shm->audio.settings.clock_locked = clock->locked;
 }
 
 const struct ozzy_pcm_ring *ozzy_engine_take_pcm_ring(struct ozzy_engine *e, enum ozzy_pcm_dir dir)

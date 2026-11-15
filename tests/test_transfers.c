@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * PCM transfer sizes (OZZY_SETTING_PCM_OUT_FRAMES / _IN_FRAMES) on the Ploytec bulk / interrupt
- * family, both out layouts (DB4: 964-byte interrupt, ESU1808: 512-byte bulk), every size that is
+ * PCM transfer sizes (OZZY_SETTING_PCM_OUT_FRAMES / _IN_FRAMES) on the Realiser A16, both out
+ * layouts (the A16's 964-byte interrupt endpoint, and a 512-byte bulk one), every size that is
  * whole packets of the out endpoint (20 frames on the 964 layout, 10 on 512; the rest is rounded
  * up, ozzy_pcm_step): a transfer is frames / 10 sub-packets out and frames * 64 bytes in, end to end in the shared
  * memory's rings, which hold a whole number of them; the bytes on the wire are the same stream
@@ -46,10 +46,6 @@ static void fill_in(struct fake_xfer *x, void *arg)
 	struct in_fill *st = arg;
 	uint32_t i;
 
-	if (x->pipe != PCM_IN) {
-		memset(x->buf, 0xFD, x->size);   /* MIDI IN: idle */
-		return;
-	}
 	for (i = 0; i < x->size; i++)
 		x->buf[i] = (uint8_t)(st->counter++ * 37 + 11);
 }
@@ -82,8 +78,6 @@ static void run(uint16_t vid, uint16_t pid, uint16_t out_max_packet, unsigned in
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, PCM_OUT, out_max_packet <= 512 ? 2 : 3, out_max_packet, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, PCM_IN, 2, 512, 0);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	CHECK(ozzy_engine_has_setting(e, OZZY_SETTING_PCM_OUT_FRAMES) &&
-	      ozzy_engine_has_setting(e, OZZY_SETTING_PCM_IN_FRAMES), "%s: no transfer size settings", model->name);
 	CHECK(ozzy_engine_change_setting(e, OZZY_SETTING_PCM_OUT_FRAMES, out_value) != OZZY_SETTING_INVALID &&
 	      ozzy_engine_change_setting(e, OZZY_SETTING_PCM_IN_FRAMES, in_value) != OZZY_SETTING_INVALID,
 	      "%s: sizes refused", model->name);
@@ -203,7 +197,7 @@ static void compare(const char *name, uint16_t vid, uint16_t pid, uint16_t out_m
 
 int main(void)
 {
-	compare("Xone:DB4 (964 interrupt)", 0x0A4A, 0xFFDB, 964);
-	compare("ESI ESU1808 (512 bulk)", 0x0A92, 0x0111, 512);
+	compare("Realiser A16 (964 interrupt)", 0x0A4A, 0x5A16, 964);
+	compare("Realiser A16 (512 bulk)", 0x0A4A, 0x5A16, 512);
 	return CHECK_DONE("transfers");
 }
