@@ -26,7 +26,7 @@
 /*
  * The A16 drops off USB when it receives playback about 43.5 s after a power-up
  * enumerates it, sooner when the cable is connected partway through a boot, and again
- * 0.5 to 1.5 s after playback resumes while that boot step lasts. A failure counts as
+ * 0.5 to 1.5 s after playback resumes, until about 50 s into the boot. A failure counts as
  * such a drop while a client is active, before the A16 has returned a sustained audio
  * level (live_level_feed), and inside the boot window: BOOT_FIRST_NS from the first open, then after each
  * boot-time drop until BOOT_EXTEND_NS after the stream may resume.
