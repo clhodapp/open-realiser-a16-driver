@@ -1,4 +1,4 @@
-# Ploytec MIDI framing (in and out)
+# Ploytec MIDI out framing
 
 Source: XONE_DB2 3.4.9 kext (`DB2_decompile/XONE_DB2_kext_all.c`), verified against usbmon
 captures of a DB4 fw 1.4.1 on Linux (2026-10-12). Implemented in
@@ -46,28 +46,6 @@ unknown. Ozzy always sends 0xFF, as the official driver does when it is empty.
 
 Before 2026-10-12 Ozzy put one byte in sub-packet 0 of each packet only: 1200 bytes/s at 96k,
 600 bytes/s at 48k (DB2 runs at 48k only), and FD as the interrupt layout's second byte.
-
-## MIDI in: one frame per transfer on EP 0x83, format depends on rate
-
-`AJ::bulkRead` reads `m_pcMidiInPipe`; completion calls the handler at `AJ+0x30`, chosen in
-`AJ::streamingStarted` (@0x25b2) for Ploytec high-speed devices (case 1):
-
-| Rate | Handler | Frame |
-|------|---------|-------|
-| 32k / 44.1k / 48k | `inACR_M4_C1` | 4 MIDI slots + control byte (`putFrame(buf, 4)`) |
-| 88.2k / 96k | `inACR_M1_C1` | 1 MIDI slot + control byte (skips the frame if the slot is FD) |
-| 88.2k / 96k, pipe at `PGDevice+0xa90` interrupt with wMaxPacketSize 0x400 | `inACR_M2` | 2 MIDI slots |
-
-`MidiIO::putFrame` drops every 0xFD. `PGDevice+0xa90` is taken to be the PCM IN pipe
-(inferred: the DB4 fw 1.4.1's EP 0x86 is interrupt 1024 and its 96k frames are 2 bytes).
-
-Measured on DB4 fw 1.4.1 (Linux, usbmon):
-- 48 kHz: 5-byte transfers, `FD FD FD B0 FF`, `FD FD B0 25 FF` (byte 5 always FF)
-- 96 kHz: 2-byte transfers, `FD B0`, `FD 25` (one MIDI byte per transfer in practice)
-
-Before 2026-10-12 Ozzy passed whole transfers on: apps got FD (undefined real-time) and FF
-(**System Reset**) at 48k. On macOS at 96k the DB4 looked clean (no control byte at 96k),
-but a DB2 (48k only) would have sent FF to apps.
 
 ## Open
 

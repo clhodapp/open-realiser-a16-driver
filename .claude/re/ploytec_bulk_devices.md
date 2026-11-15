@@ -55,18 +55,10 @@ For the DB4 specifically:
 The `this[0x1888]` flag is 1 in BOTH cases (device is still High Speed). The transfer
 type difference comes from the firmware's endpoint descriptors, not from this flag.
 
-## All Ploytec High Speed devices (from isPloytecBulkDevice)
+## The A16 in isPloytecBulkDevice
 
-### VID 0x0A4A (Allen & Heath / Ploytec)
-0xAFFE, 0xCF00, 0xCF04, 0xD064, 0xDA01, 0xFF01, 0xFF4D,
-0xFFD2 (DB2), 0xFFDB (DB4), 0xFFDD (DX), 0xFFAD (Wizard 4), 0x5A16
-
-### Other VIDs
-- 0x0A92: 0x0111
-- 0x1ACC: 0x0102, 0x0103
-- 0x1D03: 0x005C
-- 0x200C: range 0x1005–0x1037 (bitmask)
-- 0x2573 (ESI Audiotechnik, ESU product line): 0x0012, 0x0013, 0x002A (bitmask)
+0A4A:5A16 is in the function's VID 0x0A4A list, with the Xones (0xFFDB DB4, 0xFFD2 DB2 and
+others).
 
 ## What bulk vs interrupt actually changes (official driver)
 
