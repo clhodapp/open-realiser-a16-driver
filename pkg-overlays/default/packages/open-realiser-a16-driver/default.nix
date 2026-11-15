@@ -1,42 +1,60 @@
 # SPDX-License-Identifier: MIT
+#
+# The driver: the binaries of the Cargo workspace, built with the
+# dependencies that `cargo-purifier lock` recorded, and the launchers and
+# configuration of the upmixer. Building it runs the tests of the
+# workspace, which include the Python checks of tools/, offline and
+# without an A16 or a PipeWire server.
 {
+  bash,
+  cargo-purifier,
   lib,
-  stdenv,
-  cmake,
+  makeWrapper,
   pkg-config,
   python3,
-  makeWrapper,
+  rustPlatform,
   libusb1,
   libsamplerate,
   pipewire,
 }:
-stdenv.mkDerivation {
-  pname = "open-realiser-a16-driver";
-  version = "0.1.0";
-  # The repository root, without local CMake build trees and result links.
-  src = lib.cleanSourceWith {
-    src = ../../../..;
-    filter =
-      path: type:
-      let
-        name = baseNameOf path;
-      in
-      !(lib.hasPrefix "build-userspace" name)
-      && !(lib.hasPrefix "result" name)
-      && lib.cleanSourceFilter path type;
+let
+  root = ../../../..;
+  src = lib.fileset.toSource {
+    inherit root;
+    fileset = lib.fileset.unions [
+      (root + "/Cargo.toml")
+      (root + "/Cargo.lock")
+      (root + "/cargo-purifier.lock.json")
+      (root + "/crates")
+      (root + "/tools")
+    ];
   };
-  nativeBuildInputs = [
-    cmake
+  project = cargo-purifier.buildCargoProject { inherit src; };
+  # pipewire-rs generates its bindings with bindgen; the crate links
+  # libsamplerate through pkg-config.
+  native = [
     pkg-config
-    python3
-    makeWrapper
+    rustPlatform.bindgenHook
   ];
-  buildInputs = [
+  libraries = [
     libusb1
     libsamplerate
     pipewire
   ];
-  postInstall = ''
+  tests = project.tests.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ native ++ [ python3 ];
+    buildInputs = (old.buildInputs or [ ]) ++ libraries;
+  });
+in
+project.packages.open-realiser-a16-driver.overrideAttrs (old: {
+  nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ native ++ [ makeWrapper ];
+  # bash for the shebang of a16-upmix.
+  buildInputs = (old.buildInputs or [ ]) ++ libraries ++ [ bash ];
+  # The package builds only once the tests have passed.
+  workspaceTests = tests;
+  postInstall = (old.postInstall or "") + ''
+    install -Dm755 tools/pipewire-upmix/a16-upmix tools/pipewire-upmix/a16-play-static -t $out/bin
+    install -Dm644 tools/pipewire-upmix/a16-upmix.conf -t $out/share/a16-userspace-driver
     wrapProgram $out/bin/a16-upmix \
       --prefix PATH : ${lib.makeBinPath [ pipewire ]}
     wrapProgram $out/bin/a16-play-static \
@@ -47,15 +65,13 @@ stdenv.mkDerivation {
         ]
       }
   '';
-  doCheck = true;
-  # The shared engine's host tests, beside the CTest suite of the build.
-  postCheck = ''
-    make -C ../tests -j"$NIX_BUILD_CORES" check
-  '';
-  meta = {
+  passthru = (old.passthru or { }) // {
+    inherit tests;
+  };
+  meta = (old.meta or { }) // {
     description = "Userspace USB audio driver and upmixer for the Smyth Realiser A16";
     platforms = lib.platforms.linux;
     license = lib.licenses.mit;
     mainProgram = "a16-driver";
   };
-}
+})

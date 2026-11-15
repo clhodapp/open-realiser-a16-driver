@@ -1,0 +1,31 @@
+{
+  "cargoLock": "sha256-U7/SRIvlACSbirghAxfRw8kgXr2E9N4yxiE8YUyLNOg=",
+  "contentHash": "sha256-EmvufnRo4VBqg3DtZNC60cLQRr+ByJGOdJ9+uucPzUY=",
+  "git": [],
+  "packages": {
+    "a16-engine": {
+      "bins": [],
+      "lib": {
+        "kinds": [
+          "lib"
+        ],
+        "name": "a16_engine"
+      }
+    },
+    "open-realiser-a16-driver": {
+      "bins": [
+        "a16-driver",
+        "a16-static-dsp",
+        "a16-usb"
+      ],
+      "lib": {
+        "kinds": [
+          "lib"
+        ],
+        "name": "open_realiser_a16_driver"
+      }
+    }
+  },
+  "registries": {},
+  "version": 1
+}
