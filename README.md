@@ -24,7 +24,8 @@ driver help. The flake's `overlays.default` adds it to a package set as
 
 The driver is a Cargo workspace. `crates/a16-engine` is the USB protocol engine;
 `crates/open-realiser-a16-driver` holds the libusb bus, the PipeWire bridge and the
-`a16-driver`, `a16-usb` and `a16-static-dsp` binaries. `nix develop path:.` opens a
+`a16-driver`, `a16-usb` and `a16-static-dsp` binaries; `crates/a16-control` holds the
+`a16-ctl` client for the A16's TCP command server. `nix develop path:.` opens a
 shell with the Rust toolchain, the native libraries and cargo-purifier's `cargo`, which
 builds with the dependencies `Cargo.lock` and `cargo-purifier.lock.json` record:
 
@@ -39,7 +40,7 @@ PipeWire development headers, libsamplerate, and Python 3, then:
 ```sh
 cargo build --release
 cargo test --workspace
-install -Dm755 target/release/a16-driver target/release/a16-usb target/release/a16-static-dsp \
+install -Dm755 target/release/a16-driver target/release/a16-usb target/release/a16-static-dsp target/release/a16-ctl \
   tools/pipewire-upmix/a16-upmix tools/pipewire-upmix/a16-play-static -t "$HOME/.local/bin"
 install -Dm644 tools/pipewire-upmix/a16-upmix.conf -t "$HOME/.local/share/a16-userspace-driver"
 ```
@@ -99,6 +100,7 @@ Stop the upmixer with Ctrl-C independently of the driver.
 | `a16-usb` | USB inspection and bounded WAV playback/capture diagnostics |
 | `a16-static-dsp` | Offline stereo-to-16-slot Custom #2 PCM processing |
 | `a16-play-static` | Play a prepared Custom #2 RF64 file directly to the A16 |
+| `a16-ctl` | Status, monitoring and commands over the A16's TCP command server ([protocol](docs/development/ip-control.md)) |
 
 ## Scope and provenance
 
