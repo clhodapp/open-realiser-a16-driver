@@ -11,10 +11,8 @@ bRequest:      0x49 ('I')
 wIndex:        selects sub-register
 ```
 
-Three known indices:
-- `wIndex = 0` → AJ input selector / digital status
-- `wIndex = 1` → US3XX / mixer / CPLD config
-- `wIndex = 2` → digital output selector (write path, not relevant for decoding return byte)
+The A16 uses `wIndex = 0`, the AJ input selector / digital status. Other Ploytec devices have
+more indices.
 
 Reads return 1 byte in the data phase. Writes encode the value in wValue.
 
@@ -38,7 +36,7 @@ bit 0x04 → digital lock (confirmed via (byte & 0x04) != 0; triggers re-read af
 - `0x04` indicates digital signal lock
 - `0x02` = clock source selection, not generic "input select": set = automatic (the digital input
   when it has a valid signal, else internal), clear = internal. From Tascam's Control Panel:
-  menu [Automatic, Internal] → setClockSource(index) → AjExtData[1] 0/1 (`device_settings.md`)
+  menu [Automatic, Internal] → setClockSource(index) → AjExtData[1] 0/1
 - `0x01` = USB1 mode flag, only set on certain devices (those with `this[0x7a8]` set,
   or product 0x644 sub-IDs 0x8048/0x8041)
 - Driver masks with `0xFD` and recomputes bit 1 from current clock source setting
@@ -104,71 +102,7 @@ byte +0x24      → output postprocessor setting [sub=1]
 byte +0x28 [10] → digital lock flag (written from bit 2 of status byte)
 ```
 
-### ESU composite states (from updateAjInputSelector_Esu186)
-
-The ESU path preserves bits with mask `0x4C`, then ORs in a composite state
-based on the clock source setting. These are NOT individual flags:
-
-ESI's U168 XT panel names them (`esi_u168xt_cport.md`): 2 = Auto with inputs 15/16 analog,
-1 = Internal, 0 = Auto with inputs 15/16 digital.
-
-| AjExtData[1] | State | Value | 'A' request param |
-|---------------|-------|-------|-------------------|
-| 2             | STATE_A | 0x32 | 0 (wValue=0x348) |
-| 1             | STATE_B | 0xB0 | 1 (wValue=0x349) |
-| other         | STATE_C | 0xB2 | 0 (wValue=0x348) |
-
-After setting the state, the ESU path sleeps **200ms** (vs ~40ms for other devices).
-
----
-
-## Index 1 — US3XX / Mixer / CPLD Config
-
-Used in: `readUS3XXChannelConfig`, mixer mode switching (`Req_SetMixerMode`), CPLD handling.
-
-### Confirmed bits
-
-```
-bit 0x02 → open control panel switch (active-low)
-bit 0x08 → mixer layout / width (e.g. 4ch vs 6ch)
-bit 0x10 → mixer bypass / enable flag
-```
-
-### Mixer mode handling (from Req_SetMixerMode, dispatch case 0x26)
-
-The dispatch reads index 1 then modifies bit 4 (0x10) based on mixer mode:
-
-| Mode | Bit 4 | Effect | Channel config (0x644 devices) |
-|------|-------|--------|-------------------------------|
-| 0    | SET (OR 0x10) | Mixer bypass | 2in / 2out |
-| 1    | CLEAR (AND 0xEF) | Mixer active | 0x8048: 4in/4out, 0x8046: 6in/2out |
-| 2    | CLEAR (AND 0xEF) | Mixer active | Same as mode 1 |
-
-The modified byte is stored to `this[0xd2]` (the channel config byte used in
-`updateAjInputSelector` for product 0x644 index 0 writes with mask 0x18).
-
-This confirms `this[0xd2]` is the **mixer config register** — it holds the
-last-written index 1 byte, and its bits 3-4 are re-used when writing index 0.
-
-### Behavior
-
-- `0x10`:
-  - set → mixer bypass / simple mode (2ch in/out)
-  - clear → mixer active (multi-channel routing, 4ch or 6ch)
-- `0x08`:
-  - influences channel layout (4ch vs 6ch)
-- `0x02`:
-  - physical switch (active-low)
-
-### setEsuCpldByte — confirmed index 1 write (from Ghidra)
-
-For ESU (0x2573) and 0x0A92/0x0111 only:
-- Applies `| 0xE7` to the input byte (forces high mask confirmed!)
-- Writes to vendor request 'I', wIndex=1 with the masked value
-- Stops bulk audio before writing, resumes after
-- Stored in `this[0x55D8]`
-
-### Generic selector and confirm (EIE kext 3.3.17, all junction devices)
+## Generic selector and confirm (EIE kext 3.3.17, all junction devices)
 
 - `updateAjInputSelector` (configurationDone; not for the ESU devices, which use `_Esu186`, nor
   the Jockey 3 ME): 'I' read (again after 20 ms while bit 2 is set), new = `b | 0x02` (AjExtData[1]
@@ -178,62 +112,12 @@ For ESU (0x2573) and 0x0A92/0x0111 only:
   'I' read, write `b | 0x20 | 0x10` for up to 16 inputs (`b & ~0x20 | 0x10` above; D064 keeps 0x20).
   This is Ozzy's "confirm"; it used to set only 0x20, which is the same on the Xones (bit 4 is
   set at power-up) but not on devices that power up with bit 4 clear.
-- 'I' wIndex 2 = AjExtData[4] (default 0): `writeDigitalOutSelector`, plist flag 0x7ac.
-- `configurationDone` calls it with the stored byte and resets the store to 0 first, so the
-  write always goes out; the stored byte starts at 0, so the first write is wValue 0xE7. Only
-  the control panel (user client dispatch 5) changes the byte (bits 3/4, the ones 0xE7 leaves
-  free; meaning open)
-
-### readUS3XXChannelConfig — confirmed index 1 read (from Ghidra)
-
-For VID 0x644 (TEAC) devices. Reads 'I' wIndex=1, stores in `this[0xD2]`.
-Product names from log strings:
-- 0x8046: "PROD_TEAC_US1200"
-- 0x8048: "PROD_TEAC_UH7000"
-- 0x8041: "US-366" (most complex: dynamic 2/4/6 channel based on mixer bits)
-- 0x8040: unnamed (simple 2ch check)
-
-For 0x8041, the mixer byte controls channel topology:
-- bit 4 set (0x10): mixer bypass → 2in/2out
-- bit 4 clear + bit 3 clear: 4ch mode → 4out/6in
-- bit 4 clear + bit 3 set: 6ch mode → 6out/4in
-
-After reading index 1, always writes routing table via vendor request 'M' (0x4D).
-
-### Write constraints
-
-```
-write mask: 0x18 (bits 3 and 4)
-forced high mask: 0xE7
-```
-
-Only bits `0x08` and `0x10` are writable. Other bits are preserved or forced.
-
----
-
-## Index 2 — Digital Output Selector (from writeDigitalOutSelector)
-
-```
-bmRequestType: 0x40 (write)
-bRequest:      0x49 ('I')
-wValue:        AjExtData[4] & 0xFFFF
-wIndex:        2
-wLength:       0
-```
-
-- Write-only, no read-modify-write
-- Only written if device has digital output capability (`this[0x7ac]` set)
-- Value comes directly from `AjExtData[4]`
-- Called during `configurationDone` after `updateAjInputSelector`
-
----
-
 ## Cross-Driver Confirmation
 
 Windows and macOS drivers match exactly:
 - Same read-modify-write pattern
 - Same bit masks (`0xDF`, `0xE7`, etc.)
-- Same logic for digital lock detection, mixer mode switching, input selector updates
+- Same logic for digital lock detection and input selector updates
 
 ### macOS Function Name → Meaning Map
 
@@ -241,8 +125,6 @@ Windows and macOS drivers match exactly:
 |--------------------------|------------------------|
 | updateAjInputSelector    | index 0 semantics      |
 | setAJDMAInputChannels    | index 0 mode switching |
-| readUS3XXChannelConfig   | index 1 semantics      |
-| setEsuCpldByte           | index 1 write path     |
 
 ---
 
@@ -263,12 +145,6 @@ typedef enum AjInputSelectorFlags : uint8_t {
     AJ_INPUTSEL_MODE6_BIT        = 0x40,
     AJ_INPUTSEL_MODE7_BIT        = 0x80,
 } AjInputSelectorFlags;
-
-typedef enum Us3xxChannelConfigFlags : uint8_t {
-    US3XXCFG_OPEN_CPL_SWITCH_N = 0x02,
-    US3XXCFG_MIXER_WIDTH_BIT   = 0x08,
-    US3XXCFG_MIXER_BYPASS_BIT  = 0x10,
-} Us3xxChannelConfigFlags;
 ```
 
 ### Supporting Constants
@@ -276,14 +152,6 @@ typedef enum Us3xxChannelConfigFlags : uint8_t {
 ```c
 #define AJ_INPUTSEL_DIGITAL_LOCK_MASK  0x05
 #define AJ_INPUTSEL_DIGITAL_LOCK_VALUE 0x04
-
-#define US3XXCFG_WRITABLE_MASK         0x18
-#define US3XXCFG_FORCED_HIGH_MASK      0xE7
-
-#define AJ_INPUTSEL_ESU_PRESERVE_MASK  0x4C
-#define AJ_INPUTSEL_ESU_STATE_A        0x32
-#define AJ_INPUTSEL_ESU_STATE_B        0xB0
-#define AJ_INPUTSEL_ESU_STATE_C        0xB2
 ```
 
 ---
@@ -350,13 +218,6 @@ deviceRequestStd(device, direction, bmRequestType_base, ?, bRequest, wValue, wIn
 7. After write, re-reads index 0 and also reads sample rate via class request (0x81, GET_CUR)
 8. Handles digital lock frequency detection with retries (up to ~21 iterations)
 9. References `can192()` — checks if device supports 192kHz (0x2ee00 Hz)
-
-### ESU special path
-
-Devices with product ID 0x2573 and sub-ID < 0x2B with specific bit patterns
-branch to `updateAjInputSelector_Esu186()` — completely separate logic.
-
----
 
 ## Key Takeaways
 
