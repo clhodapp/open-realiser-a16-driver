@@ -140,9 +140,6 @@ pub trait Bus {
 
     fn sleep(&mut self, duration: Duration);
 
-    /// A monotonic clock, from any fixed point.
-    fn now(&mut self) -> Duration;
-
     /// Cancel every transfer in flight and return them once the bus no longer uses their
     /// buffers. The pipes stay usable.
     fn abort(&mut self) -> Vec<Transfer>;
@@ -154,8 +151,4 @@ pub trait Bus {
     fn pcm_progress(&mut self, direction: Direction, position: u64, ring: &mut PcmRing) {
         let _ = (direction, position, ring);
     }
-
-    /// An incident counter of [`Engine::stats`](crate::Engine::stats) moved: an error, a short
-    /// or a late transfer.
-    fn stats_changed(&mut self) {}
 }

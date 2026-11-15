@@ -13,18 +13,6 @@ use crate::protocol::{
 };
 use crate::{Direction, SampleRate};
 
-/// What the device reported during the handshake.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HandshakeInfo {
-    pub firmware: FirmwareVersion,
-    /// The rate the device ran at before the handshake set it, in Hz.
-    pub boot_rate: u32,
-    /// The rate the device was set to.
-    pub rate: SampleRate,
-    /// The input selector byte as read before the status confirm.
-    pub input_selector: u8,
-}
-
 /// Why the handshake failed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HandshakeError {
@@ -250,13 +238,13 @@ impl<B: Bus + ?Sized> Handshake<'_, B> {
         Ok(())
     }
 
-    fn run(&mut self, rate: SampleRate) -> Result<HandshakeInfo, HandshakeError> {
+    fn run(&mut self, rate: SampleRate) -> Result<(), HandshakeError> {
         self.log(format_args!("[1/7] reading firmware version..."));
-        let firmware = self.read_firmware()?;
+        self.read_firmware()?;
         self.log(format_args!("[2/7] reading hardware status..."));
         self.read_status()?;
         self.log(format_args!("[3/7] reading current sample rate..."));
-        let boot_rate = self.read_rate()?;
+        self.read_rate()?;
         self.select_automatic_clock()?;
         self.log(format_args!("[4/7] setting sample rate to {rate}..."));
         self.set_rate(rate)?;
@@ -271,16 +259,10 @@ impl<B: Bus + ?Sized> Handshake<'_, B> {
         }
         self.bus.sleep(Duration::from_millis(50));
         self.log(format_args!("[6/7] reading hardware status..."));
-        let input_selector = self.read_status()?;
+        self.read_status()?;
         self.log(format_args!("[7/7] confirming device status..."));
         self.confirm_status()?;
-        self.clear_pcm_halts()?;
-        Ok(HandshakeInfo {
-            firmware,
-            boot_rate,
-            rate,
-            input_selector,
-        })
+        self.clear_pcm_halts()
     }
 }
 
@@ -298,7 +280,7 @@ pub(crate) fn handshake<B: Bus + ?Sized>(
     bus: &mut B,
     rate: SampleRate,
     log: &mut dyn FnMut(&str),
-) -> Result<HandshakeInfo, HandshakeError> {
+) -> Result<(), HandshakeError> {
     let mut hs = Handshake { bus, log };
     hs.log(format_args!("--- begin handshake sequence ---"));
     let result = hs.run(rate);
