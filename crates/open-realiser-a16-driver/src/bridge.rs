@@ -170,7 +170,9 @@ const BLOCK_SECONDS: f64 = BLOCK as f64 / RATE as f64;
 
 impl Audio for AudioPath {
     /// The next out transfer's 80 frames, from the playback queue: silence until the queue
-    /// has filled to its target, and after it runs dry until it fills again. The transfer
+    /// has filled to its target, and after it runs dry until it fills again. While the
+    /// playback node is paused the queued audio keeps playing out, so a brief pause of the
+    /// node, as PipeWire makes when it reconfigures the graph, is not heard. The transfer
     /// that completed at `now` carried 80 frames the A16 has taken, which advances the
     /// graph's clock.
     fn before_out(&mut self, ring: &mut PcmRing, now: u64) {
@@ -184,13 +186,10 @@ impl Audio for AudioPath {
         if sink.reset.swap(false, Ordering::SeqCst) {
             self.reset_output();
         }
-        if !sink.active.load(Ordering::SeqCst) {
-            self.reset_output();
-            return;
-        }
+        let active = sink.active.load(Ordering::SeqCst);
         let available = sink.fifo.available();
         if !self.output_primed {
-            if available < live::TARGET {
+            if !active || available < live::TARGET {
                 return;
             }
             self.output_primed = true;
@@ -209,9 +208,14 @@ impl Audio for AudioPath {
         };
         sink.fifo.consume(block.input_used as u32);
         if block.output_generated < BLOCK {
-            sink.underruns.fetch_add(1, Ordering::SeqCst);
-            self.output_primed = false;
-            self.out_src.reset();
+            if active {
+                sink.underruns.fetch_add(1, Ordering::SeqCst);
+                self.output_primed = false;
+                self.out_src.reset();
+            } else {
+                // The queue has played out while the node is paused: the stream has stopped
+                self.reset_output();
+            }
         }
         for (i, &v) in output.iter().enumerate() {
             live::pack(&mut out[i * 3..i * 3 + 3], v);
