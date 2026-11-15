@@ -2,8 +2,8 @@
 /*
  * Ploytec USB Protocol Definitions
  *
- * Shared constants for Allen & Heath Xone series devices using the
- * Ploytec USB audio chipset. Used by the Linux userspace driver.
+ * Constants of the Ploytec USB audio chipset in the Realiser A16.
+ * Used by the Linux userspace driver.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -58,54 +58,6 @@ extern "C" {
 #define PLOYTEC_CMD_SET_RATE_TYPE   0x22  /* bmRequestType for SET_CUR sample rate */
 #define PLOYTEC_CMD_GET_RATE_REQ    0x81  /* bRequest for GET_CUR sample rate */
 #define PLOYTEC_CMD_GET_RATE_TYPE   0xA2  /* bmRequestType for GET_CUR sample rate */
-#define PLOYTEC_CMD_ESI_A           0x41  /* 'A' - ESI write (sendEsuARequest), vendor OUT */
-
-/* ESI 'A' request: wIndex, wValue = (setting & 0x34F) | 0x348 */
-#define PLOYTEC_ESI_A_INDEX         0x0101
-#define PLOYTEC_ESI_A_BASE          0x0348
-#define PLOYTEC_ESI_A_U168          0x0349  /* configurationDone, U168 XT only */
-
-/*
- * 'A' registers of the S/PDIF output (writeDigitalOutMode; the same wIndex as the ESI
- * write): bmRequestType 0xC0 reads PLOYTEC_SPDIF_REGS bytes from register 0x0D on,
- * 0x40 writes one register, wValue = (register << 8) | value.
- */
-#define PLOYTEC_SPDIF_REG_FIRST     0x0D
-#define PLOYTEC_SPDIF_REGS          5
-
-/*
- * 'A' writes to a WM8776 codec (WM8776Write; Musonik PHASE X64): wValue = (register << 9) |
- * 9-bit value, wIndex picks the codec. Registers: 7 playback (stereo 0x090), 21 ADC input
- * mux (one bit per AIN), 22 output mux.
- */
-#define PLOYTEC_WM8776_INDEX_12     0x0102  /* codec 0: inputs / outputs 1/2 */
-#define PLOYTEC_WM8776_INDEX_34     0x0106  /* codec 1: inputs / outputs 3/4 */
-
-/*
- * WM8776 register bits as the PHASE X64 wires them (official control panels, Mac
- * USBBridge updateWolfson and Windows CPL). R21, the ADC input mux: one bit per AIN, both
- * mutes when none is picked. R22, the output mux: DAC (playback), AUX (direct mono on 1/2, the
- * sound module on 3/4), BYPASS (direct monitoring). R7: playback in stereo or mono.
- */
-enum ploytec_wm8776_reg {
-	PLOYTEC_WM8776_R7_DAC_MIX   = 7,
-	PLOYTEC_WM8776_R21_ADC_MUX  = 21,
-	PLOYTEC_WM8776_R22_OUT_MUX  = 22,
-};
-
-enum ploytec_wm8776_bits {
-	PLOYTEC_WM8776_AIN1         = 0x001,  /* 1/2: Mic/Line (codec 1 has none) */
-	PLOYTEC_WM8776_AIN2         = 0x002,  /* Phono */
-	PLOYTEC_WM8776_AIN3         = 0x004,  /* Aux */
-	PLOYTEC_WM8776_AIN4         = 0x008,  /* sound module */
-	PLOYTEC_WM8776_AIN5         = 0x010,  /* the other output pair */
-	PLOYTEC_WM8776_ADC_MUTE     = 0x0C0,  /* both ADC channels muted: no input */
-	PLOYTEC_WM8776_OUT_DAC      = 0x001,
-	PLOYTEC_WM8776_OUT_AUX      = 0x002,
-	PLOYTEC_WM8776_OUT_BYPASS   = 0x004,
-	PLOYTEC_WM8776_MIX_STEREO   = 0x090,
-	PLOYTEC_WM8776_MIX_MONO     = 0x0F0,
-};
 
 /* SET_CUR sample rate endpoint addresses (wIndex field) */
 #define PLOYTEC_EP_RATE_IN          0x0086

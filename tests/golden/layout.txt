@@ -1,4 +1,4 @@
-version 15 size 2099008
+version 16 size 2098944
 magic                              0
 version                            4
 session_id                         8
@@ -27,12 +27,10 @@ audio.output_channels              1760
 audio.safety_offset_frames         1764
 audio.input_safety_offset_frames   1768
 audio.settings                     1772
-audio.settings.value               1776
-audio.settings.clock_locked        1802
-audio.settings.lock_rate           1804
-audio.input_buffer                 1808
-audio.output_buffer                1050384
-info version 4 size 148
+audio.settings.value               1772
+audio.input_buffer                 1776
+audio.output_buffer                1050352
+info version 5 size 140
 info.version                       0
 info.size                          4
 info.starts                        8
@@ -50,19 +48,16 @@ info.firmware_chip                 30
 info.firmware                      31
 info.input_selector_valid          34
 info.input_selector                35
-info.clock_locked                  36
 info.sample_rate                   40
 info.boot_rate                     44
-info.lock_rate                     48
-info.device_rates                  52
-info.host_rates                    56
-info.in_channels                   60
-info.out_channels                  64
-info.transfer_frames               68
-info.out_bytes_per_frame           76
-info.in_bytes_per_frame            80
-info.safety_offset_frames          84
-info.input_safety_offset_frames    88
-info.driver_version                92
-info.pipes                         132
+info.device_rates                  48
+info.in_channels                   52
+info.out_channels                  56
+info.transfer_frames               60
+info.out_bytes_per_frame           68
+info.in_bytes_per_frame            72
+info.safety_offset_frames          76
+info.input_safety_offset_frames    80
+info.driver_version                84
+info.pipes                         124
 info.pipes[] size 8

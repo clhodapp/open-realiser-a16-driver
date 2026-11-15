@@ -1,12 +1,14 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * Golden trace: what the engine does on the bus for these devices and paths:
- *   Xone:DB4     interrupt layout, PCM rings attached at packet 20, detached at 300
- *   ESI ESU1808  bulk layout, the S/PDIF mirror (pair 2), the same rings
- *   ESI U168 XT  the interrupt layout with the ESI selector on Internal and its C-port writes
- * with MIDI going out every 5 completions. Every submission,
- * control request and progress report is printed, then hashes of the shared memory and the
- * rings. Compared with golden/trace.txt by run.sh; after an intended change: make golden.
+ * Golden trace: what the engine does on the bus for the Realiser A16:
+ *   interrupt  the A16's 964-byte interrupt out layout, PCM rings attached at packet 20,
+ *              detached at 300
+ *   bulk       the 512-byte bulk out layout, the same rings
+ *   96 kHz     the interrupt layout at 96 kHz
+ *   selector   the interrupt layout with the 'I' selector already at Automatic (no write)
+ * with MIDI going out every 5 completions. Every submission, control request and progress
+ * report is printed, then hashes of the shared memory and the rings. Compared with
+ * golden/trace.txt by run.sh; after an intended change: make golden.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -40,9 +42,9 @@ static uint64_t hash(const void *p, size_t n)
 	return h;
 }
 
-static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_t (*eps)[6])
+static void run(const char *name, const uint8_t (*eps)[6], uint32_t rate, uint8_t selector)
 {
-	const struct ozzy_device *model = ozzy_device_lookup(vid, pid);
+	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0x5A16);
 	static struct ozzy_shared_memory shm;
 	static uint8_t out_ring[960 * 16 * 3], in_ring[960 * 16 * 3];
 	struct ozzy_pcm_ring ro = { out_ring, 960, model->out_channels, 0 };
@@ -59,15 +61,15 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 	for (k = 0; k < sizeof(out_ring); k++)
 		out_ring[k] = (uint8_t)(k * 13 + 5);
 	fake_bus_init(&fb, &shm, stdout);
+	fb.i_reg[0] = selector;
 
-	printf("== %s\n", model->name);
+	printf("== %s\n", name);
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	for (k = 0; eps[k][0] != 0xFF; k++)
 		ozzy_engine_set_endpoint(e, (enum ozzy_pipe_role)eps[k][0], eps[k][1], eps[k][2],
 					 (uint16_t)(eps[k][3] | eps[k][4] << 8), eps[k][5]);
 	ozzy_engine_attach(e, &fb.bus, &shm);
-	if (setting >= 0)
-		ozzy_engine_set_setting(e, (unsigned int)setting, (uint8_t)value);
+	ozzy_engine_set_rate(e, rate);
 	printf("start %d\n", ozzy_engine_start(e));
 
 	/* 600 completions */
@@ -99,11 +101,12 @@ static void run(uint16_t vid, uint16_t pid, int setting, int value, const uint8_
 int main(void)
 {
 	/* role, address, bmAttributes & 3, wMaxPacketSize (lo, hi), bInterval */
-	static const uint8_t db4[][6] = { { 0, 0x05, 3, 0xC4, 0x03, 4 }, { 1, 0x86, 3, 0x00, 0x04, 4 }, { 0xFF } };
-	static const uint8_t esu[][6] = { { 0, 0x05, 2, 0x00, 0x02, 4 }, { 1, 0x86, 2, 0x00, 0x02, 4 }, { 0xFF } };
+	static const uint8_t interrupt[][6] = { { 0, 0x05, 3, 0xC4, 0x03, 1 }, { 1, 0x86, 3, 0x00, 0x04, 1 }, { 0xFF } };
+	static const uint8_t bulk[][6] = { { 0, 0x05, 2, 0x00, 0x02, 1 }, { 1, 0x86, 2, 0x00, 0x02, 1 }, { 0xFF } };
 
-	run(0x0A4A, 0xFFDB, -1, 0, db4);
-	run(0x0A92, 0x0111, OZZY_SETTING_SPDIF_MIRROR, 2, esu);
-	run(0x2573, 0x0012, OZZY_SETTING_ESI_CLOCK, OZZY_ESI_CLOCK_INTERNAL, db4);
+	run("interrupt", interrupt, 0, 0);
+	run("bulk", bulk, 0, 0);
+	run("96 kHz", interrupt, 96000, 0);
+	run("selector", interrupt, 0, 0x32);
 	return 0;
 }

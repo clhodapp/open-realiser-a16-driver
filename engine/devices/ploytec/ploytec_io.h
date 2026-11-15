@@ -49,12 +49,6 @@ static inline uint32_t ploytec_pcm_wrap(uint32_t places)
 typedef char ploytec_pcm_wrap_fits[((uint64_t)(OZZY_PCM_RING_BYTES / PLOYTEC_INT_OUT_SUBPKT_SIZE) << 20) <=
 				   0xFFFFFFFFu ? 1 : -1];
 
-/* Transfer @t - 1, wrapped */
-static inline uint32_t ploytec_pcm_prev(uint32_t t, uint32_t places)
-{
-	return t ? t - 1 : ploytec_pcm_wrap(places) - 1;
-}
-
 /* Transfer @t + @n, wrapped */
 static inline uint32_t ploytec_pcm_next(uint32_t t, uint32_t n, uint32_t places)
 {
@@ -82,7 +76,7 @@ static inline bool ploytec_submit_pcm_in(const struct ozzy_engine *e, uint8_t ad
 
 /*
  * PCM in into the attached ring (ploytec_io.c): the @frames frames of completed IN transfer @t,
- * decoded straight from the shared memory into the ring with the input routing. A short (or
+ * decoded straight from the shared memory into the ring. A short (or
  * failed, @bytes 0) transfer leaves silence, so the ring keeps the device's clock.
  */
 void ploytec_decode_pcm_in(struct ozzy_engine *e, ploytec_frame_fn decode, uint32_t frames, uint32_t t, uint32_t bytes);
@@ -94,15 +88,10 @@ void ploytec_decode_pcm_in(struct ozzy_engine *e, ploytec_frame_fn decode, uint3
  */
 #define PLOYTEC_RESTART_QUIET_MS 120
 
-/*
- * A restart's start, before its handshake: the quiet, then the interfaces selected again
- * (ozzy_engine_reselect). The WZ4 doesn't stream again without the reselect (#85); the official
- * driver unconfigures and reconfigures every device here.
- */
+/* A restart's start, before its handshake: the quiet */
 static inline void ploytec_restart_settle(struct ozzy_engine *e)
 {
 	e->bus->ops->sleep_ms(e->bus->ctx, PLOYTEC_RESTART_QUIET_MS);
-	ozzy_engine_reselect(e);
 }
 
 #ifdef __cplusplus

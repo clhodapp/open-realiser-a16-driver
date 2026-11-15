@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * Ploytec junction devices with bulk or interrupt PCM out (ploytec_engine.h).
+ * The Ploytec engine for the Realiser A16 (ploytec_engine.h).
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -61,8 +61,8 @@ static void host_log(void *ctx, bool error, const char *fmt, va_list args)
 	ploytec_vlog(fmt, args);
 }
 
-/* The Xones clear the PCM endpoint halts before streaming, as the official Windows driver does
- * and Linux does: without it the 4D never starts streaming (#75, ploytec_handshake.c) */
+/* The handshake clears the PCM endpoint halts before streaming, as the official Windows driver
+ * does (ploytec_handshake.c) */
 static const struct ploytec_host_ops xone_host_ops = { host_control, host_clear_halt, host_sleep, host_log };
 
 /* @frames as whole packets of @step frames (0: any): the next size up, at most @max */
@@ -113,62 +113,6 @@ static void submit_pcm_out(struct ploytec_engine *pe, uint32_t t)
 		ploytec_log("output submission failed (idx: %u)", t);
 }
 
-/*
- * cport_out - Transfer @t's control bytes: the queued C-port bytes, one per sub-packet (| 0x18,
- * as the official driver sends them), idle in the rest. Nothing to do once the queue is empty
- * and every place has been sent idle again.
- */
-static void cport_out(struct ploytec_engine *pe, uint32_t t)
-{
-	uint32_t k, subpkts = pe->out_frames / PLOYTEC_FRAMES_PER_OUT_SUBPKT;
-	uint8_t *packet;
-	bool queued = false;
-
-	if (pe->cport_head == pe->cport_len && !pe->cport_idle_left)
-		return;
-	packet = ozzy_engine_pcm_out_slot(&pe->base, t);
-	for (k = 0; k < subpkts; k++) {
-		uint8_t byte = PLOYTEC_MIDI_CONTROL_IDLE;
-
-		if (pe->cport_head < pe->cport_len) {
-			byte = pe->cport[pe->cport_head++] | PLOYTEC_CPORT_FORCED;
-			queued = true;
-		}
-		packet[ploytec_out_midi_offset(pe->out_layout, k) + 1] = byte;
-	}
-	if (queued)
-		pe->cport_idle_left = pe->base.mem.pcm_out_slots;
-	else if (pe->cport_idle_left)
-		pe->cport_idle_left--;
-}
-
-/*
- * cport_queue - At start (OZZY_QUIRK_ESI_CPORT): the settings ESI's panel sends over the C-port,
- * every time, as the converters may have been reset: the S/PDIF out mode (AK4114 channel status
- * byte 0) and each output's attenuator, 0 dB for +4 dBu or 5 dB down for -10 dBV (AK4358).
- */
-static void cport_queue(struct ploytec_engine *pe)
-{
-	const struct ozzy_settings *s = &pe->base.settings;
-	unsigned int ch;
-
-	pe->cport_head = pe->cport_len = 0;
-	if (!(pe->base.model->quirks & OZZY_QUIRK_ESI_CPORT))
-		return;
-	pe->cport_len += ploytec_cport_write(pe->cport + pe->cport_len, PLOYTEC_CPORT_DIT, PLOYTEC_CPORT_DIT_TX_CS0,
-					     s->value[OZZY_SETTING_SPDIF_OUT_MODE] == OZZY_SPDIF_OUT_PROFESSIONAL);
-	for (ch = 0; ch < 8 && ch < pe->base.model->out_channels; ch++) {
-		uint8_t level = s->value[OZZY_SETTING_ESI_LEVEL_12 + ch / 2] == OZZY_ESI_LEVEL_MINUS10 ?
-				PLOYTEC_CPORT_ATT_MINUS10 : PLOYTEC_CPORT_ATT_0DB;
-
-		pe->cport_len += ploytec_cport_write(pe->cport + pe->cport_len, PLOYTEC_CPORT_DAC,
-						     ploytec_cport_dac_att_regs[ch], level);
-	}
-	ploytec_log("C-port: S/PDIF out %s, %u attenuator writes queued",
-		    s->value[OZZY_SETTING_SPDIF_OUT_MODE] == OZZY_SPDIF_OUT_PROFESSIONAL ? "professional" : "consumer",
-		    ch);
-}
-
 static bool ploytec_start(struct ozzy_engine *e)
 {
 	struct ploytec_engine *pe = to_ploytec(e);
@@ -207,8 +151,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	}
 
 	/* 1. The format, as the host reads it (the platform has set the device names) */
-	shm->audio.device_flags = (bulk ? OZZY_DEVICE_FLAG_PLOYTEC_BULK : 0) |
-				  (bulk && (model->quirks & OZZY_QUIRK_SPDIF_MIRROR) ? OZZY_DEVICE_FLAG_SPDIF_MIRROR : 0);
+	shm->audio.device_flags = bulk ? OZZY_DEVICE_FLAG_PLOYTEC_BULK : 0;
 	shm->audio.output_ring_frames = out_places * pe->out_frames;
 	shm->audio.input_ring_frames = in_places * pe->in_frames;
 	shm->audio.output_bytes_per_frame = PLOYTEC_OUT_FRAME_SIZE;
@@ -224,27 +167,19 @@ static bool ploytec_start(struct ozzy_engine *e)
 	ploytec_log("model: %s, %u in / %u out, transfers of %u frames out, %u in", model->name, model->in_channels,
 		    model->out_channels, pe->out_frames, pe->in_frames);
 
-	/* 2. The handshake, with the settings; locked to S/PDIF it sets the lock rate. A restart
-	 * first lets the device settle from the transfers just stopped, and selects the interfaces
-	 * again */
+	/* 2. The handshake. A restart first lets the device settle from the transfers just stopped */
 	if (pe->streamed)
 		ploytec_restart_settle(e);
 	memset(&hs, 0, sizeof(hs));
-	if (ploytec_handshake(&xone_host_ops, (void *)e->bus, ozzy_engine_start_rate(e, pe->default_rate), model->quirks,
-			      &e->settings, &hs) < 0)
+	if (ploytec_handshake(&xone_host_ops, (void *)e->bus, ozzy_engine_start_rate(e, pe->default_rate), &hs) < 0)
 		return false;
-	if (!ozzy_device_has_rate(model, hs.rate)) {
-		/* Locked to an S/PDIF rate the device doesn't list (Linux: ploytec_adopt_rate) */
-		ploytec_log("device runs at %u Hz, which it doesn't list", hs.rate);
-		return false;
-	}
 	pe->sample_rate = hs.rate;
 	shm->audio.sample_rate = pe->sample_rate;
 	/* The offsets as the host is told them: at least the jitter floor at the rate run */
 	shm->audio.safety_offset_frames = ozzy_engine_safety_offset(shm->audio.safety_offset_frames, pe->sample_rate);
 	shm->audio.input_safety_offset_frames = ozzy_engine_safety_offset(shm->audio.input_safety_offset_frames,
 									  pe->sample_rate);
-	ozzy_engine_publish_settings(e, &hs.clock);
+	ozzy_engine_publish_settings(e);
 	ploytec_report(e, &hs);
 	e->report.output = bulk ? OZZY_INFO_OUTPUT_PLOYTEC_BULK : OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT;
 	e->report.in_flight[OZZY_PIPE_PCM_OUT] = (uint8_t)pe->out_queue;
@@ -252,17 +187,14 @@ static bool ploytec_start(struct ozzy_engine *e)
 	ploytec_midi_init(&pe->midi, pe->sample_rate);
 	pe->encode = ploytec_frame_encoder(model->out_channels);
 	pe->decode = ploytec_frame_decoder(model->in_channels);
-	pe->mirror = bulk && (model->quirks & OZZY_QUIRK_SPDIF_MIRROR) && model->out_channels == 8;
 
 	/* The device answers (release: the format fields above first) */
 	ozzy_store_release_bool(&shm->audio.hardware_present, true);
 
-	/* 3. Every PCM out place: silence and idle MIDI bytes; the converter settings to send */
+	/* 3. Every PCM out place: silence and idle MIDI and control bytes */
 	for (i = 0; i < out_places; i++)
 		ploytec_out_init_subpkts(pe->out_layout, ozzy_engine_pcm_out_slot(e, i),
 					 pe->out_frames / PLOYTEC_FRAMES_PER_OUT_SUBPKT);
-	pe->cport_idle_left = 0;
-	cport_queue(pe);
 
 	/* 4. in_queue / out_queue transfers in flight per PCM pipe */
 	pe->running = true;
@@ -335,32 +267,9 @@ static void encode_pcm_out(struct ploytec_engine *pe, uint32_t t)
 	frame_bytes = ring->channels * 3;
 	r = ozzy_mod_u64(pe->base.pcm_pos[OZZY_PCM_OUT], ring->frames);
 	for (f = 0; f < pe->out_frames; f++) {
-		const uint8_t *src = ring->base + r * frame_bytes;
-		uint8_t routed[PLOYTEC_MAX_OUT_CHANNELS * 3];
-
-		if (!pe->base.out_route.identity) {
-			ozzy_route_frame(routed, src, &pe->base.out_route, 2 * 3);
-			src = routed;
-		}
-		pe->encode(packet + ploytec_out_frame_offset(pe->out_layout, f), src);
+		pe->encode(packet + ploytec_out_frame_offset(pe->out_layout, f), ring->base + r * frame_bytes);
 		if (++r == ring->frames)
 			r = 0;
-	}
-
-	/* The ESU1808's S/PDIF mirror takes lane 9 from the frame before; for frame 0 that is the
-	 * last frame of the transfer before, already encoded */
-	if (pe->mirror) {
-		unsigned int pair = pe->base.settings.value[OZZY_SETTING_SPDIF_MIRROR];
-		uint32_t before = ploytec_pcm_prev(t, pe->base.mem.pcm_out_slots);
-		const uint8_t *prev = ozzy_engine_pcm_out_slot(&pe->base, before) +
-				      ploytec_out_frame_offset(pe->out_layout, pe->out_frames - 1);
-
-		for (f = 0; f < pe->out_frames; f++) {
-			uint8_t *dst = packet + ploytec_out_frame_offset(pe->out_layout, f);
-
-			ploytec_spdif_mirror(dst, prev + PLOYTEC_OUT_FRAME_SIZE / 2, pair);
-			prev = dst;
-		}
 	}
 
 	pe->base.pcm_pos[OZZY_PCM_OUT] += pe->out_frames;
@@ -382,7 +291,6 @@ static void ploytec_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, in
 			ozzy_engine_stats_short(e, OZZY_PCM_OUT);
 		next = ploytec_pcm_next(finished, pe->out_queue, e->mem.pcm_out_slots);
 		midi_out(pe, next);
-		cport_out(pe, next);
 		encode_pcm_out(pe, next);
 		submit_pcm_out(pe, next);
 	} else if (pipe == EP_PCM_IN) {
@@ -393,17 +301,6 @@ static void ploytec_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, in
 		if (!ploytec_submit_pcm_in(e, EP_PCM_IN, pe->in_frames, next))
 			ploytec_log("input submission failed (idx: %u)", next);
 	}
-}
-
-/* The ESU1808's mirror only on the bulk layout (official dmaEncode08_Int964 on interrupt); the
- * transfer sizes and queues on every device of the family */
-static uint32_t ploytec_setting_quirks(const struct ozzy_engine *e)
-{
-	const struct ploytec_engine *pe = (const struct ploytec_engine *)e;
-	uint32_t quirks = e->model->quirks | OZZY_QUIRK_PCM_OUT_FRAMES | OZZY_QUIRK_PCM_IN_FRAMES |
-			  OZZY_QUIRK_PCM_OUT_QUEUE | OZZY_QUIRK_PCM_IN_QUEUE;
-
-	return pe->out_layout == PLOYTEC_OUT_LAYOUT_BULK ? quirks : (quirks & ~(uint32_t)OZZY_QUIRK_SPDIF_MIRROR);
 }
 
 /* A PCM transfer's frames this run: the smallest period a platform may ask for */
@@ -420,28 +317,24 @@ static const struct ozzy_engine_ops ploytec_engine_ops = {
 	ploytec_stop,
 	ploytec_suspend,
 	ploytec_complete,
-	ploytec_setting_quirks,
 	ploytec_transfer_frames,
 };
 
 /*
- * The Xones present two interfaces: 0 has the control requests, PCM out (EP 0x05) and MIDI in
- * (EP 0x83); 1 has PCM in (EP 0x86). Run at the highest rate the device lists (the DB2 is
- * 48 kHz only). The A16 defaults to its SVS processing rate, 48 kHz.
+ * The A16 presents two interfaces: 0 has the control requests and PCM out (EP 0x05); 1 has PCM
+ * in (EP 0x86). It defaults to its SVS processing rate, 48 kHz.
  */
 void ploytec_engine_init(struct ploytec_engine *pe, const struct ozzy_device *model)
 {
 	struct ozzy_device_profile *p = &pe->base.profile;
-	uint32_t rates[OZZY_MAX_RATES];
 
 	pe->base.ops = &ploytec_engine_ops;
 	pe->base.model = model;
-	pe->default_rate = !strcmp(model->key, "SmythRealiserA16") && ozzy_device_has_rate(model, 48000) ?
-		48000 : rates[ozzy_device_rates(model, rates) - 1];
+	pe->default_rate = 48000;
 	pe->sample_rate = pe->default_rate;
 	pe->out_layout = PLOYTEC_OUT_LAYOUT_INT;
-	pe->out_frames = ozzy_pcm_frames(false, ozzy_engine_setting_default(&pe->base, OZZY_SETTING_PCM_OUT_FRAMES));
-	pe->in_frames = ozzy_pcm_frames(true, ozzy_engine_setting_default(&pe->base, OZZY_SETTING_PCM_IN_FRAMES));
+	pe->out_frames = ozzy_pcm_frames(false, ozzy_setting_descs[OZZY_SETTING_PCM_OUT_FRAMES].def);
+	pe->in_frames = ozzy_pcm_frames(true, ozzy_setting_descs[OZZY_SETTING_PCM_IN_FRAMES].def);
 	pe->out_queue = pe->in_queue = ozzy_pcm_queue(OZZY_NUM_PCM_QUEUES - 1);
 	pe->streamed = false;
 

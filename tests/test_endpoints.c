@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * ozzy_engine_bind_endpoints on the endpoint lists every platform hands it: a Xone (fixed
- * addresses, with endpoints it doesn't use around them), plus a High Speed high-bandwidth
- * wMaxPacketSize.
+ * ozzy_engine_bind_endpoints on the Realiser A16's endpoint list (fixed addresses, with endpoints
+ * it doesn't use around them), one with PCM in on the wrong interface, and a High Speed
+ * high-bandwidth wMaxPacketSize.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -28,8 +28,8 @@ static uint8_t addr(const struct ozzy_usb_endpoint *ep)
 
 int main(void)
 {
-	/* Xone:DB4 at alt 1: the isoc keep-alive and the unused bulk OUT next to its pipes */
-	static const struct ozzy_usb_endpoint db4[] = {
+	/* The A16's pipes at alt 1, with endpoints it doesn't use next to them */
+	static const struct ozzy_usb_endpoint a16[] = {
 		{ 0, 0x02, 0x01, 1, 4, NULL },
 		{ 0, 0x83, 0x03, 1, 64, NULL },
 		{ 0, 0x04, 0x02, 0, 512, NULL },
@@ -38,7 +38,7 @@ int main(void)
 		{ 1, 0x86, 0x03, 1, 1024, NULL },
 	};
 	/* The PCM IN endpoint missing (wrong interface) */
-	static const struct ozzy_usb_endpoint db4_partial[] = {
+	static const struct ozzy_usb_endpoint a16_partial[] = {
 		{ 0, 0x05, 0x03, 1, 964, NULL },
 		{ 0, 0x83, 0x03, 1, 64, NULL },
 		{ 0, 0x86, 0x03, 1, 1024, NULL },
@@ -46,17 +46,20 @@ int main(void)
 	const struct ozzy_usb_endpoint *bound[OZZY_PIPE_ROLES];
 	struct ozzy_engine *e;
 
-	e = engine(0x0A4A, 0xFFDB);
-	ozzy_engine_bind_endpoints(e, db4, N(db4), bound);
-	CHECK(addr(bound[OZZY_PIPE_PCM_OUT]) == 0x05, "DB4 PCM out 0x%02x", addr(bound[OZZY_PIPE_PCM_OUT]));
-	CHECK(addr(bound[OZZY_PIPE_PCM_IN]) == 0x86, "DB4 PCM in 0x%02x", addr(bound[OZZY_PIPE_PCM_IN]));
+	e = engine(0x0A4A, 0x5A16);
+	ozzy_engine_bind_endpoints(e, a16, N(a16), bound);
+	CHECK(addr(bound[OZZY_PIPE_PCM_OUT]) == 0x05, "A16 PCM out 0x%02x", addr(bound[OZZY_PIPE_PCM_OUT]));
+	CHECK(addr(bound[OZZY_PIPE_PCM_IN]) == 0x86, "A16 PCM in 0x%02x", addr(bound[OZZY_PIPE_PCM_IN]));
 	CHECK(e->pipe[OZZY_PIPE_PCM_OUT].max_packet_size == 964 && e->pipe[OZZY_PIPE_PCM_OUT].transfer_type == 3,
-	      "DB4 PCM out %u type %u", e->pipe[OZZY_PIPE_PCM_OUT].max_packet_size,
+	      "A16 PCM out %u type %u", e->pipe[OZZY_PIPE_PCM_OUT].max_packet_size,
 	      e->pipe[OZZY_PIPE_PCM_OUT].transfer_type);
+	CHECK(e->pipe[OZZY_PIPE_PCM_IN].max_packet_size == 1024 && e->pipe[OZZY_PIPE_PCM_IN].transfer_type == 3,
+	      "A16 PCM in %u type %u", e->pipe[OZZY_PIPE_PCM_IN].max_packet_size,
+	      e->pipe[OZZY_PIPE_PCM_IN].transfer_type);
 	free(e);
 
-	e = engine(0x0A4A, 0xFFDB);
-	ozzy_engine_bind_endpoints(e, db4_partial, N(db4_partial), bound);
+	e = engine(0x0A4A, 0x5A16);
+	ozzy_engine_bind_endpoints(e, a16_partial, N(a16_partial), bound);
 	CHECK(addr(bound[OZZY_PIPE_PCM_OUT]) == 0x05 && !bound[OZZY_PIPE_PCM_IN],
 	      "PCM in on the wrong interface must not bind (0x%02x)", addr(bound[OZZY_PIPE_PCM_IN]));
 	CHECK(e->pipe[OZZY_PIPE_PCM_IN].address == 0, "unbound role told to the engine");
