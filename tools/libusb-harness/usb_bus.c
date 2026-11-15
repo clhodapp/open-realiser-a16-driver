@@ -47,13 +47,20 @@ static void LIBUSB_CALL completed(struct libusb_transfer *t)
         unsigned int dir = (t->endpoint & 0x80) ? OZZY_PCM_IN : OZZY_PCM_OUT;
         b->completed[dir]++;
         b->bytes[dir] += (unsigned int)t->actual_length;
-        /* Fail closed on partial audio packets: the engine otherwise pads some input. */
-        if ((t->endpoint == b->engine->pipe[OZZY_PIPE_PCM_IN].address ||
-             t->endpoint == b->engine->pipe[OZZY_PIPE_PCM_OUT].address) &&
-            t->actual_length != t->length) {
-            fprintf(stderr, "short PCM transfer on %02x: %d/%d\n", t->endpoint, t->actual_length, t->length);
-            b->failed = true;
-            status = OZZY_STATUS_ABORTED;
+        /* A short input transfer reaches the engine with its byte count; the engine
+         * counts it and fills the frames that did not arrive with silence. The A16
+         * sends one right after a cable replug. A short output transfer means the
+         * A16 took less audio than was sent, and fails the stream. */
+        if (t->actual_length != t->length) {
+            if (t->endpoint == b->engine->pipe[OZZY_PIPE_PCM_IN].address) {
+                if (!b->short_in++)
+                    fprintf(stderr, "short PCM transfer on %02x: %d/%d, missing frames silenced\n",
+                            t->endpoint, t->actual_length, t->length);
+            } else if (t->endpoint == b->engine->pipe[OZZY_PIPE_PCM_OUT].address) {
+                fprintf(stderr, "short PCM transfer on %02x: %d/%d\n", t->endpoint, t->actual_length, t->length);
+                b->failed = true;
+                status = OZZY_STATUS_ABORTED;
+            }
         }
     }
     if (b->trace)

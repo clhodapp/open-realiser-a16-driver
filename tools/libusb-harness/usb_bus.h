@@ -20,6 +20,7 @@ struct usb_bus {
     uint32_t timer_us;
     uint64_t timer_next, progress[OZZY_PCM_DIRS];
     uint64_t completed[OZZY_PCM_DIRS], bytes[OZZY_PCM_DIRS];
+    uint64_t short_in;   /* short input transfers, passed on and silenced */
     bool draining, failed;
     /* Optional live adapter hooks, called only on the USB event thread. */
     void (*before_complete)(void *data, uint8_t endpoint);

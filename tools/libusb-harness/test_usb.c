@@ -9,6 +9,7 @@ static unsigned int count, delivered;
 static bool fail_submit, short_control;
 static int control_result = -1;
 static int last_status;
+static uint32_t last_bytes;
 int __wrap_libusb_submit_transfer(struct libusb_transfer *t)
 {
     if (fail_submit) return LIBUSB_ERROR_NO_DEVICE;
@@ -36,8 +37,8 @@ int __wrap_libusb_control_transfer(libusb_device_handle *h, uint8_t type, uint8_
 }
 static void completion(struct ozzy_engine *e, uint8_t pipe, void *token, int status, uint32_t bytes)
 {
-    (void)e; (void)pipe; (void)token; (void)bytes;
-    delivered++; last_status = status;
+    (void)e; (void)pipe; (void)token;
+    delivered++; last_status = status; last_bytes = bytes;
 }
 static const struct ozzy_engine_ops engine_ops = { .complete = completion };
 int main(void)
@@ -68,6 +69,17 @@ int main(void)
     queued[0]->status = LIBUSB_TRANSFER_COMPLETED;
     queued[0]->actual_length = 511;
     usb_bus_poll(&b, 0);
+    /* A short input transfer reaches the engine with its byte count. */
+    assert(!b.failed && !b.pending_count && last_status == 0 && last_bytes == 511 && b.short_in == 1);
+
+    usb_bus_init(&b, NULL, NULL, &e, NULL);
+    b.types[0x05] = LIBUSB_TRANSFER_TYPE_INTERRUPT;
+    e.pipe[OZZY_PIPE_PCM_OUT].address = 0x05;
+    assert(b.bus.ops->submit(&b, 0x05, data, 512, NULL));
+    queued[0]->status = LIBUSB_TRANSFER_COMPLETED;
+    queued[0]->actual_length = 511;
+    usb_bus_poll(&b, 0);
+    /* A short output transfer fails the stream. */
     assert(b.failed && !b.pending_count && last_status == OZZY_STATUS_ABORTED);
 
     usb_bus_init(&b, NULL, NULL, &e, NULL);
