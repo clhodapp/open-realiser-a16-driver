@@ -21,10 +21,6 @@ submit 86 off=30536 size=5120 xfer=2
 submit 05 off=1076584 size=3856 xfer=2
 submit 86 off=35656 size=5120 xfer=3
 submit 05 off=1080440 size=3856 xfer=3
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 start 1
 submit 86 off=40776 size=5120 xfer=4
 submit 05 off=1084296 size=3856 xfer=4
@@ -34,10 +30,6 @@ submit 86 off=51016 size=5120 xfer=6
 submit 05 off=1092008 size=3856 xfer=6
 submit 86 off=56136 size=5120 xfer=7
 submit 05 off=1095864 size=3856 xfer=7
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=8
 submit 05 off=1099720 size=3856 xfer=8
 submit 86 off=66376 size=5120 xfer=9
@@ -46,10 +38,6 @@ submit 86 off=71496 size=5120 xfer=10
 submit 05 off=1107432 size=3856 xfer=10
 submit 86 off=76616 size=5120 xfer=11
 submit 05 off=1111288 size=3856 xfer=11
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=12
 submit 05 off=1115144 size=3856 xfer=12
 submit 86 off=86856 size=5120 xfer=13
@@ -63,10 +51,6 @@ progress 1 160
 submit 86 off=97096 size=5120 xfer=15
 progress 0 240
 submit 05 off=1126712 size=3856 xfer=15
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 240
 submit 86 off=102216 size=5120 xfer=16
 progress 0 320
@@ -83,10 +67,6 @@ progress 1 480
 submit 86 off=117576 size=5120 xfer=19
 progress 0 560
 submit 05 off=1142136 size=3856 xfer=19
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 560
 submit 86 off=122696 size=5120 xfer=20
 progress 0 640
@@ -103,10 +83,6 @@ progress 1 800
 submit 86 off=138056 size=5120 xfer=23
 progress 0 880
 submit 05 off=1157560 size=3856 xfer=23
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 880
 submit 86 off=143176 size=5120 xfer=24
 progress 0 960
@@ -123,10 +99,6 @@ progress 1 1120
 submit 86 off=158536 size=5120 xfer=27
 progress 0 1200
 submit 05 off=1172984 size=3856 xfer=27
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1200
 submit 86 off=163656 size=5120 xfer=28
 progress 0 1280
@@ -143,10 +115,6 @@ progress 1 1440
 submit 86 off=179016 size=5120 xfer=31
 progress 0 1520
 submit 05 off=1188408 size=3856 xfer=31
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1520
 submit 86 off=184136 size=5120 xfer=32
 progress 0 1600
@@ -163,10 +131,6 @@ progress 1 1760
 submit 86 off=199496 size=5120 xfer=35
 progress 0 1840
 submit 05 off=1203832 size=3856 xfer=35
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1840
 submit 86 off=204616 size=5120 xfer=36
 progress 0 1920
@@ -183,10 +147,6 @@ progress 1 2080
 submit 86 off=219976 size=5120 xfer=39
 progress 0 2160
 submit 05 off=1219256 size=3856 xfer=39
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2160
 submit 86 off=225096 size=5120 xfer=40
 progress 0 2240
@@ -203,10 +163,6 @@ progress 1 2400
 submit 86 off=240456 size=5120 xfer=43
 progress 0 2480
 submit 05 off=1234680 size=3856 xfer=43
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2480
 submit 86 off=245576 size=5120 xfer=44
 progress 0 2560
@@ -223,10 +179,6 @@ progress 1 2720
 submit 86 off=260936 size=5120 xfer=47
 progress 0 2800
 submit 05 off=1250104 size=3856 xfer=47
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2800
 submit 86 off=266056 size=5120 xfer=48
 progress 0 2880
@@ -243,10 +195,6 @@ progress 1 3040
 submit 86 off=281416 size=5120 xfer=51
 progress 0 3120
 submit 05 off=1265528 size=3856 xfer=51
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3120
 submit 86 off=286536 size=5120 xfer=52
 progress 0 3200
@@ -263,10 +211,6 @@ progress 1 3360
 submit 86 off=301896 size=5120 xfer=55
 progress 0 3440
 submit 05 off=1280952 size=3856 xfer=55
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3440
 submit 86 off=307016 size=5120 xfer=56
 progress 0 3520
@@ -283,10 +227,6 @@ progress 1 3680
 submit 86 off=322376 size=5120 xfer=59
 progress 0 3760
 submit 05 off=1296376 size=3856 xfer=59
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3760
 submit 86 off=327496 size=5120 xfer=60
 progress 0 3840
@@ -303,10 +243,6 @@ progress 1 4000
 submit 86 off=342856 size=5120 xfer=63
 progress 0 4080
 submit 05 off=1311800 size=3856 xfer=63
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4080
 submit 86 off=347976 size=5120 xfer=64
 progress 0 4160
@@ -323,10 +259,6 @@ progress 1 4320
 submit 86 off=363336 size=5120 xfer=67
 progress 0 4400
 submit 05 off=1327224 size=3856 xfer=67
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4400
 submit 86 off=368456 size=5120 xfer=68
 progress 0 4480
@@ -343,10 +275,6 @@ progress 1 4640
 submit 86 off=383816 size=5120 xfer=71
 progress 0 4720
 submit 05 off=1342648 size=3856 xfer=71
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4720
 submit 86 off=388936 size=5120 xfer=72
 progress 0 4800
@@ -363,10 +291,6 @@ progress 1 4960
 submit 86 off=404296 size=5120 xfer=75
 progress 0 5040
 submit 05 off=1358072 size=3856 xfer=75
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5040
 submit 86 off=409416 size=5120 xfer=76
 progress 0 5120
@@ -383,10 +307,6 @@ progress 1 5280
 submit 86 off=424776 size=5120 xfer=79
 progress 0 5360
 submit 05 off=1373496 size=3856 xfer=79
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5360
 submit 86 off=429896 size=5120 xfer=80
 progress 0 5440
@@ -403,10 +323,6 @@ progress 1 5600
 submit 86 off=445256 size=5120 xfer=83
 progress 0 5680
 submit 05 off=1388920 size=3856 xfer=83
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5680
 submit 86 off=450376 size=5120 xfer=84
 progress 0 5760
@@ -423,10 +339,6 @@ progress 1 5920
 submit 86 off=465736 size=5120 xfer=87
 progress 0 6000
 submit 05 off=1404344 size=3856 xfer=87
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6000
 submit 86 off=470856 size=5120 xfer=88
 progress 0 6080
@@ -443,10 +355,6 @@ progress 1 6240
 submit 86 off=486216 size=5120 xfer=91
 progress 0 6320
 submit 05 off=1419768 size=3856 xfer=91
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6320
 submit 86 off=491336 size=5120 xfer=92
 progress 0 6400
@@ -463,10 +371,6 @@ progress 1 6560
 submit 86 off=506696 size=5120 xfer=95
 progress 0 6640
 submit 05 off=1435192 size=3856 xfer=95
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6640
 submit 86 off=511816 size=5120 xfer=96
 progress 0 6720
@@ -483,10 +387,6 @@ progress 1 6880
 submit 86 off=527176 size=5120 xfer=99
 progress 0 6960
 submit 05 off=1450616 size=3856 xfer=99
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6960
 submit 86 off=532296 size=5120 xfer=100
 progress 0 7040
@@ -503,10 +403,6 @@ progress 1 7200
 submit 86 off=547656 size=5120 xfer=103
 progress 0 7280
 submit 05 off=1466040 size=3856 xfer=103
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7280
 submit 86 off=552776 size=5120 xfer=104
 progress 0 7360
@@ -523,10 +419,6 @@ progress 1 7520
 submit 86 off=568136 size=5120 xfer=107
 progress 0 7600
 submit 05 off=1481464 size=3856 xfer=107
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7600
 submit 86 off=573256 size=5120 xfer=108
 progress 0 7680
@@ -543,10 +435,6 @@ progress 1 7840
 submit 86 off=588616 size=5120 xfer=111
 progress 0 7920
 submit 05 off=1496888 size=3856 xfer=111
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7920
 submit 86 off=593736 size=5120 xfer=112
 progress 0 8000
@@ -563,10 +451,6 @@ progress 1 8160
 submit 86 off=609096 size=5120 xfer=115
 progress 0 8240
 submit 05 off=1512312 size=3856 xfer=115
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8240
 submit 86 off=614216 size=5120 xfer=116
 progress 0 8320
@@ -583,10 +467,6 @@ progress 1 8480
 submit 86 off=629576 size=5120 xfer=119
 progress 0 8560
 submit 05 off=1527736 size=3856 xfer=119
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8560
 submit 86 off=634696 size=5120 xfer=120
 progress 0 8640
@@ -603,10 +483,6 @@ progress 1 8800
 submit 86 off=650056 size=5120 xfer=123
 progress 0 8880
 submit 05 off=1543160 size=3856 xfer=123
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8880
 submit 86 off=655176 size=5120 xfer=124
 progress 0 8960
@@ -623,10 +499,6 @@ progress 1 9120
 submit 86 off=670536 size=5120 xfer=127
 progress 0 9200
 submit 05 off=1558584 size=3856 xfer=127
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9200
 submit 86 off=675656 size=5120 xfer=128
 progress 0 9280
@@ -643,10 +515,6 @@ progress 1 9440
 submit 86 off=691016 size=5120 xfer=131
 progress 0 9520
 submit 05 off=1574008 size=3856 xfer=131
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9520
 submit 86 off=696136 size=5120 xfer=132
 progress 0 9600
@@ -663,10 +531,6 @@ progress 1 9760
 submit 86 off=711496 size=5120 xfer=135
 progress 0 9840
 submit 05 off=1589432 size=3856 xfer=135
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9840
 submit 86 off=716616 size=5120 xfer=136
 progress 0 9920
@@ -683,10 +547,6 @@ progress 1 10080
 submit 86 off=731976 size=5120 xfer=139
 progress 0 10160
 submit 05 off=1604856 size=3856 xfer=139
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10160
 submit 86 off=737096 size=5120 xfer=140
 progress 0 10240
@@ -703,10 +563,6 @@ progress 1 10400
 submit 86 off=752456 size=5120 xfer=143
 progress 0 10480
 submit 05 off=1620280 size=3856 xfer=143
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10480
 submit 86 off=757576 size=5120 xfer=144
 progress 0 10560
@@ -723,10 +579,6 @@ progress 1 10720
 submit 86 off=772936 size=5120 xfer=147
 progress 0 10800
 submit 05 off=1635704 size=3856 xfer=147
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10800
 submit 86 off=778056 size=5120 xfer=148
 progress 0 10880
@@ -743,10 +595,6 @@ progress 1 11040
 submit 86 off=793416 size=5120 xfer=151
 progress 0 11120
 submit 05 off=1651128 size=3856 xfer=151
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 11120
 submit 86 off=798536 size=5120 xfer=152
 progress 0 11200
@@ -759,10 +607,6 @@ submit 86 off=808776 size=5120 xfer=154
 submit 05 off=1662696 size=3856 xfer=154
 submit 86 off=813896 size=5120 xfer=155
 submit 05 off=1666552 size=3856 xfer=155
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=819016 size=5120 xfer=156
 submit 05 off=1670408 size=3856 xfer=156
 submit 86 off=824136 size=5120 xfer=157
@@ -771,10 +615,6 @@ submit 86 off=829256 size=5120 xfer=158
 submit 05 off=1678120 size=3856 xfer=158
 submit 86 off=834376 size=5120 xfer=159
 submit 05 off=1681976 size=3856 xfer=159
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=839496 size=5120 xfer=160
 submit 05 off=1685832 size=3856 xfer=160
 submit 86 off=844616 size=5120 xfer=161
@@ -783,10 +623,6 @@ submit 86 off=849736 size=5120 xfer=162
 submit 05 off=1693544 size=3856 xfer=162
 submit 86 off=854856 size=5120 xfer=163
 submit 05 off=1697400 size=3856 xfer=163
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=859976 size=5120 xfer=164
 submit 05 off=1701256 size=3856 xfer=164
 submit 86 off=865096 size=5120 xfer=165
@@ -795,10 +631,6 @@ submit 86 off=870216 size=5120 xfer=166
 submit 05 off=1708968 size=3856 xfer=166
 submit 86 off=875336 size=5120 xfer=167
 submit 05 off=1712824 size=3856 xfer=167
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=880456 size=5120 xfer=168
 submit 05 off=1716680 size=3856 xfer=168
 submit 86 off=885576 size=5120 xfer=169
@@ -807,10 +639,6 @@ submit 86 off=890696 size=5120 xfer=170
 submit 05 off=1724392 size=3856 xfer=170
 submit 86 off=895816 size=5120 xfer=171
 submit 05 off=1728248 size=3856 xfer=171
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=900936 size=5120 xfer=172
 submit 05 off=1732104 size=3856 xfer=172
 submit 86 off=906056 size=5120 xfer=173
@@ -819,10 +647,6 @@ submit 86 off=911176 size=5120 xfer=174
 submit 05 off=1739816 size=3856 xfer=174
 submit 86 off=916296 size=5120 xfer=175
 submit 05 off=1743672 size=3856 xfer=175
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=921416 size=5120 xfer=176
 submit 05 off=1747528 size=3856 xfer=176
 submit 86 off=926536 size=5120 xfer=177
@@ -831,10 +655,6 @@ submit 86 off=931656 size=5120 xfer=178
 submit 05 off=1755240 size=3856 xfer=178
 submit 86 off=936776 size=5120 xfer=179
 submit 05 off=1759096 size=3856 xfer=179
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=941896 size=5120 xfer=180
 submit 05 off=1762952 size=3856 xfer=180
 submit 86 off=947016 size=5120 xfer=181
@@ -843,10 +663,6 @@ submit 86 off=952136 size=5120 xfer=182
 submit 05 off=1770664 size=3856 xfer=182
 submit 86 off=957256 size=5120 xfer=183
 submit 05 off=1774520 size=3856 xfer=183
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=962376 size=5120 xfer=184
 submit 05 off=1778376 size=3856 xfer=184
 submit 86 off=967496 size=5120 xfer=185
@@ -855,10 +671,6 @@ submit 86 off=972616 size=5120 xfer=186
 submit 05 off=1786088 size=3856 xfer=186
 submit 86 off=977736 size=5120 xfer=187
 submit 05 off=1789944 size=3856 xfer=187
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=982856 size=5120 xfer=188
 submit 05 off=1793800 size=3856 xfer=188
 submit 86 off=987976 size=5120 xfer=189
@@ -867,10 +679,6 @@ submit 86 off=993096 size=5120 xfer=190
 submit 05 off=1801512 size=3856 xfer=190
 submit 86 off=998216 size=5120 xfer=191
 submit 05 off=1805368 size=3856 xfer=191
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1003336 size=5120 xfer=192
 submit 05 off=1809224 size=3856 xfer=192
 submit 86 off=1008456 size=5120 xfer=193
@@ -879,10 +687,6 @@ submit 86 off=1013576 size=5120 xfer=194
 submit 05 off=1816936 size=3856 xfer=194
 submit 86 off=1018696 size=5120 xfer=195
 submit 05 off=1820792 size=3856 xfer=195
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1023816 size=5120 xfer=196
 submit 05 off=1824648 size=3856 xfer=196
 submit 86 off=1028936 size=5120 xfer=197
@@ -891,10 +695,6 @@ submit 86 off=1034056 size=5120 xfer=198
 submit 05 off=1832360 size=3856 xfer=198
 submit 86 off=1039176 size=5120 xfer=199
 submit 05 off=1836216 size=3856 xfer=199
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1044296 size=5120 xfer=200
 submit 05 off=1840072 size=3856 xfer=200
 submit 86 off=1049416 size=5120 xfer=201
@@ -903,10 +703,6 @@ submit 86 off=1054536 size=5120 xfer=202
 submit 05 off=1847784 size=3856 xfer=202
 submit 86 off=1059656 size=5120 xfer=203
 submit 05 off=1851640 size=3856 xfer=203
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=20296 size=5120 xfer=204
 submit 05 off=1855496 size=3856 xfer=204
 submit 86 off=25416 size=5120 xfer=205
@@ -915,10 +711,6 @@ submit 86 off=30536 size=5120 xfer=206
 submit 05 off=1863208 size=3856 xfer=206
 submit 86 off=35656 size=5120 xfer=207
 submit 05 off=1867064 size=3856 xfer=207
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=40776 size=5120 xfer=208
 submit 05 off=1870920 size=3856 xfer=208
 submit 86 off=45896 size=5120 xfer=209
@@ -927,10 +719,6 @@ submit 86 off=51016 size=5120 xfer=210
 submit 05 off=1878632 size=3856 xfer=210
 submit 86 off=56136 size=5120 xfer=211
 submit 05 off=1882488 size=3856 xfer=211
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=212
 submit 05 off=1886344 size=3856 xfer=212
 submit 86 off=66376 size=5120 xfer=213
@@ -939,10 +727,6 @@ submit 86 off=71496 size=5120 xfer=214
 submit 05 off=1894056 size=3856 xfer=214
 submit 86 off=76616 size=5120 xfer=215
 submit 05 off=1897912 size=3856 xfer=215
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=216
 submit 05 off=1901768 size=3856 xfer=216
 submit 86 off=86856 size=5120 xfer=217
@@ -951,10 +735,6 @@ submit 86 off=91976 size=5120 xfer=218
 submit 05 off=1909480 size=3856 xfer=218
 submit 86 off=97096 size=5120 xfer=219
 submit 05 off=1913336 size=3856 xfer=219
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=102216 size=5120 xfer=220
 submit 05 off=1917192 size=3856 xfer=220
 submit 86 off=107336 size=5120 xfer=221
@@ -963,10 +743,6 @@ submit 86 off=112456 size=5120 xfer=222
 submit 05 off=1924904 size=3856 xfer=222
 submit 86 off=117576 size=5120 xfer=223
 submit 05 off=1928760 size=3856 xfer=223
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=122696 size=5120 xfer=224
 submit 05 off=1932616 size=3856 xfer=224
 submit 86 off=127816 size=5120 xfer=225
@@ -975,10 +751,6 @@ submit 86 off=132936 size=5120 xfer=226
 submit 05 off=1940328 size=3856 xfer=226
 submit 86 off=138056 size=5120 xfer=227
 submit 05 off=1944184 size=3856 xfer=227
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=143176 size=5120 xfer=228
 submit 05 off=1948040 size=3856 xfer=228
 submit 86 off=148296 size=5120 xfer=229
@@ -987,10 +759,6 @@ submit 86 off=153416 size=5120 xfer=230
 submit 05 off=1955752 size=3856 xfer=230
 submit 86 off=158536 size=5120 xfer=231
 submit 05 off=1959608 size=3856 xfer=231
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=163656 size=5120 xfer=232
 submit 05 off=1963464 size=3856 xfer=232
 submit 86 off=168776 size=5120 xfer=233
@@ -999,10 +767,6 @@ submit 86 off=173896 size=5120 xfer=234
 submit 05 off=1971176 size=3856 xfer=234
 submit 86 off=179016 size=5120 xfer=235
 submit 05 off=1975032 size=3856 xfer=235
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=184136 size=5120 xfer=236
 submit 05 off=1978888 size=3856 xfer=236
 submit 86 off=189256 size=5120 xfer=237
@@ -1011,10 +775,6 @@ submit 86 off=194376 size=5120 xfer=238
 submit 05 off=1986600 size=3856 xfer=238
 submit 86 off=199496 size=5120 xfer=239
 submit 05 off=1990456 size=3856 xfer=239
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=204616 size=5120 xfer=240
 submit 05 off=1994312 size=3856 xfer=240
 submit 86 off=209736 size=5120 xfer=241
@@ -1023,10 +783,6 @@ submit 86 off=214856 size=5120 xfer=242
 submit 05 off=2002024 size=3856 xfer=242
 submit 86 off=219976 size=5120 xfer=243
 submit 05 off=2005880 size=3856 xfer=243
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=225096 size=5120 xfer=244
 submit 05 off=2009736 size=3856 xfer=244
 submit 86 off=230216 size=5120 xfer=245
@@ -1035,10 +791,6 @@ submit 86 off=235336 size=5120 xfer=246
 submit 05 off=2017448 size=3856 xfer=246
 submit 86 off=240456 size=5120 xfer=247
 submit 05 off=2021304 size=3856 xfer=247
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=245576 size=5120 xfer=248
 submit 05 off=2025160 size=3856 xfer=248
 submit 86 off=250696 size=5120 xfer=249
@@ -1047,10 +799,6 @@ submit 86 off=255816 size=5120 xfer=250
 submit 05 off=2032872 size=3856 xfer=250
 submit 86 off=260936 size=5120 xfer=251
 submit 05 off=2036728 size=3856 xfer=251
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=266056 size=5120 xfer=252
 submit 05 off=2040584 size=3856 xfer=252
 submit 86 off=271176 size=5120 xfer=253
@@ -1059,10 +807,6 @@ submit 86 off=276296 size=5120 xfer=254
 submit 05 off=2048296 size=3856 xfer=254
 submit 86 off=281416 size=5120 xfer=255
 submit 05 off=2052152 size=3856 xfer=255
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=286536 size=5120 xfer=256
 submit 05 off=2056008 size=3856 xfer=256
 submit 86 off=291656 size=5120 xfer=257
@@ -1071,10 +815,6 @@ submit 86 off=296776 size=5120 xfer=258
 submit 05 off=2063720 size=3856 xfer=258
 submit 86 off=301896 size=5120 xfer=259
 submit 05 off=2067576 size=3856 xfer=259
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=307016 size=5120 xfer=260
 submit 05 off=2071432 size=3856 xfer=260
 submit 86 off=312136 size=5120 xfer=261
@@ -1083,10 +823,6 @@ submit 86 off=317256 size=5120 xfer=262
 submit 05 off=2079144 size=3856 xfer=262
 submit 86 off=322376 size=5120 xfer=263
 submit 05 off=2083000 size=3856 xfer=263
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=327496 size=5120 xfer=264
 submit 05 off=2086856 size=3856 xfer=264
 submit 86 off=332616 size=5120 xfer=265
@@ -1095,10 +831,6 @@ submit 86 off=337736 size=5120 xfer=266
 submit 05 off=2094568 size=3856 xfer=266
 submit 86 off=342856 size=5120 xfer=267
 submit 05 off=2098424 size=3856 xfer=267
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=347976 size=5120 xfer=268
 submit 05 off=2102280 size=3856 xfer=268
 submit 86 off=353096 size=5120 xfer=269
@@ -1107,10 +839,6 @@ submit 86 off=358216 size=5120 xfer=270
 submit 05 off=2109992 size=3856 xfer=270
 submit 86 off=363336 size=5120 xfer=271
 submit 05 off=1068872 size=3856 xfer=271
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=368456 size=5120 xfer=272
 submit 05 off=1072728 size=3856 xfer=272
 submit 86 off=373576 size=5120 xfer=273
@@ -1119,10 +847,6 @@ submit 86 off=378696 size=5120 xfer=274
 submit 05 off=1080440 size=3856 xfer=274
 submit 86 off=383816 size=5120 xfer=275
 submit 05 off=1084296 size=3856 xfer=275
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=388936 size=5120 xfer=276
 submit 05 off=1088152 size=3856 xfer=276
 submit 86 off=394056 size=5120 xfer=277
@@ -1131,10 +855,6 @@ submit 86 off=399176 size=5120 xfer=278
 submit 05 off=1095864 size=3856 xfer=278
 submit 86 off=404296 size=5120 xfer=279
 submit 05 off=1099720 size=3856 xfer=279
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=409416 size=5120 xfer=280
 submit 05 off=1103576 size=3856 xfer=280
 submit 86 off=414536 size=5120 xfer=281
@@ -1143,10 +863,6 @@ submit 86 off=419656 size=5120 xfer=282
 submit 05 off=1111288 size=3856 xfer=282
 submit 86 off=424776 size=5120 xfer=283
 submit 05 off=1115144 size=3856 xfer=283
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=429896 size=5120 xfer=284
 submit 05 off=1119000 size=3856 xfer=284
 submit 86 off=435016 size=5120 xfer=285
@@ -1155,10 +871,6 @@ submit 86 off=440136 size=5120 xfer=286
 submit 05 off=1126712 size=3856 xfer=286
 submit 86 off=445256 size=5120 xfer=287
 submit 05 off=1130568 size=3856 xfer=287
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=450376 size=5120 xfer=288
 submit 05 off=1134424 size=3856 xfer=288
 submit 86 off=455496 size=5120 xfer=289
@@ -1167,10 +879,6 @@ submit 86 off=460616 size=5120 xfer=290
 submit 05 off=1142136 size=3856 xfer=290
 submit 86 off=465736 size=5120 xfer=291
 submit 05 off=1145992 size=3856 xfer=291
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=470856 size=5120 xfer=292
 submit 05 off=1149848 size=3856 xfer=292
 submit 86 off=475976 size=5120 xfer=293
@@ -1179,10 +887,6 @@ submit 86 off=481096 size=5120 xfer=294
 submit 05 off=1157560 size=3856 xfer=294
 submit 86 off=486216 size=5120 xfer=295
 submit 05 off=1161416 size=3856 xfer=295
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=491336 size=5120 xfer=296
 submit 05 off=1165272 size=3856 xfer=296
 submit 86 off=496456 size=5120 xfer=297
@@ -1191,10 +895,6 @@ submit 86 off=501576 size=5120 xfer=298
 submit 05 off=1172984 size=3856 xfer=298
 submit 86 off=506696 size=5120 xfer=299
 submit 05 off=1176840 size=3856 xfer=299
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=511816 size=5120 xfer=300
 submit 05 off=1180696 size=3856 xfer=300
 submit 86 off=516936 size=5120 xfer=301
@@ -1203,9 +903,9 @@ submit 86 off=522056 size=5120 xfer=302
 submit 05 off=1188408 size=3856 xfer=302
 submit 86 off=527176 size=5120 xfer=303
 submit 05 off=1192264 size=3856 xfer=303
-abort 12
-midi_in 296: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53 54 55 56 57
-shm 427ffa8cf80b0d55 out_ring faf6a38fd6bec783 in_ring 3d3bcebb0ddb8a83
+abort 8
+midi_in 0:
+shm 7d379bd544adafa2 out_ring faf6a38fd6bec783 in_ring 3d3bcebb0ddb8a83
 == ESI ESU1808
 control c0 56 0000 0000 15
 control c0 49 0000 0000 1
@@ -1230,10 +930,6 @@ submit 86 off=30536 size=5120 xfer=2
 submit 05 off=1077064 size=4096 xfer=2
 submit 86 off=35656 size=5120 xfer=3
 submit 05 off=1081160 size=4096 xfer=3
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 start 1
 submit 86 off=40776 size=5120 xfer=4
 submit 05 off=1085256 size=4096 xfer=4
@@ -1243,10 +939,6 @@ submit 86 off=51016 size=5120 xfer=6
 submit 05 off=1093448 size=4096 xfer=6
 submit 86 off=56136 size=5120 xfer=7
 submit 05 off=1097544 size=4096 xfer=7
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=8
 submit 05 off=1101640 size=4096 xfer=8
 submit 86 off=66376 size=5120 xfer=9
@@ -1255,10 +947,6 @@ submit 86 off=71496 size=5120 xfer=10
 submit 05 off=1109832 size=4096 xfer=10
 submit 86 off=76616 size=5120 xfer=11
 submit 05 off=1113928 size=4096 xfer=11
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=12
 submit 05 off=1118024 size=4096 xfer=12
 submit 86 off=86856 size=5120 xfer=13
@@ -1272,10 +960,6 @@ progress 1 160
 submit 86 off=97096 size=5120 xfer=15
 progress 0 240
 submit 05 off=1130312 size=4096 xfer=15
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 240
 submit 86 off=102216 size=5120 xfer=16
 progress 0 320
@@ -1292,10 +976,6 @@ progress 1 480
 submit 86 off=117576 size=5120 xfer=19
 progress 0 560
 submit 05 off=1146696 size=4096 xfer=19
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 560
 submit 86 off=122696 size=5120 xfer=20
 progress 0 640
@@ -1312,10 +992,6 @@ progress 1 800
 submit 86 off=138056 size=5120 xfer=23
 progress 0 880
 submit 05 off=1163080 size=4096 xfer=23
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 880
 submit 86 off=143176 size=5120 xfer=24
 progress 0 960
@@ -1332,10 +1008,6 @@ progress 1 1120
 submit 86 off=158536 size=5120 xfer=27
 progress 0 1200
 submit 05 off=1179464 size=4096 xfer=27
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1200
 submit 86 off=163656 size=5120 xfer=28
 progress 0 1280
@@ -1352,10 +1024,6 @@ progress 1 1440
 submit 86 off=179016 size=5120 xfer=31
 progress 0 1520
 submit 05 off=1195848 size=4096 xfer=31
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1520
 submit 86 off=184136 size=5120 xfer=32
 progress 0 1600
@@ -1372,10 +1040,6 @@ progress 1 1760
 submit 86 off=199496 size=5120 xfer=35
 progress 0 1840
 submit 05 off=1212232 size=4096 xfer=35
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1840
 submit 86 off=204616 size=5120 xfer=36
 progress 0 1920
@@ -1392,10 +1056,6 @@ progress 1 2080
 submit 86 off=219976 size=5120 xfer=39
 progress 0 2160
 submit 05 off=1228616 size=4096 xfer=39
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2160
 submit 86 off=225096 size=5120 xfer=40
 progress 0 2240
@@ -1412,10 +1072,6 @@ progress 1 2400
 submit 86 off=240456 size=5120 xfer=43
 progress 0 2480
 submit 05 off=1245000 size=4096 xfer=43
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2480
 submit 86 off=245576 size=5120 xfer=44
 progress 0 2560
@@ -1432,10 +1088,6 @@ progress 1 2720
 submit 86 off=260936 size=5120 xfer=47
 progress 0 2800
 submit 05 off=1261384 size=4096 xfer=47
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2800
 submit 86 off=266056 size=5120 xfer=48
 progress 0 2880
@@ -1452,10 +1104,6 @@ progress 1 3040
 submit 86 off=281416 size=5120 xfer=51
 progress 0 3120
 submit 05 off=1277768 size=4096 xfer=51
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3120
 submit 86 off=286536 size=5120 xfer=52
 progress 0 3200
@@ -1472,10 +1120,6 @@ progress 1 3360
 submit 86 off=301896 size=5120 xfer=55
 progress 0 3440
 submit 05 off=1294152 size=4096 xfer=55
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3440
 submit 86 off=307016 size=5120 xfer=56
 progress 0 3520
@@ -1492,10 +1136,6 @@ progress 1 3680
 submit 86 off=322376 size=5120 xfer=59
 progress 0 3760
 submit 05 off=1310536 size=4096 xfer=59
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3760
 submit 86 off=327496 size=5120 xfer=60
 progress 0 3840
@@ -1512,10 +1152,6 @@ progress 1 4000
 submit 86 off=342856 size=5120 xfer=63
 progress 0 4080
 submit 05 off=1326920 size=4096 xfer=63
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4080
 submit 86 off=347976 size=5120 xfer=64
 progress 0 4160
@@ -1532,10 +1168,6 @@ progress 1 4320
 submit 86 off=363336 size=5120 xfer=67
 progress 0 4400
 submit 05 off=1343304 size=4096 xfer=67
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4400
 submit 86 off=368456 size=5120 xfer=68
 progress 0 4480
@@ -1552,10 +1184,6 @@ progress 1 4640
 submit 86 off=383816 size=5120 xfer=71
 progress 0 4720
 submit 05 off=1359688 size=4096 xfer=71
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4720
 submit 86 off=388936 size=5120 xfer=72
 progress 0 4800
@@ -1572,10 +1200,6 @@ progress 1 4960
 submit 86 off=404296 size=5120 xfer=75
 progress 0 5040
 submit 05 off=1376072 size=4096 xfer=75
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5040
 submit 86 off=409416 size=5120 xfer=76
 progress 0 5120
@@ -1592,10 +1216,6 @@ progress 1 5280
 submit 86 off=424776 size=5120 xfer=79
 progress 0 5360
 submit 05 off=1392456 size=4096 xfer=79
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5360
 submit 86 off=429896 size=5120 xfer=80
 progress 0 5440
@@ -1612,10 +1232,6 @@ progress 1 5600
 submit 86 off=445256 size=5120 xfer=83
 progress 0 5680
 submit 05 off=1408840 size=4096 xfer=83
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5680
 submit 86 off=450376 size=5120 xfer=84
 progress 0 5760
@@ -1632,10 +1248,6 @@ progress 1 5920
 submit 86 off=465736 size=5120 xfer=87
 progress 0 6000
 submit 05 off=1425224 size=4096 xfer=87
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6000
 submit 86 off=470856 size=5120 xfer=88
 progress 0 6080
@@ -1652,10 +1264,6 @@ progress 1 6240
 submit 86 off=486216 size=5120 xfer=91
 progress 0 6320
 submit 05 off=1441608 size=4096 xfer=91
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6320
 submit 86 off=491336 size=5120 xfer=92
 progress 0 6400
@@ -1672,10 +1280,6 @@ progress 1 6560
 submit 86 off=506696 size=5120 xfer=95
 progress 0 6640
 submit 05 off=1457992 size=4096 xfer=95
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6640
 submit 86 off=511816 size=5120 xfer=96
 progress 0 6720
@@ -1692,10 +1296,6 @@ progress 1 6880
 submit 86 off=527176 size=5120 xfer=99
 progress 0 6960
 submit 05 off=1474376 size=4096 xfer=99
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6960
 submit 86 off=532296 size=5120 xfer=100
 progress 0 7040
@@ -1712,10 +1312,6 @@ progress 1 7200
 submit 86 off=547656 size=5120 xfer=103
 progress 0 7280
 submit 05 off=1490760 size=4096 xfer=103
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7280
 submit 86 off=552776 size=5120 xfer=104
 progress 0 7360
@@ -1732,10 +1328,6 @@ progress 1 7520
 submit 86 off=568136 size=5120 xfer=107
 progress 0 7600
 submit 05 off=1507144 size=4096 xfer=107
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7600
 submit 86 off=573256 size=5120 xfer=108
 progress 0 7680
@@ -1752,10 +1344,6 @@ progress 1 7840
 submit 86 off=588616 size=5120 xfer=111
 progress 0 7920
 submit 05 off=1523528 size=4096 xfer=111
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7920
 submit 86 off=593736 size=5120 xfer=112
 progress 0 8000
@@ -1772,10 +1360,6 @@ progress 1 8160
 submit 86 off=609096 size=5120 xfer=115
 progress 0 8240
 submit 05 off=1539912 size=4096 xfer=115
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8240
 submit 86 off=614216 size=5120 xfer=116
 progress 0 8320
@@ -1792,10 +1376,6 @@ progress 1 8480
 submit 86 off=629576 size=5120 xfer=119
 progress 0 8560
 submit 05 off=1556296 size=4096 xfer=119
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8560
 submit 86 off=634696 size=5120 xfer=120
 progress 0 8640
@@ -1812,10 +1392,6 @@ progress 1 8800
 submit 86 off=650056 size=5120 xfer=123
 progress 0 8880
 submit 05 off=1572680 size=4096 xfer=123
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8880
 submit 86 off=655176 size=5120 xfer=124
 progress 0 8960
@@ -1832,10 +1408,6 @@ progress 1 9120
 submit 86 off=670536 size=5120 xfer=127
 progress 0 9200
 submit 05 off=1589064 size=4096 xfer=127
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9200
 submit 86 off=675656 size=5120 xfer=128
 progress 0 9280
@@ -1852,10 +1424,6 @@ progress 1 9440
 submit 86 off=691016 size=5120 xfer=131
 progress 0 9520
 submit 05 off=1605448 size=4096 xfer=131
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9520
 submit 86 off=696136 size=5120 xfer=132
 progress 0 9600
@@ -1872,10 +1440,6 @@ progress 1 9760
 submit 86 off=711496 size=5120 xfer=135
 progress 0 9840
 submit 05 off=1621832 size=4096 xfer=135
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9840
 submit 86 off=716616 size=5120 xfer=136
 progress 0 9920
@@ -1892,10 +1456,6 @@ progress 1 10080
 submit 86 off=731976 size=5120 xfer=139
 progress 0 10160
 submit 05 off=1638216 size=4096 xfer=139
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10160
 submit 86 off=737096 size=5120 xfer=140
 progress 0 10240
@@ -1912,10 +1472,6 @@ progress 1 10400
 submit 86 off=752456 size=5120 xfer=143
 progress 0 10480
 submit 05 off=1654600 size=4096 xfer=143
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10480
 submit 86 off=757576 size=5120 xfer=144
 progress 0 10560
@@ -1932,10 +1488,6 @@ progress 1 10720
 submit 86 off=772936 size=5120 xfer=147
 progress 0 10800
 submit 05 off=1670984 size=4096 xfer=147
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10800
 submit 86 off=778056 size=5120 xfer=148
 progress 0 10880
@@ -1952,10 +1504,6 @@ progress 1 11040
 submit 86 off=793416 size=5120 xfer=151
 progress 0 11120
 submit 05 off=1687368 size=4096 xfer=151
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 11120
 submit 86 off=798536 size=5120 xfer=152
 progress 0 11200
@@ -1968,10 +1516,6 @@ submit 86 off=808776 size=5120 xfer=154
 submit 05 off=1699656 size=4096 xfer=154
 submit 86 off=813896 size=5120 xfer=155
 submit 05 off=1703752 size=4096 xfer=155
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=819016 size=5120 xfer=156
 submit 05 off=1707848 size=4096 xfer=156
 submit 86 off=824136 size=5120 xfer=157
@@ -1980,10 +1524,6 @@ submit 86 off=829256 size=5120 xfer=158
 submit 05 off=1716040 size=4096 xfer=158
 submit 86 off=834376 size=5120 xfer=159
 submit 05 off=1720136 size=4096 xfer=159
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=839496 size=5120 xfer=160
 submit 05 off=1724232 size=4096 xfer=160
 submit 86 off=844616 size=5120 xfer=161
@@ -1992,10 +1532,6 @@ submit 86 off=849736 size=5120 xfer=162
 submit 05 off=1732424 size=4096 xfer=162
 submit 86 off=854856 size=5120 xfer=163
 submit 05 off=1736520 size=4096 xfer=163
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=859976 size=5120 xfer=164
 submit 05 off=1740616 size=4096 xfer=164
 submit 86 off=865096 size=5120 xfer=165
@@ -2004,10 +1540,6 @@ submit 86 off=870216 size=5120 xfer=166
 submit 05 off=1748808 size=4096 xfer=166
 submit 86 off=875336 size=5120 xfer=167
 submit 05 off=1752904 size=4096 xfer=167
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=880456 size=5120 xfer=168
 submit 05 off=1757000 size=4096 xfer=168
 submit 86 off=885576 size=5120 xfer=169
@@ -2016,10 +1548,6 @@ submit 86 off=890696 size=5120 xfer=170
 submit 05 off=1765192 size=4096 xfer=170
 submit 86 off=895816 size=5120 xfer=171
 submit 05 off=1769288 size=4096 xfer=171
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=900936 size=5120 xfer=172
 submit 05 off=1773384 size=4096 xfer=172
 submit 86 off=906056 size=5120 xfer=173
@@ -2028,10 +1556,6 @@ submit 86 off=911176 size=5120 xfer=174
 submit 05 off=1781576 size=4096 xfer=174
 submit 86 off=916296 size=5120 xfer=175
 submit 05 off=1785672 size=4096 xfer=175
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=921416 size=5120 xfer=176
 submit 05 off=1789768 size=4096 xfer=176
 submit 86 off=926536 size=5120 xfer=177
@@ -2040,10 +1564,6 @@ submit 86 off=931656 size=5120 xfer=178
 submit 05 off=1797960 size=4096 xfer=178
 submit 86 off=936776 size=5120 xfer=179
 submit 05 off=1802056 size=4096 xfer=179
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=941896 size=5120 xfer=180
 submit 05 off=1806152 size=4096 xfer=180
 submit 86 off=947016 size=5120 xfer=181
@@ -2052,10 +1572,6 @@ submit 86 off=952136 size=5120 xfer=182
 submit 05 off=1814344 size=4096 xfer=182
 submit 86 off=957256 size=5120 xfer=183
 submit 05 off=1818440 size=4096 xfer=183
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=962376 size=5120 xfer=184
 submit 05 off=1822536 size=4096 xfer=184
 submit 86 off=967496 size=5120 xfer=185
@@ -2064,10 +1580,6 @@ submit 86 off=972616 size=5120 xfer=186
 submit 05 off=1830728 size=4096 xfer=186
 submit 86 off=977736 size=5120 xfer=187
 submit 05 off=1834824 size=4096 xfer=187
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=982856 size=5120 xfer=188
 submit 05 off=1838920 size=4096 xfer=188
 submit 86 off=987976 size=5120 xfer=189
@@ -2076,10 +1588,6 @@ submit 86 off=993096 size=5120 xfer=190
 submit 05 off=1847112 size=4096 xfer=190
 submit 86 off=998216 size=5120 xfer=191
 submit 05 off=1851208 size=4096 xfer=191
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1003336 size=5120 xfer=192
 submit 05 off=1855304 size=4096 xfer=192
 submit 86 off=1008456 size=5120 xfer=193
@@ -2088,10 +1596,6 @@ submit 86 off=1013576 size=5120 xfer=194
 submit 05 off=1863496 size=4096 xfer=194
 submit 86 off=1018696 size=5120 xfer=195
 submit 05 off=1867592 size=4096 xfer=195
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1023816 size=5120 xfer=196
 submit 05 off=1871688 size=4096 xfer=196
 submit 86 off=1028936 size=5120 xfer=197
@@ -2100,10 +1604,6 @@ submit 86 off=1034056 size=5120 xfer=198
 submit 05 off=1879880 size=4096 xfer=198
 submit 86 off=1039176 size=5120 xfer=199
 submit 05 off=1883976 size=4096 xfer=199
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1044296 size=5120 xfer=200
 submit 05 off=1888072 size=4096 xfer=200
 submit 86 off=1049416 size=5120 xfer=201
@@ -2112,10 +1612,6 @@ submit 86 off=1054536 size=5120 xfer=202
 submit 05 off=1896264 size=4096 xfer=202
 submit 86 off=1059656 size=5120 xfer=203
 submit 05 off=1900360 size=4096 xfer=203
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=20296 size=5120 xfer=204
 submit 05 off=1904456 size=4096 xfer=204
 submit 86 off=25416 size=5120 xfer=205
@@ -2124,10 +1620,6 @@ submit 86 off=30536 size=5120 xfer=206
 submit 05 off=1912648 size=4096 xfer=206
 submit 86 off=35656 size=5120 xfer=207
 submit 05 off=1916744 size=4096 xfer=207
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=40776 size=5120 xfer=208
 submit 05 off=1920840 size=4096 xfer=208
 submit 86 off=45896 size=5120 xfer=209
@@ -2136,10 +1628,6 @@ submit 86 off=51016 size=5120 xfer=210
 submit 05 off=1929032 size=4096 xfer=210
 submit 86 off=56136 size=5120 xfer=211
 submit 05 off=1933128 size=4096 xfer=211
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=212
 submit 05 off=1937224 size=4096 xfer=212
 submit 86 off=66376 size=5120 xfer=213
@@ -2148,10 +1636,6 @@ submit 86 off=71496 size=5120 xfer=214
 submit 05 off=1945416 size=4096 xfer=214
 submit 86 off=76616 size=5120 xfer=215
 submit 05 off=1949512 size=4096 xfer=215
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=216
 submit 05 off=1953608 size=4096 xfer=216
 submit 86 off=86856 size=5120 xfer=217
@@ -2160,10 +1644,6 @@ submit 86 off=91976 size=5120 xfer=218
 submit 05 off=1961800 size=4096 xfer=218
 submit 86 off=97096 size=5120 xfer=219
 submit 05 off=1965896 size=4096 xfer=219
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=102216 size=5120 xfer=220
 submit 05 off=1969992 size=4096 xfer=220
 submit 86 off=107336 size=5120 xfer=221
@@ -2172,10 +1652,6 @@ submit 86 off=112456 size=5120 xfer=222
 submit 05 off=1978184 size=4096 xfer=222
 submit 86 off=117576 size=5120 xfer=223
 submit 05 off=1982280 size=4096 xfer=223
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=122696 size=5120 xfer=224
 submit 05 off=1986376 size=4096 xfer=224
 submit 86 off=127816 size=5120 xfer=225
@@ -2184,10 +1660,6 @@ submit 86 off=132936 size=5120 xfer=226
 submit 05 off=1994568 size=4096 xfer=226
 submit 86 off=138056 size=5120 xfer=227
 submit 05 off=1998664 size=4096 xfer=227
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=143176 size=5120 xfer=228
 submit 05 off=2002760 size=4096 xfer=228
 submit 86 off=148296 size=5120 xfer=229
@@ -2196,10 +1668,6 @@ submit 86 off=153416 size=5120 xfer=230
 submit 05 off=2010952 size=4096 xfer=230
 submit 86 off=158536 size=5120 xfer=231
 submit 05 off=2015048 size=4096 xfer=231
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=163656 size=5120 xfer=232
 submit 05 off=2019144 size=4096 xfer=232
 submit 86 off=168776 size=5120 xfer=233
@@ -2208,10 +1676,6 @@ submit 86 off=173896 size=5120 xfer=234
 submit 05 off=2027336 size=4096 xfer=234
 submit 86 off=179016 size=5120 xfer=235
 submit 05 off=2031432 size=4096 xfer=235
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=184136 size=5120 xfer=236
 submit 05 off=2035528 size=4096 xfer=236
 submit 86 off=189256 size=5120 xfer=237
@@ -2220,10 +1684,6 @@ submit 86 off=194376 size=5120 xfer=238
 submit 05 off=2043720 size=4096 xfer=238
 submit 86 off=199496 size=5120 xfer=239
 submit 05 off=2047816 size=4096 xfer=239
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=204616 size=5120 xfer=240
 submit 05 off=2051912 size=4096 xfer=240
 submit 86 off=209736 size=5120 xfer=241
@@ -2232,10 +1692,6 @@ submit 86 off=214856 size=5120 xfer=242
 submit 05 off=2060104 size=4096 xfer=242
 submit 86 off=219976 size=5120 xfer=243
 submit 05 off=2064200 size=4096 xfer=243
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=225096 size=5120 xfer=244
 submit 05 off=2068296 size=4096 xfer=244
 submit 86 off=230216 size=5120 xfer=245
@@ -2244,10 +1700,6 @@ submit 86 off=235336 size=5120 xfer=246
 submit 05 off=2076488 size=4096 xfer=246
 submit 86 off=240456 size=5120 xfer=247
 submit 05 off=2080584 size=4096 xfer=247
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=245576 size=5120 xfer=248
 submit 05 off=2084680 size=4096 xfer=248
 submit 86 off=250696 size=5120 xfer=249
@@ -2256,10 +1708,6 @@ submit 86 off=255816 size=5120 xfer=250
 submit 05 off=2092872 size=4096 xfer=250
 submit 86 off=260936 size=5120 xfer=251
 submit 05 off=2096968 size=4096 xfer=251
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=266056 size=5120 xfer=252
 submit 05 off=2101064 size=4096 xfer=252
 submit 86 off=271176 size=5120 xfer=253
@@ -2268,10 +1716,6 @@ submit 86 off=276296 size=5120 xfer=254
 submit 05 off=2109256 size=4096 xfer=254
 submit 86 off=281416 size=5120 xfer=255
 submit 05 off=2113352 size=4096 xfer=255
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=286536 size=5120 xfer=256
 submit 05 off=1068872 size=4096 xfer=256
 submit 86 off=291656 size=5120 xfer=257
@@ -2280,10 +1724,6 @@ submit 86 off=296776 size=5120 xfer=258
 submit 05 off=1077064 size=4096 xfer=258
 submit 86 off=301896 size=5120 xfer=259
 submit 05 off=1081160 size=4096 xfer=259
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=307016 size=5120 xfer=260
 submit 05 off=1085256 size=4096 xfer=260
 submit 86 off=312136 size=5120 xfer=261
@@ -2292,10 +1732,6 @@ submit 86 off=317256 size=5120 xfer=262
 submit 05 off=1093448 size=4096 xfer=262
 submit 86 off=322376 size=5120 xfer=263
 submit 05 off=1097544 size=4096 xfer=263
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=327496 size=5120 xfer=264
 submit 05 off=1101640 size=4096 xfer=264
 submit 86 off=332616 size=5120 xfer=265
@@ -2304,10 +1740,6 @@ submit 86 off=337736 size=5120 xfer=266
 submit 05 off=1109832 size=4096 xfer=266
 submit 86 off=342856 size=5120 xfer=267
 submit 05 off=1113928 size=4096 xfer=267
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=347976 size=5120 xfer=268
 submit 05 off=1118024 size=4096 xfer=268
 submit 86 off=353096 size=5120 xfer=269
@@ -2316,10 +1748,6 @@ submit 86 off=358216 size=5120 xfer=270
 submit 05 off=1126216 size=4096 xfer=270
 submit 86 off=363336 size=5120 xfer=271
 submit 05 off=1130312 size=4096 xfer=271
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=368456 size=5120 xfer=272
 submit 05 off=1134408 size=4096 xfer=272
 submit 86 off=373576 size=5120 xfer=273
@@ -2328,10 +1756,6 @@ submit 86 off=378696 size=5120 xfer=274
 submit 05 off=1142600 size=4096 xfer=274
 submit 86 off=383816 size=5120 xfer=275
 submit 05 off=1146696 size=4096 xfer=275
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=388936 size=5120 xfer=276
 submit 05 off=1150792 size=4096 xfer=276
 submit 86 off=394056 size=5120 xfer=277
@@ -2340,10 +1764,6 @@ submit 86 off=399176 size=5120 xfer=278
 submit 05 off=1158984 size=4096 xfer=278
 submit 86 off=404296 size=5120 xfer=279
 submit 05 off=1163080 size=4096 xfer=279
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=409416 size=5120 xfer=280
 submit 05 off=1167176 size=4096 xfer=280
 submit 86 off=414536 size=5120 xfer=281
@@ -2352,10 +1772,6 @@ submit 86 off=419656 size=5120 xfer=282
 submit 05 off=1175368 size=4096 xfer=282
 submit 86 off=424776 size=5120 xfer=283
 submit 05 off=1179464 size=4096 xfer=283
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=429896 size=5120 xfer=284
 submit 05 off=1183560 size=4096 xfer=284
 submit 86 off=435016 size=5120 xfer=285
@@ -2364,10 +1780,6 @@ submit 86 off=440136 size=5120 xfer=286
 submit 05 off=1191752 size=4096 xfer=286
 submit 86 off=445256 size=5120 xfer=287
 submit 05 off=1195848 size=4096 xfer=287
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=450376 size=5120 xfer=288
 submit 05 off=1199944 size=4096 xfer=288
 submit 86 off=455496 size=5120 xfer=289
@@ -2376,10 +1788,6 @@ submit 86 off=460616 size=5120 xfer=290
 submit 05 off=1208136 size=4096 xfer=290
 submit 86 off=465736 size=5120 xfer=291
 submit 05 off=1212232 size=4096 xfer=291
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=470856 size=5120 xfer=292
 submit 05 off=1216328 size=4096 xfer=292
 submit 86 off=475976 size=5120 xfer=293
@@ -2388,10 +1796,6 @@ submit 86 off=481096 size=5120 xfer=294
 submit 05 off=1224520 size=4096 xfer=294
 submit 86 off=486216 size=5120 xfer=295
 submit 05 off=1228616 size=4096 xfer=295
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=491336 size=5120 xfer=296
 submit 05 off=1232712 size=4096 xfer=296
 submit 86 off=496456 size=5120 xfer=297
@@ -2400,10 +1804,6 @@ submit 86 off=501576 size=5120 xfer=298
 submit 05 off=1240904 size=4096 xfer=298
 submit 86 off=506696 size=5120 xfer=299
 submit 05 off=1245000 size=4096 xfer=299
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=511816 size=5120 xfer=300
 submit 05 off=1249096 size=4096 xfer=300
 submit 86 off=516936 size=5120 xfer=301
@@ -2412,9 +1812,9 @@ submit 86 off=522056 size=5120 xfer=302
 submit 05 off=1257288 size=4096 xfer=302
 submit 86 off=527176 size=5120 xfer=303
 submit 05 off=1261384 size=4096 xfer=303
-abort 12
-midi_in 296: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53 54 55 56 57
-shm 4e64a88f968fca1b out_ring faf6a38fd6bec783 in_ring b4ca0831869394c3
+abort 8
+midi_in 0:
+shm 082726d765cd17d4 out_ring faf6a38fd6bec783 in_ring b4ca0831869394c3
 == Akai EIE Pro
 control c0 56 0000 0000 15
 control c0 49 0000 0000 1
@@ -4266,10 +3666,6 @@ submit 86 off=30536 size=5120 xfer=2
 submit 05 off=1076584 size=3856 xfer=2
 submit 86 off=35656 size=5120 xfer=3
 submit 05 off=1080440 size=3856 xfer=3
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 start 1
 submit 86 off=40776 size=5120 xfer=4
 submit 05 off=1084296 size=3856 xfer=4
@@ -4279,10 +3675,6 @@ submit 86 off=51016 size=5120 xfer=6
 submit 05 off=1092008 size=3856 xfer=6
 submit 86 off=56136 size=5120 xfer=7
 submit 05 off=1095864 size=3856 xfer=7
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=8
 submit 05 off=1099720 size=3856 xfer=8
 submit 86 off=66376 size=5120 xfer=9
@@ -4291,10 +3683,6 @@ submit 86 off=71496 size=5120 xfer=10
 submit 05 off=1107432 size=3856 xfer=10
 submit 86 off=76616 size=5120 xfer=11
 submit 05 off=1111288 size=3856 xfer=11
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=12
 submit 05 off=1115144 size=3856 xfer=12
 submit 86 off=86856 size=5120 xfer=13
@@ -4308,10 +3696,6 @@ progress 1 160
 submit 86 off=97096 size=5120 xfer=15
 progress 0 240
 submit 05 off=1126712 size=3856 xfer=15
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 240
 submit 86 off=102216 size=5120 xfer=16
 progress 0 320
@@ -4328,10 +3712,6 @@ progress 1 480
 submit 86 off=117576 size=5120 xfer=19
 progress 0 560
 submit 05 off=1142136 size=3856 xfer=19
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 560
 submit 86 off=122696 size=5120 xfer=20
 progress 0 640
@@ -4348,10 +3728,6 @@ progress 1 800
 submit 86 off=138056 size=5120 xfer=23
 progress 0 880
 submit 05 off=1157560 size=3856 xfer=23
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 880
 submit 86 off=143176 size=5120 xfer=24
 progress 0 960
@@ -4368,10 +3744,6 @@ progress 1 1120
 submit 86 off=158536 size=5120 xfer=27
 progress 0 1200
 submit 05 off=1172984 size=3856 xfer=27
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1200
 submit 86 off=163656 size=5120 xfer=28
 progress 0 1280
@@ -4388,10 +3760,6 @@ progress 1 1440
 submit 86 off=179016 size=5120 xfer=31
 progress 0 1520
 submit 05 off=1188408 size=3856 xfer=31
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1520
 submit 86 off=184136 size=5120 xfer=32
 progress 0 1600
@@ -4408,10 +3776,6 @@ progress 1 1760
 submit 86 off=199496 size=5120 xfer=35
 progress 0 1840
 submit 05 off=1203832 size=3856 xfer=35
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 1840
 submit 86 off=204616 size=5120 xfer=36
 progress 0 1920
@@ -4428,10 +3792,6 @@ progress 1 2080
 submit 86 off=219976 size=5120 xfer=39
 progress 0 2160
 submit 05 off=1219256 size=3856 xfer=39
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2160
 submit 86 off=225096 size=5120 xfer=40
 progress 0 2240
@@ -4448,10 +3808,6 @@ progress 1 2400
 submit 86 off=240456 size=5120 xfer=43
 progress 0 2480
 submit 05 off=1234680 size=3856 xfer=43
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2480
 submit 86 off=245576 size=5120 xfer=44
 progress 0 2560
@@ -4468,10 +3824,6 @@ progress 1 2720
 submit 86 off=260936 size=5120 xfer=47
 progress 0 2800
 submit 05 off=1250104 size=3856 xfer=47
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 2800
 submit 86 off=266056 size=5120 xfer=48
 progress 0 2880
@@ -4488,10 +3840,6 @@ progress 1 3040
 submit 86 off=281416 size=5120 xfer=51
 progress 0 3120
 submit 05 off=1265528 size=3856 xfer=51
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3120
 submit 86 off=286536 size=5120 xfer=52
 progress 0 3200
@@ -4508,10 +3856,6 @@ progress 1 3360
 submit 86 off=301896 size=5120 xfer=55
 progress 0 3440
 submit 05 off=1280952 size=3856 xfer=55
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3440
 submit 86 off=307016 size=5120 xfer=56
 progress 0 3520
@@ -4528,10 +3872,6 @@ progress 1 3680
 submit 86 off=322376 size=5120 xfer=59
 progress 0 3760
 submit 05 off=1296376 size=3856 xfer=59
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 3760
 submit 86 off=327496 size=5120 xfer=60
 progress 0 3840
@@ -4548,10 +3888,6 @@ progress 1 4000
 submit 86 off=342856 size=5120 xfer=63
 progress 0 4080
 submit 05 off=1311800 size=3856 xfer=63
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4080
 submit 86 off=347976 size=5120 xfer=64
 progress 0 4160
@@ -4568,10 +3904,6 @@ progress 1 4320
 submit 86 off=363336 size=5120 xfer=67
 progress 0 4400
 submit 05 off=1327224 size=3856 xfer=67
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4400
 submit 86 off=368456 size=5120 xfer=68
 progress 0 4480
@@ -4588,10 +3920,6 @@ progress 1 4640
 submit 86 off=383816 size=5120 xfer=71
 progress 0 4720
 submit 05 off=1342648 size=3856 xfer=71
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 4720
 submit 86 off=388936 size=5120 xfer=72
 progress 0 4800
@@ -4608,10 +3936,6 @@ progress 1 4960
 submit 86 off=404296 size=5120 xfer=75
 progress 0 5040
 submit 05 off=1358072 size=3856 xfer=75
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5040
 submit 86 off=409416 size=5120 xfer=76
 progress 0 5120
@@ -4628,10 +3952,6 @@ progress 1 5280
 submit 86 off=424776 size=5120 xfer=79
 progress 0 5360
 submit 05 off=1373496 size=3856 xfer=79
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5360
 submit 86 off=429896 size=5120 xfer=80
 progress 0 5440
@@ -4648,10 +3968,6 @@ progress 1 5600
 submit 86 off=445256 size=5120 xfer=83
 progress 0 5680
 submit 05 off=1388920 size=3856 xfer=83
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 5680
 submit 86 off=450376 size=5120 xfer=84
 progress 0 5760
@@ -4668,10 +3984,6 @@ progress 1 5920
 submit 86 off=465736 size=5120 xfer=87
 progress 0 6000
 submit 05 off=1404344 size=3856 xfer=87
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6000
 submit 86 off=470856 size=5120 xfer=88
 progress 0 6080
@@ -4688,10 +4000,6 @@ progress 1 6240
 submit 86 off=486216 size=5120 xfer=91
 progress 0 6320
 submit 05 off=1419768 size=3856 xfer=91
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6320
 submit 86 off=491336 size=5120 xfer=92
 progress 0 6400
@@ -4708,10 +4016,6 @@ progress 1 6560
 submit 86 off=506696 size=5120 xfer=95
 progress 0 6640
 submit 05 off=1435192 size=3856 xfer=95
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6640
 submit 86 off=511816 size=5120 xfer=96
 progress 0 6720
@@ -4728,10 +4032,6 @@ progress 1 6880
 submit 86 off=527176 size=5120 xfer=99
 progress 0 6960
 submit 05 off=1450616 size=3856 xfer=99
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 6960
 submit 86 off=532296 size=5120 xfer=100
 progress 0 7040
@@ -4748,10 +4048,6 @@ progress 1 7200
 submit 86 off=547656 size=5120 xfer=103
 progress 0 7280
 submit 05 off=1466040 size=3856 xfer=103
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7280
 submit 86 off=552776 size=5120 xfer=104
 progress 0 7360
@@ -4768,10 +4064,6 @@ progress 1 7520
 submit 86 off=568136 size=5120 xfer=107
 progress 0 7600
 submit 05 off=1481464 size=3856 xfer=107
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7600
 submit 86 off=573256 size=5120 xfer=108
 progress 0 7680
@@ -4788,10 +4080,6 @@ progress 1 7840
 submit 86 off=588616 size=5120 xfer=111
 progress 0 7920
 submit 05 off=1496888 size=3856 xfer=111
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 7920
 submit 86 off=593736 size=5120 xfer=112
 progress 0 8000
@@ -4808,10 +4096,6 @@ progress 1 8160
 submit 86 off=609096 size=5120 xfer=115
 progress 0 8240
 submit 05 off=1512312 size=3856 xfer=115
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8240
 submit 86 off=614216 size=5120 xfer=116
 progress 0 8320
@@ -4828,10 +4112,6 @@ progress 1 8480
 submit 86 off=629576 size=5120 xfer=119
 progress 0 8560
 submit 05 off=1527736 size=3856 xfer=119
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8560
 submit 86 off=634696 size=5120 xfer=120
 progress 0 8640
@@ -4848,10 +4128,6 @@ progress 1 8800
 submit 86 off=650056 size=5120 xfer=123
 progress 0 8880
 submit 05 off=1543160 size=3856 xfer=123
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 8880
 submit 86 off=655176 size=5120 xfer=124
 progress 0 8960
@@ -4868,10 +4144,6 @@ progress 1 9120
 submit 86 off=670536 size=5120 xfer=127
 progress 0 9200
 submit 05 off=1558584 size=3856 xfer=127
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9200
 submit 86 off=675656 size=5120 xfer=128
 progress 0 9280
@@ -4888,10 +4160,6 @@ progress 1 9440
 submit 86 off=691016 size=5120 xfer=131
 progress 0 9520
 submit 05 off=1574008 size=3856 xfer=131
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9520
 submit 86 off=696136 size=5120 xfer=132
 progress 0 9600
@@ -4908,10 +4176,6 @@ progress 1 9760
 submit 86 off=711496 size=5120 xfer=135
 progress 0 9840
 submit 05 off=1589432 size=3856 xfer=135
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 9840
 submit 86 off=716616 size=5120 xfer=136
 progress 0 9920
@@ -4928,10 +4192,6 @@ progress 1 10080
 submit 86 off=731976 size=5120 xfer=139
 progress 0 10160
 submit 05 off=1604856 size=3856 xfer=139
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10160
 submit 86 off=737096 size=5120 xfer=140
 progress 0 10240
@@ -4948,10 +4208,6 @@ progress 1 10400
 submit 86 off=752456 size=5120 xfer=143
 progress 0 10480
 submit 05 off=1620280 size=3856 xfer=143
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10480
 submit 86 off=757576 size=5120 xfer=144
 progress 0 10560
@@ -4968,10 +4224,6 @@ progress 1 10720
 submit 86 off=772936 size=5120 xfer=147
 progress 0 10800
 submit 05 off=1635704 size=3856 xfer=147
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 10800
 submit 86 off=778056 size=5120 xfer=148
 progress 0 10880
@@ -4988,10 +4240,6 @@ progress 1 11040
 submit 86 off=793416 size=5120 xfer=151
 progress 0 11120
 submit 05 off=1651128 size=3856 xfer=151
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 progress 1 11120
 submit 86 off=798536 size=5120 xfer=152
 progress 0 11200
@@ -5004,10 +4252,6 @@ submit 86 off=808776 size=5120 xfer=154
 submit 05 off=1662696 size=3856 xfer=154
 submit 86 off=813896 size=5120 xfer=155
 submit 05 off=1666552 size=3856 xfer=155
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=819016 size=5120 xfer=156
 submit 05 off=1670408 size=3856 xfer=156
 submit 86 off=824136 size=5120 xfer=157
@@ -5016,10 +4260,6 @@ submit 86 off=829256 size=5120 xfer=158
 submit 05 off=1678120 size=3856 xfer=158
 submit 86 off=834376 size=5120 xfer=159
 submit 05 off=1681976 size=3856 xfer=159
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=839496 size=5120 xfer=160
 submit 05 off=1685832 size=3856 xfer=160
 submit 86 off=844616 size=5120 xfer=161
@@ -5028,10 +4268,6 @@ submit 86 off=849736 size=5120 xfer=162
 submit 05 off=1693544 size=3856 xfer=162
 submit 86 off=854856 size=5120 xfer=163
 submit 05 off=1697400 size=3856 xfer=163
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=859976 size=5120 xfer=164
 submit 05 off=1701256 size=3856 xfer=164
 submit 86 off=865096 size=5120 xfer=165
@@ -5040,10 +4276,6 @@ submit 86 off=870216 size=5120 xfer=166
 submit 05 off=1708968 size=3856 xfer=166
 submit 86 off=875336 size=5120 xfer=167
 submit 05 off=1712824 size=3856 xfer=167
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=880456 size=5120 xfer=168
 submit 05 off=1716680 size=3856 xfer=168
 submit 86 off=885576 size=5120 xfer=169
@@ -5052,10 +4284,6 @@ submit 86 off=890696 size=5120 xfer=170
 submit 05 off=1724392 size=3856 xfer=170
 submit 86 off=895816 size=5120 xfer=171
 submit 05 off=1728248 size=3856 xfer=171
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=900936 size=5120 xfer=172
 submit 05 off=1732104 size=3856 xfer=172
 submit 86 off=906056 size=5120 xfer=173
@@ -5064,10 +4292,6 @@ submit 86 off=911176 size=5120 xfer=174
 submit 05 off=1739816 size=3856 xfer=174
 submit 86 off=916296 size=5120 xfer=175
 submit 05 off=1743672 size=3856 xfer=175
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=921416 size=5120 xfer=176
 submit 05 off=1747528 size=3856 xfer=176
 submit 86 off=926536 size=5120 xfer=177
@@ -5076,10 +4300,6 @@ submit 86 off=931656 size=5120 xfer=178
 submit 05 off=1755240 size=3856 xfer=178
 submit 86 off=936776 size=5120 xfer=179
 submit 05 off=1759096 size=3856 xfer=179
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=941896 size=5120 xfer=180
 submit 05 off=1762952 size=3856 xfer=180
 submit 86 off=947016 size=5120 xfer=181
@@ -5088,10 +4308,6 @@ submit 86 off=952136 size=5120 xfer=182
 submit 05 off=1770664 size=3856 xfer=182
 submit 86 off=957256 size=5120 xfer=183
 submit 05 off=1774520 size=3856 xfer=183
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=962376 size=5120 xfer=184
 submit 05 off=1778376 size=3856 xfer=184
 submit 86 off=967496 size=5120 xfer=185
@@ -5100,10 +4316,6 @@ submit 86 off=972616 size=5120 xfer=186
 submit 05 off=1786088 size=3856 xfer=186
 submit 86 off=977736 size=5120 xfer=187
 submit 05 off=1789944 size=3856 xfer=187
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=982856 size=5120 xfer=188
 submit 05 off=1793800 size=3856 xfer=188
 submit 86 off=987976 size=5120 xfer=189
@@ -5112,10 +4324,6 @@ submit 86 off=993096 size=5120 xfer=190
 submit 05 off=1801512 size=3856 xfer=190
 submit 86 off=998216 size=5120 xfer=191
 submit 05 off=1805368 size=3856 xfer=191
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1003336 size=5120 xfer=192
 submit 05 off=1809224 size=3856 xfer=192
 submit 86 off=1008456 size=5120 xfer=193
@@ -5124,10 +4332,6 @@ submit 86 off=1013576 size=5120 xfer=194
 submit 05 off=1816936 size=3856 xfer=194
 submit 86 off=1018696 size=5120 xfer=195
 submit 05 off=1820792 size=3856 xfer=195
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1023816 size=5120 xfer=196
 submit 05 off=1824648 size=3856 xfer=196
 submit 86 off=1028936 size=5120 xfer=197
@@ -5136,10 +4340,6 @@ submit 86 off=1034056 size=5120 xfer=198
 submit 05 off=1832360 size=3856 xfer=198
 submit 86 off=1039176 size=5120 xfer=199
 submit 05 off=1836216 size=3856 xfer=199
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=1044296 size=5120 xfer=200
 submit 05 off=1840072 size=3856 xfer=200
 submit 86 off=1049416 size=5120 xfer=201
@@ -5148,10 +4348,6 @@ submit 86 off=1054536 size=5120 xfer=202
 submit 05 off=1847784 size=3856 xfer=202
 submit 86 off=1059656 size=5120 xfer=203
 submit 05 off=1851640 size=3856 xfer=203
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=20296 size=5120 xfer=204
 submit 05 off=1855496 size=3856 xfer=204
 submit 86 off=25416 size=5120 xfer=205
@@ -5160,10 +4356,6 @@ submit 86 off=30536 size=5120 xfer=206
 submit 05 off=1863208 size=3856 xfer=206
 submit 86 off=35656 size=5120 xfer=207
 submit 05 off=1867064 size=3856 xfer=207
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=40776 size=5120 xfer=208
 submit 05 off=1870920 size=3856 xfer=208
 submit 86 off=45896 size=5120 xfer=209
@@ -5172,10 +4364,6 @@ submit 86 off=51016 size=5120 xfer=210
 submit 05 off=1878632 size=3856 xfer=210
 submit 86 off=56136 size=5120 xfer=211
 submit 05 off=1882488 size=3856 xfer=211
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=61256 size=5120 xfer=212
 submit 05 off=1886344 size=3856 xfer=212
 submit 86 off=66376 size=5120 xfer=213
@@ -5184,10 +4372,6 @@ submit 86 off=71496 size=5120 xfer=214
 submit 05 off=1894056 size=3856 xfer=214
 submit 86 off=76616 size=5120 xfer=215
 submit 05 off=1897912 size=3856 xfer=215
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=81736 size=5120 xfer=216
 submit 05 off=1901768 size=3856 xfer=216
 submit 86 off=86856 size=5120 xfer=217
@@ -5196,10 +4380,6 @@ submit 86 off=91976 size=5120 xfer=218
 submit 05 off=1909480 size=3856 xfer=218
 submit 86 off=97096 size=5120 xfer=219
 submit 05 off=1913336 size=3856 xfer=219
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=102216 size=5120 xfer=220
 submit 05 off=1917192 size=3856 xfer=220
 submit 86 off=107336 size=5120 xfer=221
@@ -5208,10 +4388,6 @@ submit 86 off=112456 size=5120 xfer=222
 submit 05 off=1924904 size=3856 xfer=222
 submit 86 off=117576 size=5120 xfer=223
 submit 05 off=1928760 size=3856 xfer=223
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=122696 size=5120 xfer=224
 submit 05 off=1932616 size=3856 xfer=224
 submit 86 off=127816 size=5120 xfer=225
@@ -5220,10 +4396,6 @@ submit 86 off=132936 size=5120 xfer=226
 submit 05 off=1940328 size=3856 xfer=226
 submit 86 off=138056 size=5120 xfer=227
 submit 05 off=1944184 size=3856 xfer=227
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=143176 size=5120 xfer=228
 submit 05 off=1948040 size=3856 xfer=228
 submit 86 off=148296 size=5120 xfer=229
@@ -5232,10 +4404,6 @@ submit 86 off=153416 size=5120 xfer=230
 submit 05 off=1955752 size=3856 xfer=230
 submit 86 off=158536 size=5120 xfer=231
 submit 05 off=1959608 size=3856 xfer=231
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=163656 size=5120 xfer=232
 submit 05 off=1963464 size=3856 xfer=232
 submit 86 off=168776 size=5120 xfer=233
@@ -5244,10 +4412,6 @@ submit 86 off=173896 size=5120 xfer=234
 submit 05 off=1971176 size=3856 xfer=234
 submit 86 off=179016 size=5120 xfer=235
 submit 05 off=1975032 size=3856 xfer=235
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=184136 size=5120 xfer=236
 submit 05 off=1978888 size=3856 xfer=236
 submit 86 off=189256 size=5120 xfer=237
@@ -5256,10 +4420,6 @@ submit 86 off=194376 size=5120 xfer=238
 submit 05 off=1986600 size=3856 xfer=238
 submit 86 off=199496 size=5120 xfer=239
 submit 05 off=1990456 size=3856 xfer=239
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=204616 size=5120 xfer=240
 submit 05 off=1994312 size=3856 xfer=240
 submit 86 off=209736 size=5120 xfer=241
@@ -5268,10 +4428,6 @@ submit 86 off=214856 size=5120 xfer=242
 submit 05 off=2002024 size=3856 xfer=242
 submit 86 off=219976 size=5120 xfer=243
 submit 05 off=2005880 size=3856 xfer=243
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=225096 size=5120 xfer=244
 submit 05 off=2009736 size=3856 xfer=244
 submit 86 off=230216 size=5120 xfer=245
@@ -5280,10 +4436,6 @@ submit 86 off=235336 size=5120 xfer=246
 submit 05 off=2017448 size=3856 xfer=246
 submit 86 off=240456 size=5120 xfer=247
 submit 05 off=2021304 size=3856 xfer=247
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=245576 size=5120 xfer=248
 submit 05 off=2025160 size=3856 xfer=248
 submit 86 off=250696 size=5120 xfer=249
@@ -5292,10 +4444,6 @@ submit 86 off=255816 size=5120 xfer=250
 submit 05 off=2032872 size=3856 xfer=250
 submit 86 off=260936 size=5120 xfer=251
 submit 05 off=2036728 size=3856 xfer=251
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=266056 size=5120 xfer=252
 submit 05 off=2040584 size=3856 xfer=252
 submit 86 off=271176 size=5120 xfer=253
@@ -5304,10 +4452,6 @@ submit 86 off=276296 size=5120 xfer=254
 submit 05 off=2048296 size=3856 xfer=254
 submit 86 off=281416 size=5120 xfer=255
 submit 05 off=2052152 size=3856 xfer=255
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=286536 size=5120 xfer=256
 submit 05 off=2056008 size=3856 xfer=256
 submit 86 off=291656 size=5120 xfer=257
@@ -5316,10 +4460,6 @@ submit 86 off=296776 size=5120 xfer=258
 submit 05 off=2063720 size=3856 xfer=258
 submit 86 off=301896 size=5120 xfer=259
 submit 05 off=2067576 size=3856 xfer=259
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=307016 size=5120 xfer=260
 submit 05 off=2071432 size=3856 xfer=260
 submit 86 off=312136 size=5120 xfer=261
@@ -5328,10 +4468,6 @@ submit 86 off=317256 size=5120 xfer=262
 submit 05 off=2079144 size=3856 xfer=262
 submit 86 off=322376 size=5120 xfer=263
 submit 05 off=2083000 size=3856 xfer=263
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=327496 size=5120 xfer=264
 submit 05 off=2086856 size=3856 xfer=264
 submit 86 off=332616 size=5120 xfer=265
@@ -5340,10 +4476,6 @@ submit 86 off=337736 size=5120 xfer=266
 submit 05 off=2094568 size=3856 xfer=266
 submit 86 off=342856 size=5120 xfer=267
 submit 05 off=2098424 size=3856 xfer=267
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=347976 size=5120 xfer=268
 submit 05 off=2102280 size=3856 xfer=268
 submit 86 off=353096 size=5120 xfer=269
@@ -5352,10 +4484,6 @@ submit 86 off=358216 size=5120 xfer=270
 submit 05 off=2109992 size=3856 xfer=270
 submit 86 off=363336 size=5120 xfer=271
 submit 05 off=1068872 size=3856 xfer=271
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=368456 size=5120 xfer=272
 submit 05 off=1072728 size=3856 xfer=272
 submit 86 off=373576 size=5120 xfer=273
@@ -5364,10 +4492,6 @@ submit 86 off=378696 size=5120 xfer=274
 submit 05 off=1080440 size=3856 xfer=274
 submit 86 off=383816 size=5120 xfer=275
 submit 05 off=1084296 size=3856 xfer=275
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=388936 size=5120 xfer=276
 submit 05 off=1088152 size=3856 xfer=276
 submit 86 off=394056 size=5120 xfer=277
@@ -5376,10 +4500,6 @@ submit 86 off=399176 size=5120 xfer=278
 submit 05 off=1095864 size=3856 xfer=278
 submit 86 off=404296 size=5120 xfer=279
 submit 05 off=1099720 size=3856 xfer=279
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=409416 size=5120 xfer=280
 submit 05 off=1103576 size=3856 xfer=280
 submit 86 off=414536 size=5120 xfer=281
@@ -5388,10 +4508,6 @@ submit 86 off=419656 size=5120 xfer=282
 submit 05 off=1111288 size=3856 xfer=282
 submit 86 off=424776 size=5120 xfer=283
 submit 05 off=1115144 size=3856 xfer=283
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=429896 size=5120 xfer=284
 submit 05 off=1119000 size=3856 xfer=284
 submit 86 off=435016 size=5120 xfer=285
@@ -5400,10 +4516,6 @@ submit 86 off=440136 size=5120 xfer=286
 submit 05 off=1126712 size=3856 xfer=286
 submit 86 off=445256 size=5120 xfer=287
 submit 05 off=1130568 size=3856 xfer=287
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=450376 size=5120 xfer=288
 submit 05 off=1134424 size=3856 xfer=288
 submit 86 off=455496 size=5120 xfer=289
@@ -5412,10 +4524,6 @@ submit 86 off=460616 size=5120 xfer=290
 submit 05 off=1142136 size=3856 xfer=290
 submit 86 off=465736 size=5120 xfer=291
 submit 05 off=1145992 size=3856 xfer=291
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=470856 size=5120 xfer=292
 submit 05 off=1149848 size=3856 xfer=292
 submit 86 off=475976 size=5120 xfer=293
@@ -5424,10 +4532,6 @@ submit 86 off=481096 size=5120 xfer=294
 submit 05 off=1157560 size=3856 xfer=294
 submit 86 off=486216 size=5120 xfer=295
 submit 05 off=1161416 size=3856 xfer=295
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=491336 size=5120 xfer=296
 submit 05 off=1165272 size=3856 xfer=296
 submit 86 off=496456 size=5120 xfer=297
@@ -5436,10 +4540,6 @@ submit 86 off=501576 size=5120 xfer=298
 submit 05 off=1172984 size=3856 xfer=298
 submit 86 off=506696 size=5120 xfer=299
 submit 05 off=1176840 size=3856 xfer=299
-submit 83 off=3072 size=9 xfer=0
-submit 83 off=3200 size=9 xfer=1
-submit 83 off=3328 size=9 xfer=2
-submit 83 off=3456 size=9 xfer=3
 submit 86 off=511816 size=5120 xfer=300
 submit 05 off=1180696 size=3856 xfer=300
 submit 86 off=516936 size=5120 xfer=301
@@ -5448,9 +4548,9 @@ submit 86 off=522056 size=5120 xfer=302
 submit 05 off=1188408 size=3856 xfer=302
 submit 86 off=527176 size=5120 xfer=303
 submit 05 off=1192264 size=3856 xfer=303
-abort 12
-midi_in 296: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53 54 55 56 57
-shm d4ba5ae256a69ad2 out_ring faf6a38fd6bec783 in_ring b4ca0831869394c3
+abort 8
+midi_in 0:
+shm f42d2e0a0a97f36d out_ring faf6a38fd6bec783 in_ring b4ca0831869394c3
 == Xone:1D
 submit 81 off=3072 size=4 xfer=0
 submit 81 off=3200 size=4 xfer=1
