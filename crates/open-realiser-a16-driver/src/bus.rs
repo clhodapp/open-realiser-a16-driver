@@ -285,7 +285,7 @@ impl<U: Usb> UsbBus<U> {
                 && endpoint == Direction::Out.endpoint()
                 && let Some(ring) = engine.pcm_ring_mut(Direction::Out)
             {
-                audio.before_out(ring);
+                audio.before_out(ring, self.usb.now());
             }
             engine.complete(self, completion.transfer, status);
             if std::mem::take(&mut self.input_ready)
@@ -438,8 +438,8 @@ impl<U: Usb> UsbBus<U> {
 
 /// What moves audio between the rings and the platform's queues, on the completion path.
 pub trait Audio {
-    /// Before an out transfer that completed encodes the next one from `ring`.
-    fn before_out(&mut self, ring: &mut PcmRing);
+    /// Before an out transfer that completed at `now` encodes the next one from `ring`.
+    fn before_out(&mut self, ring: &mut PcmRing, now: u64);
 
     /// After an in transfer decoded its frames into `ring`.
     fn after_in(&mut self, ring: &PcmRing);
