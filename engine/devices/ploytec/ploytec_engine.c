@@ -14,7 +14,6 @@
 /* Endpoints (direction bit OR'd with the base address from ploytec_defs.h) */
 #define EP_PCM_OUT   PLOYTEC_EP_PCM_OUT
 #define EP_PCM_IN    (PLOYTEC_EP_PCM_IN | 0x80)
-#define EP_MIDI_IN   (PLOYTEC_EP_MIDI_IN | 0x80)
 
 /* --- Host services for the shared handshake (common/devices/ploytec/ploytec_handshake.c) --- */
 
@@ -66,9 +65,6 @@ static void host_log(void *ctx, bool error, const char *fmt, va_list args)
  * and Linux does: without it the 4D never starts streaming (#75, ploytec_handshake.c) */
 static const struct ploytec_host_ops xone_host_ops = { host_control, host_clear_halt, host_sleep, host_log };
 
-/* Without clear_halt, for ploytec_isoc_engine: the official driver doesn't clear halts there */
-const struct ploytec_host_ops ploytec_bus_host_ops = { host_control, NULL, host_sleep, host_log };
-
 /* @frames as whole packets of @step frames (0: any): the next size up, at most @max */
 static uint32_t whole_packets(uint32_t frames, uint32_t step, uint32_t max)
 {
@@ -104,9 +100,6 @@ static void ploytec_set_endpoint(struct ozzy_engine *e, enum ozzy_pipe_role role
 			    transfer_type == 2 ? "bulk" : "interrupt", max_packet_size,
 			    pe->out_layout == PLOYTEC_OUT_LAYOUT_BULK ? "bulk" : "interrupt",
 			    ploytec_out_subpkt_size(pe->out_layout));
-	} else if (role == OZZY_PIPE_PCM_IN) {
-		/* Selects the MIDI IN frame above 48 kHz (ploytec_midi.h) */
-		pe->pcm_in_int1024 = transfer_type == 3 && max_packet_size == 1024;
 	}
 }
 
@@ -256,8 +249,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	e->report.output = bulk ? OZZY_INFO_OUTPUT_PLOYTEC_BULK : OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT;
 	e->report.in_flight[OZZY_PIPE_PCM_OUT] = (uint8_t)pe->out_queue;
 	e->report.in_flight[OZZY_PIPE_PCM_IN] = (uint8_t)pe->in_queue;
-	e->report.in_flight[OZZY_PIPE_MIDI_IN] = 0;
-	ploytec_midi_init(&pe->midi, pe->sample_rate, pe->pcm_in_int1024);
+	ploytec_midi_init(&pe->midi, pe->sample_rate);
 	pe->encode = ploytec_frame_encoder(model->out_channels);
 	pe->decode = ploytec_frame_decoder(model->in_channels);
 	pe->mirror = bulk && (model->quirks & OZZY_QUIRK_SPDIF_MIRROR) && model->out_channels == 8;
@@ -428,9 +420,6 @@ static const struct ozzy_engine_ops ploytec_engine_ops = {
 	ploytec_stop,
 	ploytec_suspend,
 	ploytec_complete,
-	NULL,                   /* isoc_complete */
-	NULL,                   /* midi_out_pending: MIDI goes out with every PCM packet */
-	NULL,                   /* timer */
 	ploytec_setting_quirks,
 	ploytec_transfer_frames,
 };
@@ -465,6 +454,4 @@ void ploytec_engine_init(struct ploytec_engine *pe, const struct ozzy_device *mo
 	p->pipes[OZZY_PIPE_PCM_OUT].intf = 0;
 	p->pipes[OZZY_PIPE_PCM_IN].address = EP_PCM_IN;
 	p->pipes[OZZY_PIPE_PCM_IN].intf = 1;
-	p->pipes[OZZY_PIPE_MIDI_IN].address = EP_MIDI_IN;
-	p->pipes[OZZY_PIPE_MIDI_IN].intf = 0;
 }

@@ -16,8 +16,7 @@ struct usb_bus {
     uint8_t types[256];
     bool claimed[256], detached[256];
     uint8_t config_value;
-    uint32_t timer_us;
-    uint64_t timer_next, progress[OZZY_PCM_DIRS];
+    uint64_t progress[OZZY_PCM_DIRS];
     uint64_t completed[OZZY_PCM_DIRS], bytes[OZZY_PCM_DIRS];
     uint64_t short_in;   /* short input transfers, passed on and silenced */
     bool draining, failed;

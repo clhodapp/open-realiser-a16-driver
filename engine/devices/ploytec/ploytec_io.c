@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * What every Ploytec engine does the same way (ploytec_io.h).
+ * PCM in for the Ploytec engine (ploytec_io.h).
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

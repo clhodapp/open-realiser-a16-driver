@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * The engine: a device family's protocol on top of a struct ozzy_bus, moving audio and MIDI
- * between USB transfers and the shared memory (engine/shared/ozzy_shared_data.h). One per
+ * The engine: a device family's protocol on top of a struct ozzy_bus, moving audio between
+ * USB transfers and the shared memory (engine/shared/ozzy_shared_data.h). One per
  * device, shared by the libusb backend and offline tests.
  *
  * A platform:
@@ -9,7 +9,7 @@
  *   2. claims the interfaces of engine->profile at its alternate setting, lists their
  *      endpoints for ozzy_engine_bind_endpoints() and opens the pipes it picks
  *   3. calls ozzy_engine_attach() with its bus and the shared memory, then ozzy_engine_start()
- *   4. hands every completion to ozzy_engine_complete() / ozzy_engine_isoc_complete()
+ *   4. hands every completion to ozzy_engine_complete()
  *   5. calls ozzy_engine_stop(), which aborts every transfer (ozzy_bus_ops.abort), and frees
  *      the memory (no destructor)
  *
@@ -25,7 +25,6 @@
 #include "../../common/ozzy_settings.h"
 #include "../../common/ozzy_devices.h"
 #include "../../common/ozzy_route.h"
-#include "../../common/isoc_feedback.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,16 +34,12 @@ extern "C" {
 enum ozzy_pipe_role {
 	OZZY_PIPE_PCM_OUT,
 	OZZY_PIPE_PCM_IN,
-	OZZY_PIPE_MIDI_IN,
-	OZZY_PIPE_MIDI_OUT,
-	OZZY_PIPE_FEEDBACK,      /* isochronous IN feedback for isochronous PCM out */
 	OZZY_PIPE_ROLES,
 };
 
 /*
  * struct ozzy_device_profile - What the platform has to claim.
- * @alt_settings: per claimed interface (the US-366 runs interfaces 1 and 2 at alternate setting 2
- *         and its MIDI interface at 0)
+ * @alt_settings: per claimed interface
  * @pipes: per role a fixed endpoint address, or (address 0) the first endpoint on its
  *         interface of the given types and direction, the way the official Ploytec driver
  *         finds pipes (common/ozzy_ep.h, as on Linux). All zero: the role is unused.
@@ -87,7 +82,7 @@ static inline uint32_t ozzy_pcm_boundaries(uint64_t *next, uint64_t pos, uint32_
 
 /*
  * struct ozzy_engine_memory - Where the engine's transfers go: every buffer it hands to
- * ozzy_bus_ops.submit / submit_isoc is in here. ozzy_engine_attach() points it into the
+ * ozzy_bus_ops.submit is in here. ozzy_engine_attach() points it into the
  * shared memory. A platform whose transfers need memory of their own (Linux:
  * DMA-capable, a cache line per buffer) has the engine allocate it (ozzy_engine_alloc_memory).
  * PCM transfers go to places in turn, transfer idx to place idx % places:
@@ -96,16 +91,8 @@ static inline uint32_t ozzy_pcm_boundaries(uint64_t *next, uint64_t pos, uint32_
  *                    (ozzy_engine_pcm_layout at start); NULL: the platform's own buffers
  * @pcm_out/@pcm_in:  the platform's own: OZZY_PCM_OWN_SLOTS buffers of OZZY_PCM_SLOT_MIN
  *                    bytes, a place each (at least the transfers in flight, 4)
- * @isoc_out:         NULL: isochronous OUT packets point into the shared memory's frame ring,
- *                    which the host writes; else one buffer per OUT transfer
- *                    (ISOC_OUT_TRANSFERS, @isoc_out_size bytes each), filled at submit
- * @isoc_in:          the feedback transfers (@isoc_in_size bytes)
- * @midi_in:          MIDI IN transfers, OZZY_MIDI_IN_SIZE bytes (OZZY_DMA_ALIGN aligned)
- * @midi_out:         one MIDI OUT transfer, OZZY_MIDI_OUT_SIZE bytes
  */
 #define OZZY_PCM_SLOT_MIN   12800  /* the largest PCM transfer (Ploytec PCM in: 25 sub-packets) */
-#define OZZY_MIDI_IN_SIZE   512    /* 4 transfers in flight, OZZY_DMA_ALIGN apart */
-#define OZZY_MIDI_OUT_SIZE  64
 #define OZZY_PCM_OWN_SLOTS  4      /* ozzy_engine_alloc_memory: PCM buffers per direction */
 
 struct ozzy_engine_memory {
@@ -119,12 +106,6 @@ struct ozzy_engine_memory {
 	uint8_t *pcm_in[OZZY_PCM_OWN_SLOTS];
 	uint32_t pcm_out_slots;
 	uint32_t pcm_in_slots;
-	uint8_t *isoc_out[ISOC_OUT_TRANSFERS];
-	uint32_t isoc_out_size;
-	uint8_t *isoc_in;
-	uint32_t isoc_in_size;
-	uint8_t *midi_in;
-	uint8_t *midi_out;
 };
 
 /*
@@ -172,8 +153,8 @@ struct ozzy_allocator {
 struct ozzy_engine;
 
 /*
- * struct ozzy_engine_ops - One per device family. Optional: @isoc_complete, @midi_out_pending,
- * @timer, @setting_quirks, @transfer_frames (default: 0, no PCM), @setting_default (the family's
+ * struct ozzy_engine_ops - One per device family. Optional: @setting_quirks, @transfer_frames
+ * (default: 0, no PCM), @setting_default (the family's
  * own default value of a setting, or -1: the setting's). @stop and @suspend end resubmitting (completions
  * with OZZY_STATUS_ABORTED resubmit nothing); the wrappers then abort what is in flight.
  */
@@ -184,10 +165,6 @@ struct ozzy_engine_ops {
 	void (*stop)(struct ozzy_engine *e);
 	void (*suspend)(struct ozzy_engine *e);
 	void (*complete)(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status, uint32_t bytes);
-	void (*isoc_complete)(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status,
-			      struct ozzy_isoc_packet *packets, uint32_t count);
-	void (*midi_out_pending)(struct ozzy_engine *e);
-	void (*timer)(struct ozzy_engine *e);
 	uint32_t (*setting_quirks)(const struct ozzy_engine *e);
 	uint32_t (*transfer_frames)(const struct ozzy_engine *e, enum ozzy_pcm_dir dir);
 	int (*setting_default)(const struct ozzy_engine *e, unsigned int id);
@@ -196,7 +173,7 @@ struct ozzy_engine_ops {
 /*
  * struct ozzy_engine_report - What a family's start() learned beyond the stream format, for
  * ozzy_info (ozzy_engine_publish_info after a start that succeeded). Zeroed before each start.
- * @output/@feedback: enum ozzy_info_output / enum ozzy_info_feedback
+ * @output:           enum ozzy_info_output
  * @in_flight:        transfers the family keeps queued per pipe role
  * The rest as struct ozzy_info has them.
  */
@@ -207,7 +184,6 @@ struct ozzy_engine_report {
 	bool input_selector_valid;
 	uint8_t input_selector;
 	uint8_t output;
-	uint8_t feedback;
 	uint32_t boot_rate;
 	uint8_t in_flight[OZZY_PIPE_ROLES];
 };
@@ -344,7 +320,7 @@ static inline void ozzy_engine_set_driver_version(struct ozzy_engine *e, const c
 	e->driver_version = version;
 }
 
-/* No more transfers: stop resubmitting and the timer, abort what is in flight, and tell the
+/* No more transfers: stop resubmitting, abort what is in flight, and tell the
  * host the device is gone. Process context. */
 static inline void ozzy_engine_stop(struct ozzy_engine *e)
 {
@@ -382,47 +358,19 @@ bool ozzy_engine_restart(struct ozzy_engine *e);
 void ozzy_engine_reselect(struct ozzy_engine *e);
 
 /*
- * The shared memory's stats (ozzy_stats.h): a completion on @pipe (with @failed isochronous
- * packets), from the completion path; ozzy_engine_complete and ozzy_engine_isoc_complete count
- * every one. A family counts a transfer that moved less than asked with
+ * The shared memory's stats (ozzy_stats.h): a completion on @pipe, from the completion path;
+ * ozzy_engine_complete counts every one. A family counts a transfer that moved less than asked with
  * ozzy_engine_stats_short; the platform its recoveries (process context).
  */
-void ozzy_engine_stats_complete(struct ozzy_engine *e, uint8_t pipe, int status, uint32_t failed);
+void ozzy_engine_stats_complete(struct ozzy_engine *e, uint8_t pipe, int status);
 void ozzy_engine_stats_short(struct ozzy_engine *e, enum ozzy_pcm_dir dir);
 void ozzy_engine_stats_recovery(struct ozzy_engine *e, bool streaming);
 
 /* A transfer completed. Transfer type bits as bmAttributes & 3. */
 static inline void ozzy_engine_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status, uint32_t bytes)
 {
-	ozzy_engine_stats_complete(e, pipe, status, 0);
+	ozzy_engine_stats_complete(e, pipe, status);
 	e->ops->complete(e, pipe, xfer, status, bytes);
-}
-
-static inline void ozzy_engine_isoc_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status,
-					     struct ozzy_isoc_packet *packets, uint32_t count)
-{
-	uint32_t failed = 0, i;
-
-	for (i = 0; i < count; i++)
-		failed += packets[i].status != 0;
-	ozzy_engine_stats_complete(e, pipe, status, failed);
-	if (e->ops->isoc_complete)
-		e->ops->isoc_complete(e, pipe, xfer, status, packets, count);
-}
-
-/* The MIDI client queued bytes in midi_out. Engines that send MIDI on their own schedule
- * (Ploytec embeds it in every PCM packet) ignore this. */
-static inline void ozzy_engine_midi_out_pending(struct ozzy_engine *e)
-{
-	if (e->ops->midi_out_pending)
-		e->ops->midi_out_pending(e);
-}
-
-/* The bus timer (ozzy_bus_ops.start_timer) fired */
-static inline void ozzy_engine_timer(struct ozzy_engine *e)
-{
-	if (e->ops->timer)
-		e->ops->timer(e);
 }
 
 /* Attach @ring for @dir (NULL detaches). The completion path picks it up with the next
@@ -504,22 +452,6 @@ static inline uint32_t ozzy_engine_transfer_frames(const struct ozzy_engine *e, 
 		return e->ops->transfer_frames(e, dir);
 	return 0;
 }
-
-/*
- * For engines whose PCM is plain interleaved S24_3LE on the wire (isochronous): @frames frames
- * out of the attached ring with the output routing, into @dst_ring (@dst_frames frames,
- * from position @first, wrapping); silence with none attached. Completion path
- * (ozzy_isoc_output_config.fill).
- */
-void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t dst_frames, uint64_t first,
-			   uint32_t frames);
-/*
- * The same way in: @frames received frames from @src (NULL: silence) into the attached ring with
- * the input routing; dropped while none is attached. ozzy_engine_plain_in_done after a
- * transfer's frames reports the position (pcm_progress). Completion path.
- */
-void ozzy_engine_plain_in(struct ozzy_engine *e, const uint8_t *src, uint32_t frames);
-void ozzy_engine_plain_in_done(struct ozzy_engine *e);
 
 /* --- Device settings (common/ozzy_settings.h) --- */
 

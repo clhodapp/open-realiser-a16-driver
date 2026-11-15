@@ -22,15 +22,12 @@ extern "C" {
 #endif
 
 /* Bump when struct ozzy_info changes */
-#define OZZY_INFO_VERSION 3   /* bump when struct ozzy_info changes layout */
+#define OZZY_INFO_VERSION 4   /* bump when struct ozzy_info changes layout */
 
 /* One per enum ozzy_pipe_role (engine/core/ozzy_engine.h), in its order */
 enum ozzy_info_pipe_role {
 	OZZY_INFO_PIPE_PCM_OUT,
 	OZZY_INFO_PIPE_PCM_IN,
-	OZZY_INFO_PIPE_MIDI_IN,
-	OZZY_INFO_PIPE_MIDI_OUT,
-	OZZY_INFO_PIPE_FEEDBACK,
 	OZZY_INFO_PIPES,
 };
 
@@ -45,22 +42,14 @@ enum ozzy_usb_speed {
 
 /* How PCM out goes to the device */
 enum ozzy_info_output {
-	OZZY_INFO_OUTPUT_NONE,                /* no PCM out (MIDI only) */
+	OZZY_INFO_OUTPUT_NONE,                /* not started */
 	OZZY_INFO_OUTPUT_PLOYTEC_BULK,        /* Ploytec packets in the 512-byte "bulk" layout */
 	OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT,   /* Ploytec packets in the 482-byte "interrupt" layout */
-	OZZY_INFO_OUTPUT_ISOC,                /* isochronous, paced by the device's feedback */
-};
-
-/* The isochronous feedback the device sends (common/isoc_feedback.h) */
-enum ozzy_info_feedback {
-	OZZY_INFO_FEEDBACK_NONE,              /* none, or not isochronous */
-	OZZY_INFO_FEEDBACK_COUNT,             /* frames per packet */
-	OZZY_INFO_FEEDBACK_Q16_16,            /* frames per microframe, 16.16 fixed point */
 };
 
 /*
  * struct ozzy_info_pipe - One endpoint the engine runs (address 0: the role is unused).
- * @transfer_type: bmAttributes & 3 (1 isochronous, 2 bulk, 3 interrupt)
+ * @transfer_type: bmAttributes & 3 (2 bulk, 3 interrupt)
  * @interval:      bInterval as the descriptor has it
  * @in_flight:     transfers the engine keeps queued on it
  * @max_packet:    bytes per service interval (packet size times transactions per microframe)
@@ -83,7 +72,6 @@ struct ozzy_info_pipe {
  * @interfaces:      the claimed interfaces (bInterfaceNumber), @interface_count of them,
  *                   interface i at alternate setting @alt_settings[i]
  * @output:          enum ozzy_info_output
- * @feedback:        enum ozzy_info_feedback
  * @firmware_valid:  @firmware (a version, three parts: 1.4.1) and @firmware_chip (a chip id)
  *                   are the device's answer to the firmware request (Ploytec 'V')
  * @input_selector_valid: @input_selector is the input selector byte the handshake read
@@ -113,14 +101,13 @@ struct ozzy_info {
 	uint8_t interfaces[4];
 	uint8_t alt_settings[4];
 	uint8_t output;
-	uint8_t feedback;
 	uint8_t firmware_valid;
 	uint8_t firmware_chip;
 	uint8_t firmware[3];
 	uint8_t input_selector_valid;
 	uint8_t input_selector;
 	uint8_t clock_locked;
-	uint8_t reserved[2];
+	uint8_t reserved[3];
 
 	uint32_t sample_rate;
 	uint32_t boot_rate;

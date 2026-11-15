@@ -54,7 +54,6 @@ static struct ozzy_engine *start(void)
 	fb.now = 1000;
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, PCM_OUT, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, PCM_IN, 3, 1024, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 2, 512, 0);
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	CHECK(ozzy_engine_start(e), "start");
 	return e;

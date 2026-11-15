@@ -18,9 +18,6 @@ struct fake_xfer {
 	uint8_t *buf;
 	uint32_t size;
 	void *xfer;
-	bool isoc;
-	struct ozzy_isoc_packet *packets;
-	uint32_t count;
 };
 
 struct fake_bus {
@@ -35,7 +32,6 @@ struct fake_bus {
 	uint64_t hz;                       /* 0: the clock ticks once per call; else it reads @now */
 	uint64_t now;                      /* the clock, in @hz ticks a second, as the test sets it */
 	unsigned int stats_changed;        /* stats_changed calls */
-	bool timer_on;
 	uint64_t progress[OZZY_PCM_DIRS];  /* last pcm_progress */
 	struct ozzy_engine *engine;        /* of the last completion: abort completes to it */
 };
@@ -45,8 +41,7 @@ void fake_bus_init(struct fake_bus *fb, struct ozzy_shared_memory *shm, FILE *tr
 bool fake_bus_pop(struct fake_bus *fb, struct fake_xfer *x);
 void fake_bus_push(struct fake_bus *fb, const struct fake_xfer *x);
 
-/* Complete @x: isochronous packets complete in full, then IN transfers get @fill bytes (NULL:
- * leave the buffer; a fill may set a packet's actual length) */
+/* Complete @x in full: IN transfers get @fill bytes first (NULL: leave the buffer) */
 void fake_bus_complete(struct fake_bus *fb, struct ozzy_engine *e, struct fake_xfer *x,
 		       void (*fill)(struct fake_xfer *x, void *arg), void *arg);
 

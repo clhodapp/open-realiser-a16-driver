@@ -35,7 +35,6 @@ int main(void)
 	e = ozzy_engine_init(malloc(ozzy_engine_size(&model)), &model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	CHECK(ozzy_engine_start(e), "start");
 	CHECK(fake_bus_pop(&fb, &x), "nothing in flight after start");

@@ -15,7 +15,6 @@
 #define OZZY_LOG_LINE(prefix, fmt, ...) pr_info(prefix fmt "\n", ##__VA_ARGS__)
 #define OZZY_LOG_PREFIX "[ozzy] "
 #define PLOYTEC_LOG_PREFIX "[ploytec] "
-#define USB_MIDI_LOG_PREFIX "[usb-midi] "
 #elif defined(OZZY_USER_ENGINE)
 /* Userspace driver and host tests: stderr */
 #include <stdio.h>
@@ -30,13 +29,9 @@
 #ifndef PLOYTEC_LOG_PREFIX
 #define PLOYTEC_LOG_PREFIX "[Ploytec] "
 #endif
-#ifndef USB_MIDI_LOG_PREFIX
-#define USB_MIDI_LOG_PREFIX "[UsbMidi] "
-#endif
 
 #define ozzy_log(fmt, ...)      OZZY_LOG_LINE(OZZY_LOG_PREFIX, fmt, ##__VA_ARGS__)
 #define ploytec_log(fmt, ...)   OZZY_LOG_LINE(PLOYTEC_LOG_PREFIX, fmt, ##__VA_ARGS__)
-#define usb_midi_log(fmt, ...)  OZZY_LOG_LINE(USB_MIDI_LOG_PREFIX, fmt, ##__VA_ARGS__)
 
 /* ploytec_log() of a va_list (the handshake's vlog) */
 #if defined(__KERNEL__) && defined(__linux__)

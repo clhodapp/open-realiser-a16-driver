@@ -20,8 +20,6 @@ int main(void)
 	F(magic); F(version); F(session_id); F(heartbeat); F(vendor_id); F(product_id);
 	F(manufacturer_name); F(product_name); F(serial_number); F(info);
 	F(midi_out); F(midi_out.write_index); F(midi_out.read_index); F(midi_out.buffer);
-	F(midi_in); F(midi_in.write_index); F(midi_in.read_index); F(midi_in.buffer);
-	F(midi_in_usb_buffer); F(midi_out_usb_buffer); F(isoc_in_usb_buffer);
 	F(audio); F(audio.hardware_present); F(audio.driver_ready); F(audio.sample_rate); F(audio.device_flags);
 	F(audio.output_ring_frames); F(audio.input_ring_frames); F(audio.output_bytes_per_frame);
 	F(audio.input_bytes_per_frame); F(audio.input_channels); F(audio.output_channels);
@@ -31,7 +29,7 @@ int main(void)
 
 	printf("info version %d size %zu\n", OZZY_INFO_VERSION, sizeof(struct ozzy_info));
 	I(version); I(size); I(starts); I(vendor_id); I(product_id); I(family); I(status); I(usb_speed);
-	I(interface_count); I(interfaces); I(alt_settings); I(output); I(feedback); I(firmware_valid);
+	I(interface_count); I(interfaces); I(alt_settings); I(output); I(firmware_valid);
 	I(firmware_chip); I(firmware); I(input_selector_valid); I(input_selector); I(clock_locked);
 	I(sample_rate); I(boot_rate); I(lock_rate); I(device_rates); I(host_rates); I(in_channels);
 	I(out_channels); I(transfer_frames); I(out_bytes_per_frame);

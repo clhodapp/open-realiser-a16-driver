@@ -31,8 +31,6 @@ extern "C" {
 /* Device families: which protocol code drives the device */
 enum ozzy_family {
 	OZZY_FAMILY_PLOYTEC_XONE,   /* Ploytec junction protocol, bulk/interrupt PCM out */
-	OZZY_FAMILY_PLOYTEC_ISOC,   /* Ploytec bulk in / isochronous out */
-	OZZY_FAMILY_PLOYTEC_US3XX,  /* Ploytec isochronous in and out, USB-MIDI packets (Tascam US-366) */
 };
 
 enum ozzy_status {
