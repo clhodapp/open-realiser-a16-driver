@@ -25,8 +25,8 @@
 #define LOST_WAIT_NS 3000000000ULL
 /* The A16 drops off USB when it receives playback from about 43.5 s after a power-up
  * enumerates it until about 50 s, and sooner when the cable is connected partway through
- * a boot. Only a failure while a client is active and within this long of the driver
- * first opening the A16 counts as such a drop. */
+ * a boot. Only a failure while a client is active, within this long of the driver first
+ * opening the A16, and before the A16 has returned a non-zero sample counts as such a drop. */
 #define BOOT_WINDOW_NS 60000000000ULL
 /* After a boot-time drop, how long the reopened A16 gets without streaming. */
 #define BOOT_HOLD_NS 3000000000ULL
@@ -74,6 +74,8 @@ struct live {
     uint64_t enumerated_open;
     /* No streaming before this time, after a boot-time drop. */
     uint64_t hold_until;
+    /* The A16 has returned a non-zero sample, so it has finished booting. */
+    bool booted;
     struct usb_bus bus;
     struct ozzy_engine *engine;
     struct ozzy_shared_memory *shm;
@@ -309,6 +311,14 @@ static void on_progress(void *data, enum ozzy_pcm_dir dir, uint64_t frames) {
     struct live *l = data;
     if (dir != OZZY_PCM_IN)
         return;
+    /* The A16 returns only zero samples while it boots, and processed audio once booted. */
+    if (!l->booted) {
+        static const uint8_t zero[BLOCK * 6];
+        if (memcmp(l->input, zero, sizeof(zero))) {
+            l->booted = true;
+            fprintf(stderr, "A16 return carries audio; the A16 has finished booting\n");
+        }
+    }
     /* Only the capture consumer owns its read index. While idle, do not produce. */
     if (!atomic_load(&l->source.active)) {
         src_reset(l->in_src);
@@ -654,7 +664,8 @@ int main(int argc, char **argv) {
                 failure_count--;
             }
             failures[failure_count++] = now;
-            bool boot_drop = wanted && l->enumerated_open && now - l->enumerated_open < BOOT_WINDOW_NS;
+            bool boot_drop =
+                wanted && !l->booted && l->enumerated_open && now - l->enumerated_open < BOOT_WINDOW_NS;
             fprintf(stderr, boot_drop ? "A16 USB failure during its boot; resetting and reopening it\n"
                     : l->gone         ? "A16 left the bus\n"
                                       : "A16 USB failure; resetting and reopening it\n");

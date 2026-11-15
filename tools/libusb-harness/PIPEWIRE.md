@@ -94,7 +94,8 @@ the A16, waits for it to come back, resets its USB port (up to three attempts pe
 reopen) and reopens it, resuming the stream if a client is active. The nodes
 stay published throughout. libusb hotplug events report the A16 leaving the bus
 while no stream is running. A failure while a client is active, within 60 s of
-the bridge first opening the A16, counts as a boot-time drop: the bridge then
+the bridge first opening the A16 and before the A16 has returned a non-zero
+sample, counts as a boot-time drop: the bridge then
 waits up to 3 s for the A16 to return, and after reopening it streams nothing
 for 3 s before resuming. In every other case, an A16 off the bus
 makes the bridge exit at once with status 0, which removes the nodes. More than
