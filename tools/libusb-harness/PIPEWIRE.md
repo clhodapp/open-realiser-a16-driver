@@ -79,9 +79,33 @@ Node properties expose `a16.profile`, `a16.speakers`, `a16.room.required`,
 The bridge runs until SIGINT/SIGTERM. For a bounded session, add `--seconds 60`.
 `--detach` explicitly permits temporarily detaching an existing kernel driver.
 It requires access to the A16 USB device and the user's local PipeWire socket.
-Exactly one high-speed A16 must be connected. Automatic reconnect after USB or
-PipeWire disconnection is not implemented: the bridge exits and can be restarted.
+Exactly one high-speed A16 must be connected when the bridge starts.
 No root privileges are normally required with suitable USB permissions.
+
+The bridge publishes both nodes and opens the A16 at startup, but runs the
+handshake and streams over USB only while the playback or return node is active.
+It stops streaming five seconds after the last client goes idle. Starting a
+stream takes about 0.6 s for the handshake; audio a client sends in that time
+overflows the playback queue and is dropped.
+
+After a USB failure, including the A16 dropping off USB during its boot
+([boot-usb-drop.md](../../docs/development/boot-usb-drop.md)), the bridge closes
+the A16, waits for it to come back, resets its USB port (up to three attempts per
+reopen) and reopens it, resuming the stream if a client is active. The nodes
+stay published throughout. libusb hotplug events report the A16 leaving the bus
+while no stream is running. The return counts as carrying audio once three
+consecutive 100 ms windows each reach an RMS of at least -55 dBFS; the sparse
+spikes of a silent return stay well below that. A failure counts as a boot-time
+drop while a client is active, before the return has carried audio, and either
+within 50 s of the bridge first opening the A16 or within 5 s of the stream
+resuming after an earlier boot-time drop. The bridge then waits up to 3 s for the A16 to
+return, resets and reopens it, and sends it nothing more until 9 s after the
+drop, or until the reset finishes if that is later. A control request that times
+out fails the stream at once, so the bridge resets the A16 again without
+retrying. In every other case, an A16 off the bus
+makes the bridge exit at once with status 0, which removes the nodes. More than
+five failures within two minutes end it with status 1. A PipeWire disconnection
+ends the bridge.
 
 It exposes two selectable desktop nodes:
 
@@ -169,10 +193,10 @@ of repeating old samples; source underflow emits silence and reprimes. Full
 queues drop incoming frames and increment overrun counts. Capture is discarded
 when inactive, with queued old frames flushed on the next source activation.
 Stats every five seconds report frames, queue levels, underruns/overruns and
-resampling ratios. SIGINT/SIGTERM, stream errors, or USB failures stop both sides,
-cancel transfers, release interfaces, and restore previous alternate settings
-using the same backend lifecycle as the WAV harness. USB rate/register state is
-not restored. A service/unit and hotplug restart policy are future work.
+resampling ratios while streaming. SIGINT/SIGTERM or stream errors stop both
+sides, cancel transfers and release the interfaces, using the same backend
+lifecycle as the WAV harness. The interfaces stay at their streaming alternate
+setting, and USB rate/register state is not restored.
 
 ## Validation
 

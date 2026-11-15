@@ -120,12 +120,6 @@ static void submit_pcm_out(struct ploytec_engine *pe, uint32_t t)
 		ploytec_log("output submission failed (idx: %u)", t);
 }
 
-static void submit_midi_in(struct ploytec_engine *pe, uint32_t slot)
-{
-	if (!ploytec_submit_midi_in(&pe->base, EP_MIDI_IN, &pe->midi, slot))
-		ploytec_log("MIDI input submission failed (slot %u)", slot);
-}
-
 /*
  * cport_out - Transfer @t's control bytes: the queued C-port bytes, one per sub-packet (| 0x18,
  * as the official driver sends them), idle in the rest. Nothing to do once the queue is empty
@@ -262,7 +256,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	e->report.output = bulk ? OZZY_INFO_OUTPUT_PLOYTEC_BULK : OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT;
 	e->report.in_flight[OZZY_PIPE_PCM_OUT] = (uint8_t)pe->out_queue;
 	e->report.in_flight[OZZY_PIPE_PCM_IN] = (uint8_t)pe->in_queue;
-	e->report.in_flight[OZZY_PIPE_MIDI_IN] = PLOYTEC_MIDI_IN_XFERS;
+	e->report.in_flight[OZZY_PIPE_MIDI_IN] = 0;
 	ploytec_midi_init(&pe->midi, pe->sample_rate, pe->pcm_in_int1024);
 	pe->encode = ploytec_frame_encoder(model->out_channels);
 	pe->decode = ploytec_frame_decoder(model->in_channels);
@@ -278,7 +272,7 @@ static bool ploytec_start(struct ozzy_engine *e)
 	pe->cport_idle_left = 0;
 	cport_queue(pe);
 
-	/* 4. in_queue / out_queue transfers in flight per PCM pipe, PLOYTEC_MIDI_IN_XFERS MIDI IN reads */
+	/* 4. in_queue / out_queue transfers in flight per PCM pipe */
 	pe->running = true;
 	pe->streamed = true;
 	for (i = 0; i < pe->in_queue || i < pe->out_queue; i++) {
@@ -287,8 +281,6 @@ static bool ploytec_start(struct ozzy_engine *e)
 		if (i < pe->out_queue)
 			submit_pcm_out(pe, i);
 	}
-	for (i = 0; i < PLOYTEC_MIDI_IN_XFERS; i++)
-		submit_midi_in(pe, i);
 
 	ozzy_store_release_bool(&shm->audio.driver_ready, true);
 	return true;
@@ -386,7 +378,6 @@ static void encode_pcm_out(struct ploytec_engine *pe, uint32_t t)
 static void ploytec_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, int status, uint32_t bytes)
 {
 	struct ploytec_engine *pe = to_ploytec(e);
-	volatile struct ozzy_shared_memory *shm = e->shm;
 	uint32_t finished = (uint32_t)(uintptr_t)xfer;
 	uint32_t next;
 
@@ -409,12 +400,6 @@ static void ploytec_complete(struct ozzy_engine *e, uint8_t pipe, void *xfer, in
 		ploytec_decode_pcm_in(e, pe->decode, pe->in_frames, finished, status == 0 ? bytes : 0);
 		if (!ploytec_submit_pcm_in(e, EP_PCM_IN, pe->in_frames, next))
 			ploytec_log("input submission failed (idx: %u)", next);
-	} else if (pipe == EP_MIDI_IN) {
-		/* Only the MIDI bytes of the frame (ploytec_midi.h); the slot is the transfer's */
-		if (bytes)
-			ploytec_midi_in_to_ring(&pe->midi, shm, ploytec_midi_in_slot(e, finished),
-						bytes < PLOYTEC_MIDI_IN_SLOT ? bytes : PLOYTEC_MIDI_IN_SLOT);
-		submit_midi_in(pe, finished);
 	}
 }
 

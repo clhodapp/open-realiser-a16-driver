@@ -63,8 +63,8 @@ int main(void)
 	      "PCM out pipe %#x type %u %u bytes, %u in flight", info->pipes[OZZY_PIPE_PCM_OUT].address,
 	      info->pipes[OZZY_PIPE_PCM_OUT].transfer_type, info->pipes[OZZY_PIPE_PCM_OUT].max_packet,
 	      info->pipes[OZZY_PIPE_PCM_OUT].in_flight);
-	CHECK(info->pipes[OZZY_PIPE_MIDI_IN].address == 0x83 && info->pipes[OZZY_PIPE_MIDI_IN].in_flight == 4,
-	      "MIDI in pipe");
+	CHECK(info->pipes[OZZY_PIPE_MIDI_IN].address == 0x83 && info->pipes[OZZY_PIPE_MIDI_IN].in_flight == 0,
+	      "MIDI in pipe listed, not read");
 	CHECK(info->pipes[OZZY_PIPE_FEEDBACK].address == 0 && info->pipes[OZZY_PIPE_FEEDBACK].in_flight == 0,
 	      "a feedback pipe on a Xone");
 

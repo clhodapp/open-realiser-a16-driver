@@ -15,11 +15,11 @@ struct usb_bus {
     unsigned int pending_count;
     uint8_t types[256];
     bool claimed[256], detached[256];
-    int previous_alt[256];
     uint8_t config_value;
     uint32_t timer_us;
     uint64_t timer_next, progress[OZZY_PCM_DIRS];
     uint64_t completed[OZZY_PCM_DIRS], bytes[OZZY_PCM_DIRS];
+    uint64_t short_in;   /* short input transfers, passed on and silenced */
     bool draining, failed;
     /* Optional live adapter hooks, called only on the USB event thread. */
     void (*before_complete)(void *data, uint8_t endpoint);
@@ -31,6 +31,9 @@ uint64_t usb_now(void);
 void usb_bus_init(struct usb_bus *b, libusb_context *usb, libusb_device_handle *handle,
                   struct ozzy_engine *engine, FILE *trace);
 bool usb_bus_configure(struct usb_bus *b, bool detach);
+/* After ozzy_engine_suspend cancelled the transfers: accept submissions again,
+ * so ozzy_engine_start can stream on the same bus. */
+void usb_bus_resume(struct usb_bus *b);
 int usb_bus_poll(struct usb_bus *b, unsigned int timeout_ms);
 void usb_bus_release(struct usb_bus *b);
 #endif

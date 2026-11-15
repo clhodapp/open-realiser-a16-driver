@@ -81,4 +81,34 @@ static inline double live_ratio(struct live_clock *c, uint32_t level, double sec
     double correction = fmax(-0.005, fmin(0.005, error * 0.000001 + c->integral));
     return 1.0 - correction;
 }
+/*
+ * Sustained level detection on the A16's return: true once LIVE_LEVEL_WINDOWS
+ * consecutive windows of LIVE_LEVEL_FRAMES frames each have an RMS of at least
+ * LIVE_LEVEL_DBFS. A silent return carries sparse single-sample spikes, which stay
+ * well below that in any window.
+ */
+#define LIVE_LEVEL_FRAMES 4800u /* 100 ms at 48 kHz */
+#define LIVE_LEVEL_WINDOWS 3u
+#define LIVE_LEVEL_DBFS (-55.0)
+struct live_level {
+    double sum;
+    uint32_t frames, loud;
+    bool reached;
+};
+/* Feed @frames interleaved frames of @channels float samples. */
+static inline bool live_level_feed(struct live_level *l, const float *samples, uint32_t frames, uint32_t channels) {
+    double threshold = pow(10.0, LIVE_LEVEL_DBFS / 20.0);
+    for (uint32_t f = 0; f < frames && !l->reached; f++) {
+        for (uint32_t c = 0; c < channels; c++)
+            l->sum += (double)samples[f * channels + c] * samples[f * channels + c];
+        if (++l->frames < LIVE_LEVEL_FRAMES)
+            continue;
+        double rms = sqrt(l->sum / ((double)l->frames * channels));
+        l->loud = rms >= threshold ? l->loud + 1 : 0;
+        l->reached = l->loud >= LIVE_LEVEL_WINDOWS;
+        l->sum = 0;
+        l->frames = 0;
+    }
+    return l->reached;
+}
 #endif
