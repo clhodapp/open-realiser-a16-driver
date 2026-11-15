@@ -93,10 +93,12 @@ After a USB failure, including the A16 dropping off USB during its boot
 the A16, waits for it to come back, resets its USB port (up to three attempts per
 reopen) and reopens it, resuming the stream if a client is active. The nodes
 stay published throughout. libusb hotplug events report the A16 leaving the bus
-while no stream is running. A failure counts as a boot-time drop while a client
-is active, before the A16 has returned a non-zero sample, and either within 50 s
-of the bridge first opening the A16 or within 5 s of the stream resuming after
-an earlier boot-time drop. The bridge then waits up to 3 s for the A16 to
+while no stream is running. The return counts as carrying audio once three
+consecutive 100 ms windows each reach an RMS of at least -55 dBFS; the sparse
+spikes of a silent return stay well below that. A failure counts as a boot-time
+drop while a client is active, before the return has carried audio, and either
+within 50 s of the bridge first opening the A16 or within 5 s of the stream
+resuming after an earlier boot-time drop. The bridge then waits up to 3 s for the A16 to
 return, resets and reopens it, and sends it nothing more until 9 s after the
 drop, or until the reset finishes if that is later. A control request that times
 out fails the stream at once, so the bridge resets the A16 again without

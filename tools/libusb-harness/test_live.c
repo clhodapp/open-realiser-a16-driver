@@ -166,5 +166,27 @@ int main(void) {
         }
         assert(fabs(level - LIVE_TARGET) < 5);
     }
-    puts("SPSC concurrent ordering/wrap/bounds, PCM clipping, drift controller: ok");
+    /* Level detection: sparse -29 dBFS spikes, as a silent A16 return carries, never
+     * count; a sustained -48 dBFS tone counts within the third 100 ms window. */
+    {
+        static float block[80 * 2];
+        struct live_level spikes = {0};
+        for (uint32_t t = 0; t < 600 * 10; t++) {
+            memset(block, 0, sizeof(block));
+            if (t % 80 == 0)
+                block[(t / 80) % 160] = 0.0355f;
+            assert(!live_level_feed(&spikes, block, 80, 2));
+        }
+        struct live_level tone = {0};
+        bool reached = false;
+        uint32_t t;
+        for (t = 0; t < 600 && !reached; t++) {
+            for (uint32_t f = 0; f < 80; f++)
+                block[f * 2] = block[f * 2 + 1] =
+                    0.0056f * sinf(2.0f * 3.14159265f * 1000.0f * (float)(t * 80 + f) / 48000.0f);
+            reached = live_level_feed(&tone, block, 80, 2);
+        }
+        assert(reached && t * 80 >= 3 * LIVE_LEVEL_FRAMES && t * 80 <= 3 * LIVE_LEVEL_FRAMES + 80);
+    }
+    puts("SPSC concurrent ordering/wrap/bounds, PCM clipping, drift controller, level detection: ok");
 }

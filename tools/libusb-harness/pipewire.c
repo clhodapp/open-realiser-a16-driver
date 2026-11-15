@@ -27,8 +27,8 @@
  * The A16 drops off USB when it receives playback about 43.5 s after a power-up
  * enumerates it, sooner when the cable is connected partway through a boot, and again
  * 0.5 to 1.5 s after playback resumes while that boot step lasts. A failure counts as
- * such a drop while a client is active, before the A16 has returned a non-zero sample,
- * and inside the boot window: BOOT_FIRST_NS from the first open, then after each
+ * such a drop while a client is active, before the A16 has returned a sustained audio
+ * level (live_level_feed), and inside the boot window: BOOT_FIRST_NS from the first open, then after each
  * boot-time drop until BOOT_EXTEND_NS after the stream may resume.
  */
 #define BOOT_FIRST_NS 50000000000ULL
@@ -83,8 +83,9 @@ struct live {
     uint64_t hold_until;
     /* When the last USB failure was detected; 0 before any. */
     uint64_t last_failure;
-    /* The A16 has returned a non-zero sample, so it has finished booting. */
+    /* The A16 has returned a sustained audio level, so it has finished booting. */
     bool booted;
+    struct live_level return_level;
     struct usb_bus bus;
     struct ozzy_engine *engine;
     struct ozzy_shared_memory *shm;
@@ -320,13 +321,13 @@ static void on_progress(void *data, enum ozzy_pcm_dir dir, uint64_t frames) {
     struct live *l = data;
     if (dir != OZZY_PCM_IN)
         return;
-    /* The A16 returns only zero samples while it boots, and processed audio once booted. */
-    if (!l->booted) {
-        static const uint8_t zero[BLOCK * 6];
-        if (memcmp(l->input, zero, sizeof(zero))) {
-            l->booted = true;
-            fprintf(stderr, "A16 return carries audio; the A16 has finished booting\n");
-        }
+    float input[BLOCK * 2], output[256 * 2];
+    for (unsigned int i = 0; i < BLOCK * 2; i++)
+        input[i] = live_unpack(l->input + i * 3);
+    /* The A16 returns silence while it boots, and processed audio once booted. */
+    if (!l->booted && live_level_feed(&l->return_level, input, BLOCK, 2)) {
+        l->booted = true;
+        fprintf(stderr, "A16 return carries audio; the A16 has finished booting\n");
     }
     /* Only the capture consumer owns its read index. While idle, do not produce. */
     if (!atomic_load(&l->source.active)) {
@@ -334,9 +335,6 @@ static void on_progress(void *data, enum ozzy_pcm_dir dir, uint64_t frames) {
         memset(&l->in_clock, 0, sizeof(l->in_clock));
         return;
     }
-    float input[BLOCK * 2], output[256 * 2];
-    for (unsigned int i = 0; i < BLOCK * 2; i++)
-        input[i] = live_unpack(l->input + i * 3);
     double ratio = live_ratio(&l->in_clock, live_available(&l->source.fifo), (double)BLOCK / RATE);
     atomic_store(&l->capture_ratio, ratio);
     SRC_DATA block = {.data_in = input,
