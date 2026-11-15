@@ -14,6 +14,10 @@ argument handling, live audio buffering and static upmixing. They run without
 USB hardware or an active PipeWire server. The GitHub workflow runs these checks
 on x86-64 and ARM64 Linux.
 
+The A16 drops off USB once during its boot if playback is running at a
+particular boot step; [boot-usb-drop.md](boot-usb-drop.md) records that
+behavior and how to recover from it.
+
 For a native build and hardware usage, follow the [README](../../README.md).
 Hardware validation runs require explicit coordination with the device owner,
 since changing USB interfaces or restarting the driver interrupts playback.
