@@ -104,11 +104,12 @@ playback stops. Both recover when the stream breaks:
 
 ## How this driver handles it
 
-The PipeWire bridge streams only while a client plays or records, so the drop
-happens only if a client is active at about 43.5 s into a power-up. After the
+The PipeWire bridge starts streaming when a client first plays or records, and
+then streams until it exits, so the drop happens only if a client has started by
+about 43.5 s into a power-up. After the
 drop, or any other USB failure, the bridge resets the A16's port as soon as the
-A16 is back, retries the reset up to three times and reopens the A16. After a
-drop during the boot it sends the A16 nothing until 9 s after the drop, or
-until the reset finishes if that is later, and then resumes the stream. A
+A16 is back, retries the reset up to three times and reopens the A16. It then
+sends the A16 nothing until 9 s after the failure, or until the reset finishes
+if that is later, and then resumes the stream. A
 control request that times out makes it reset the A16 again without retrying.
 [PIPEWIRE.md](../../tools/libusb-harness/PIPEWIRE.md) describes the limits.
