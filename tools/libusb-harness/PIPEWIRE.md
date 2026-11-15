@@ -92,7 +92,7 @@ time overflows the playback queue and is dropped.
 After a USB failure, including the A16 dropping off USB during its boot
 ([boot-usb-drop.md](../../docs/development/boot-usb-drop.md)), the bridge closes
 the A16, waits for it to come back, resets its USB port (up to three attempts per
-reopen) and reopens it, resuming the stream if a client is active. The nodes
+reopen) and reopens it, resuming the stream if it had started. The nodes
 stay published throughout. libusb hotplug events report the A16 leaving the bus
 while no stream is running. The return counts as carrying audio once three
 consecutive 100 ms windows each reach an RMS of at least -55 dBFS; the sparse
