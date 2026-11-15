@@ -10,10 +10,12 @@
     # package sets from nixpkgs.
     nixpkgs-lib.url = "github:nix-community/nixpkgs.lib";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    # Locks and builds the Cargo dependencies of the workspace.
+    cargo-purifier.url = "github:nix-purifiers/cargo-purifier";
   };
 
   outputs =
-    inputs@{ caisson, ... }:
+    inputs@{ caisson, cargo-purifier, ... }:
     let
       lib = caisson.lib.caisson.mkLib {
         inherit (caisson.lib.caisson.pins.flake inputs) dependencies root;
@@ -23,7 +25,7 @@
           "aarch64-linux"
         ];
         projects = {
-          inherit caisson;
+          inherit caisson cargo-purifier;
         };
 
         configs = lib: lib.caisson.mkModules ./configs;

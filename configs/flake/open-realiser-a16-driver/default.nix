@@ -12,8 +12,8 @@
   # overlay registry (pkg-overlays/, registered on mkLib): the package set
   # applies it by default, and the flake exports it as the plain
   # `overlays.default`. The export adds a check that builds each exported
-  # package; building the driver runs its CTest suite and the shared
-  # engine's host tests, offline and without an A16.
+  # package; building the driver runs the tests of the Cargo workspace and
+  # the Python checks of tools/, offline and without an A16.
   caisson.nixpkgs = {
     packages.export.enabled = true;
   };
@@ -31,16 +31,23 @@
         type = "app";
         program = "${driver}/bin/a16-upmix";
       };
+      # cargo-purifier's cargo wrapper builds with the locked dependencies;
+      # bindgen generates the PipeWire bindings.
       devShells.default = pkgs.mkShell {
         packages = [
-          pkgs.cmake
+          pkgs.cargo-purifier.cargo-purifier
+          pkgs.cargo
+          pkgs.rustc
+          pkgs.clippy
+          pkgs.rustfmt
           pkgs.pkg-config
+          pkgs.rustPlatform.bindgenHook
+          pkgs.python3
+        ];
+        buildInputs = [
           pkgs.libusb1
           pkgs.libsamplerate
           pkgs.pipewire
-          pkgs.python3
-          pkgs.gcc
-          pkgs.gnumake
         ];
       };
     };
