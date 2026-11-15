@@ -20,8 +20,9 @@
 #define BLOCK 80u
 /* USB streaming stops after this long without an active playback or return client. */
 #define IDLE_STOP_NS 5000000000ULL
-/* After a USB failure, how long the A16 may stay away before the driver exits. */
-#define LOST_WAIT_NS 30000000000ULL
+/* After a USB failure, how long the A16 may stay away before the driver exits. The A16
+ * re-enumerates within a second after its boot-time drop. */
+#define LOST_WAIT_NS 5000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
 /* More failures than RECOVERY_LIMIT within RECOVERY_WINDOW_NS end the driver. */
@@ -56,7 +57,10 @@ struct live {
     bool profile_save;
     libusb_context *usb;
     libusb_device_handle *handle;
-    bool detach, configured, attached, streaming;
+    libusb_hotplug_callback_handle hotplug;
+    bool detach, configured, attached, streaming, hotplug_registered;
+    /* Set by the hotplug callback when the open A16 leaves the bus. */
+    bool gone;
     struct usb_bus bus;
     struct ozzy_engine *engine;
     struct ozzy_shared_memory *shm;
@@ -320,6 +324,17 @@ static void pause_ms(unsigned int ms) {
     struct timespec t = {ms / 1000, (long)(ms % 1000) * 1000000L};
     nanosleep(&t, NULL);
 }
+/* libusb hotplug: runs inside libusb event handling on the main thread. It tells the
+ * driver the A16 left the bus while no transfer is in flight to fail. */
+static int LIBUSB_CALL a16_left(libusb_context *usb, libusb_device *dev, libusb_hotplug_event event,
+                                void *data) {
+    (void)usb;
+    (void)event;
+    struct live *l = data;
+    if (l->handle && dev == libusb_get_device(l->handle))
+        l->gone = true;
+    return 0;
+}
 /* The A16, referenced, when exactly one high-speed A16 is on the bus; else NULL. */
 static libusb_device *find_a16(libusb_context *usb) {
     libusb_device **devices = NULL, *chosen = NULL;
@@ -397,6 +412,7 @@ static bool a16_open(struct live *l, bool reset) {
     l->bus.before_complete = before_complete;
     l->bus.on_progress = on_progress;
     l->bus.audio_data = l;
+    l->gone = false;
     return true;
 }
 /* Run the handshake and start streaming. */
@@ -543,6 +559,12 @@ int main(int argc, char **argv) {
     }
     if (libusb_init(&l->usb))
         goto done;
+    if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG) &&
+        !libusb_hotplug_register_callback(l->usb, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, 0, 0x0a4a, 0x5a16,
+                                          LIBUSB_HOTPLUG_MATCH_ANY, a16_left, l, &l->hotplug))
+        l->hotplug_registered = true;
+    else
+        fprintf(stderr, "No USB hotplug events; an idle driver notices the A16 leaving only when it streams\n");
     const struct ozzy_device *model = ozzy_device_lookup(0x0a4a, 0x5a16);
     l->engine = ozzy_engine_init(calloc(1, ozzy_engine_size(model)), model);
     if (posix_memalign((void **)&l->shm, _Alignof(struct ozzy_shared_memory), sizeof(*l->shm)))
@@ -551,7 +573,15 @@ int main(int argc, char **argv) {
         goto done;
     l->detach = detach;
     if (!a16_open(l, false)) {
-        fprintf(stderr, "Cannot open the A16; exactly one high-speed A16 must be connected\n");
+        /* No A16 on the bus means nothing to drive: status 0, so a restart policy does not
+         * retry until one appears. */
+        libusb_device *dev = find_a16(l->usb);
+        if (dev)
+            libusb_unref_device(dev);
+        else
+            result = 0;
+        fprintf(stderr, dev ? "Cannot open the A16\n"
+                            : "No A16 on the bus; exactly one high-speed A16 must be connected\n");
         goto done;
     }
     uint64_t start = usb_now(), last = start, idle_since = start, failures[RECOVERY_LIMIT] = {0};
@@ -564,7 +594,7 @@ int main(int argc, char **argv) {
         bool wanted = atomic_load(&l->sink.active) || atomic_load(&l->source.active), broken = false;
         if (l->streaming) {
             usb_bus_poll(&l->bus, 1);
-            if (l->bus.failed)
+            if (l->bus.failed || l->gone)
                 broken = true;
             else if (wanted)
                 idle_since = usb_now();
@@ -578,8 +608,13 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "USB streaming started\n");
             } else
                 broken = true;
-        } else
-            pause_ms(10);
+        } else {
+            /* Idle: no transfers, but hotplug events still arrive here. */
+            struct timeval wait = {0, 10000};
+            libusb_handle_events_timeout(l->usb, &wait);
+            if (l->gone)
+                broken = true;
+        }
         if (broken) {
             uint64_t now = usb_now();
             if (failure_count == RECOVERY_LIMIT) {
@@ -593,7 +628,8 @@ int main(int argc, char **argv) {
                 failure_count--;
             }
             failures[failure_count++] = now;
-            fprintf(stderr, "A16 USB failure; resetting and reopening it\n");
+            fprintf(stderr, l->gone ? "A16 left the bus; waiting for it and reopening it\n"
+                                    : "A16 USB failure; resetting and reopening it\n");
             int recovered = a16_recover(l);
             if (recovered < 0)
                 break;
@@ -636,6 +672,8 @@ done:
     src_delete(l->in_src);
     free(l->engine);
     free(l->shm);
+    if (l->hotplug_registered)
+        libusb_hotplug_deregister_callback(l->usb, l->hotplug);
     if (l->usb)
         libusb_exit(l->usb);
     free(l);

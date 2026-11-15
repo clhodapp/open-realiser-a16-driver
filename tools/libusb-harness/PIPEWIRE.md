@@ -92,9 +92,10 @@ After a USB failure, including the A16 dropping off USB during its boot
 ([boot-usb-drop.md](../../docs/development/boot-usb-drop.md)), the bridge closes
 the A16, waits for it to come back, resets its USB port (up to three attempts per
 reopen) and reopens it, resuming the stream if a client is active. The nodes
-stay published throughout. If the A16 stays away for 30 seconds the bridge exits
-with status 0; more than five failures within two minutes end it with status 1.
-A PipeWire disconnection ends the bridge.
+stay published throughout. libusb hotplug events report the A16 leaving the bus
+while no stream is running. If the A16 stays away for 5 seconds the bridge exits
+with status 0, which removes the nodes; more than five failures within two
+minutes end it with status 1. A PipeWire disconnection ends the bridge.
 
 It exposes two selectable desktop nodes:
 

@@ -48,8 +48,8 @@ configure the Realiser's room, volume or input.
 The driver exposes playback and a stereo USB return at 48 kHz. Select the desired
 playback device in your player or desktop audio settings. Stop with Ctrl-C.
 USB streaming runs only while a client plays or records. When the A16 drops off
-USB and comes back, the driver resets its port and resumes. When the A16 stays
-away for 30 seconds, the driver exits.
+USB and comes back, the driver resets its port and resumes. When the A16 is
+turned off or unplugged and stays away for 5 seconds, the driver exits.
 
 See [driver configuration and channel maps](tools/libusb-harness/PIPEWIRE.md) for
 profile selection, missing speakers, USB permissions and capture routing.
