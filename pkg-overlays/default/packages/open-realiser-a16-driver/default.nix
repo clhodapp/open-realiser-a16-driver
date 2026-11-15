@@ -64,6 +64,7 @@ project.packages.open-realiser-a16-driver.overrideAttrs (old: {
   # The package builds only once the tests have passed.
   workspaceTests = tests;
   postInstall = (old.postInstall or "") + ''
+    install -Dm755 ${project.packages.a16-control}/bin/a16-ctl -t $out/bin
     install -Dm755 tools/pipewire-upmix/a16-upmix tools/pipewire-upmix/a16-play-static -t $out/bin
     install -Dm644 tools/pipewire-upmix/a16-upmix.conf -t $out/share/a16-userspace-driver
     wrapProgram $out/bin/a16-upmix \
