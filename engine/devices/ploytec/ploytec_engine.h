@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * Ploytec junction devices with bulk or interrupt PCM out (the Xones and their relatives).
- * PCM and MIDI out share every output packet; PCM in has its own endpoint.
+ * The Ploytec engine for the Realiser A16: bulk or interrupt PCM out, in which PCM and MIDI out
+ * share every output packet; PCM in comes on a separate endpoint.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -13,7 +13,6 @@
 #include "../../../common/devices/ploytec/ploytec_protocol.h"
 #include "../../../common/devices/ploytec/ploytec_midi.h"
 #include "../../../common/devices/ploytec/ploytec_codec.h"
-#include "../../../common/devices/ploytec/ploytec_cport.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,19 +20,11 @@ extern "C" {
 
 /*
  * struct ploytec_engine
- * @sample_rate:    what the device runs at (the S/PDIF lock rate while locked)
- * @default_rate:   the highest rate the device lists (what start asks for without a request)
+ * @sample_rate:    what the device runs at
+ * @default_rate:   what start asks for without a request: 48 kHz, the A16's SVS processing rate
  * @running:        completions resubmit (cleared by stop and suspend)
  * @encode/@decode: frame codecs for the model's channel counts
- * @mirror:         ESU1808 S/PDIF mirror (bulk layout, 8 out)
- * @cport:          C-port bytes (ploytec_cport.h) the control bytes still have to carry, from
- *                  @cport_head; queued by start, before any transfer, and only taken by the
- *                  out completions after it, so no locking
- * @cport_idle_left: out places that may still hold a C-port byte from their last lap: they get
- *                  idle control bytes once more
  */
-/* Room for every write a start queues: the S/PDIF mode and 8 attenuators */
-#define PLOYTEC_CPORT_QUEUE (9 * PLOYTEC_CPORT_WRITE_BYTES)
 
 struct ploytec_engine {
 	struct ozzy_engine base;
@@ -45,11 +36,6 @@ struct ploytec_engine {
 	struct ploytec_midi midi;
 	ploytec_frame_fn encode;
 	ploytec_frame_fn decode;
-	bool mirror;
-	uint8_t cport[PLOYTEC_CPORT_QUEUE];
-	uint32_t cport_head;
-	uint32_t cport_len;
-	uint32_t cport_idle_left;
 	uint32_t out_frames;   /* frames per PCM transfer this run (OZZY_SETTING_PCM_OUT_FRAMES at start) */
 	uint32_t in_frames;
 	uint32_t out_queue;    /* PCM transfers in flight this run (OZZY_SETTING_PCM_OUT_QUEUE at start) */

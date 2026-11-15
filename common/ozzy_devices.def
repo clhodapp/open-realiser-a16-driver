@@ -2,170 +2,25 @@
 /*
  * Ozzy Device List
  *
- * Device protocol families, channel counts, rates and quirks used by the engine.
+ * The device's protocol family, channel counts and rates used by the engine.
  * See ozzy_devices.h for table lookup and .claude/re/device_inventory.md for sources.
  *
- *   OZZY_DEVICE(key, vid, pid, name, family, in, out, rates, status, quirks, latency)
+ *   OZZY_DEVICE(key, vid, pid, name, family, in, out, rates, status)
  *
  *   key        device identifier
- *   family     PLOYTEC_XONE  Ploytec junction protocol, bulk/interrupt out (Xone mixers)
+ *   family     PLOYTEC_XONE  Ploytec junction protocol, bulk/interrupt out
  *   in, out    audio channels (lanes used in the device's frames)
  *   rates      OZZY_RATE_xxx bits
  *   status     SUPPORTED or EXPERIMENTAL (untested on hardware or by few users)
- *   quirks     OZZY_QUIRK_xxx bits, 0 for none
- *   latency    what the device itself adds between USB and its sockets, which the host's
- *              clock cannot see: OZZY_LATENCY(out, in, out, in, ...), frames, one pair per
- *              rate in rates, ascending; OZZY_NO_LATENCY where it was not measured
- *
- * Each row notes where its numbers come from, and is wrapped in
- * #ifndef OZZY_DISABLE_<key>: building with -DOZZY_DISABLE_<key> leaves the device
- * out of the device table.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
 
-/* XONE_DB4.kext 3.4.9. Latency: fw 1.4.1 on macOS against the MacBook Pro's own audio,
- * 2026-10-25 (.claude/re/ploytec_bulk_devices.md) */
-#ifndef OZZY_DISABLE_XoneDB4
-OZZY_DEVICE(XoneDB4, 0x0A4A, 0xFFDB, "Xone:DB4", PLOYTEC_XONE, 8, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, SUPPORTED, 0,
-	    OZZY_LATENCY(155, 22, 157, 31, 217, 107, 226, 110))
-#endif
-
-/* XONE_DB2.kext 3.4.9: 48 kHz only */
-#ifndef OZZY_DISABLE_XoneDB2
-OZZY_DEVICE(XoneDB2, 0x0A4A, 0xFFD2, "Xone:DB2", PLOYTEC_XONE, 8, 8,
-	    OZZY_RATE_48K, SUPPORTED, 0, OZZY_NO_LATENCY)
-#endif
-
-/* No official table yet: same as the DB4 */
-#ifndef OZZY_DISABLE_XoneDX
-OZZY_DEVICE(XoneDX, 0x0A4A, 0xFFDD, "Xone:DX", PLOYTEC_XONE, 8, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, SUPPORTED, 0, OZZY_NO_LATENCY)
-#endif
-
-/* No official table yet: same as the DB4 */
-#ifndef OZZY_DISABLE_Xone4D
-OZZY_DEVICE(Xone4D, 0x0A4A, 0xFF4D, "Xone:4D", PLOYTEC_XONE, 8, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, SUPPORTED, 0, OZZY_NO_LATENCY)
-#endif
-
-/* 6 analog inputs on 8 lanes (#77), no official table */
-#ifndef OZZY_DISABLE_Xone2D
-OZZY_DEVICE(Xone2D, 0x0A4A, 0xFF01, "Xone:2D", PLOYTEC_XONE, 8, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/* WIZARD_4.kext 3.3.11: 16 in / 2 out */
-#ifndef OZZY_DISABLE_Wizard4
-OZZY_DEVICE(Wizard4, 0x0A4A, 0xFFAD, "MixWizard WZ4 USB", PLOYTEC_XONE, 16, 2,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/*
- * Reloop's driver (rldj2meu.sys) sets 6 in / 4 out and hardcodes 44.1 kHz for 200c:1009 (96 kHz
- * audibly distorts on this DAC). A loopback test showed Line In 1/2 on in 1-4 and the mic on
- * in 5/6. Its firmware ignores MIDI running status, which the Linux MIDI path expands. Found by
- * julled in PR #80.
- */
-#ifndef OZZY_DISABLE_ReloopDJ2
-OZZY_DEVICE(ReloopDJ2, 0x200C, 0x1009, "Reloop Digital Jockey 2 ME", PLOYTEC_XONE, 6, 4,
-	    OZZY_RATE_44K1, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/*
- * Reloop Jockey 3 Master Edition 3.4.10 kext (kConfigurationData, same flags as the DB2/DB4):
- * 6 in / 4 out, 44.1-96k, kInACR 1 (the Xone MIDI rule). The upstream Linux jockey3 patch v3
- * uses 0x1009 for it; Reloop's kexts say 0x1009 is the Digital Jockey 2 ME and 0x1019 this.
- * The official driver sends it no AJ input selector requests (updateAjInputSelector).
- */
-#ifndef OZZY_DISABLE_ReloopJockey3ME
-OZZY_DEVICE(ReloopJockey3ME, 0x200C, 0x1019, "Reloop Jockey 3 Master Edition", PLOYTEC_XONE, 6, 4,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL,
-	    OZZY_QUIRK_NO_AJ_SELECTOR, OZZY_NO_LATENCY)
-#endif
-
-/*
- * Reloop Jockey 3 Remix 3.4.10 kext (no kConfigurationData): 6 in / 4 out from the kext's
- * fallback table. Rates: all four per fvdpol/alsa-jockey3, whose author tests on this unit (?)
- */
-#ifndef OZZY_DISABLE_ReloopJockey3Remix
-OZZY_DEVICE(ReloopJockey3Remix, 0x200C, 0x1037, "Reloop Jockey 3 Remix", PLOYTEC_XONE, 6, 4,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/*
- * ESI U-series 3.4.10 kexts (Ploytec, no kConfigurationData): channels from the kext's fallback
- * table, rates from ESI's specs (24-bit/96k). The ESI selector, 'A' request and CPLD byte come
- * from the generic PGDevice code (ozzy_quirks.h). Untested on hardware.
- */
-
-/* ESI U168 XT: 16 in / 8 out */
-#ifndef OZZY_DISABLE_EsiU168XT
-OZZY_DEVICE(EsiU168XT, 0x2573, 0x0012, "ESI U168 XT", PLOYTEC_XONE, 16, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL,
-	    OZZY_QUIRK_ESI | OZZY_QUIRK_ESI_U168 | OZZY_QUIRK_ESI_CPLD | OZZY_QUIRK_ESI_CPORT, OZZY_NO_LATENCY)
-#endif
-
-/* ESI U86 XT: 8 in / 6 out */
-#ifndef OZZY_DISABLE_EsiU86XT
-OZZY_DEVICE(EsiU86XT, 0x2573, 0x0013, "ESI U86 XT", PLOYTEC_XONE, 8, 6,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL,
-	    OZZY_QUIRK_ESI | OZZY_QUIRK_ESI_CPLD, OZZY_NO_LATENCY)
-#endif
-
-/* ESI U108 PRE: 10 in / 8 out */
-#ifndef OZZY_DISABLE_EsiU108PRE
-OZZY_DEVICE(EsiU108PRE, 0x2573, 0x002A, "ESI U108 PRE", PLOYTEC_XONE, 10, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL,
-	    OZZY_QUIRK_ESI | OZZY_QUIRK_ESI_CPLD, OZZY_NO_LATENCY)
-#endif
-
-/*
- * ESI ESU1808 3.4.10 kext (no kConfigurationData): 16 in / 8 out from the fallback table, rates
- * from ESI's spec (24-bit/96k). S/PDIF out mirrors output pair 1/2 in lanes 9/10 (dmaEncode10_12);
- * the CPLD byte, but neither ESI's selector nor its 'A' request (those are VID 0x2573 only).
- */
-#ifndef OZZY_DISABLE_EsiESU1808
-OZZY_DEVICE(EsiESU1808, 0x0A92, 0x0111, "ESI ESU1808", PLOYTEC_XONE, 16, 8,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL,
-	    OZZY_QUIRK_ESI_CPLD | OZZY_QUIRK_SPDIF_MIRROR, OZZY_NO_LATENCY)
-#endif
-
-/*
- * Midiplus AudioLink PLUS 4x4 ("AudioLink Plus II") 3.3.20 kext (no kConfigurationData):
- * 6 in / 6 out from the fallback table (4 analog + S/PDIF, inferred), rates from Midiplus's
- * spec (24-bit/96k). No device-specific requests in the generic PGDevice code.
- */
-#ifndef OZZY_DISABLE_MidiplusAudioLink4x4
-OZZY_DEVICE(MidiplusAudioLink4x4, 0x1ACC, 0x0103, "Midiplus AudioLink PLUS 4x4", PLOYTEC_XONE, 6, 6,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
 /*
  * Smyth Research Realiser A16 3.4.13 kext (Ploytec, no kConfigurationData): 2 in / 16 out from the
- * fallback table (dmaEncode16). 44.1/48 kHz validated by the userspace harness. No device-specific requests that
- * change Ozzy's handshake (the official configurationDone skips its first selector call, the
- * second still runs).
+ * fallback table (dmaEncode16). 44.1/48 kHz validated by the userspace harness. No device-specific
+ * requests that change Ozzy's handshake (the official configurationDone skips its first selector
+ * call, the second still runs).
  */
-#ifndef OZZY_DISABLE_SmythRealiserA16
 OZZY_DEVICE(SmythRealiserA16, 0x0A4A, 0x5A16, "Smyth Research Realiser A16", PLOYTEC_XONE, 2, 16,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/*
- * Reloop devices without kConfigurationData in their kexts: channels and boot rate from the
- * fallback table (PGDevice::findInterfacesInConfig), no device-specific requests.
- */
-
-/* Reloop Contour Interface Edition: 2 in / 10 out (dmaEncode10). Only the boot rate is known */
-#ifndef OZZY_DISABLE_ReloopContourIE
-OZZY_DEVICE(ReloopContourIE, 0x200C, 0x100A, "Reloop Contour Interface Edition", PLOYTEC_XONE, 2, 10,
-	    OZZY_RATE_44K1, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
-
-/* Reloop IQ2 MIDI: 4 in / 4 out, rates from Reloop's spec (24-bit/96k) */
-#ifndef OZZY_DISABLE_ReloopIQ2MIDI
-OZZY_DEVICE(ReloopIQ2MIDI, 0x200C, 0x1005, "Reloop IQ2 MIDI", PLOYTEC_XONE, 4, 4,
-	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL, 0, OZZY_NO_LATENCY)
-#endif
+	    OZZY_RATE_44K1 | OZZY_RATE_48K | OZZY_RATE_88K2 | OZZY_RATE_96K, EXPERIMENTAL)

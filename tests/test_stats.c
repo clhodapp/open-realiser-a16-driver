@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * The shared memory's stats (engine/shared/ozzy_stats.h) on the DB4 at its defaults (96 kHz,
- * 80 frames x 4 queued each way, 833 us a transfer): completions on time are counted and give
- * the longest gap, nothing late; a gap past the queue (4 x 833 us plus 1 ms of jitter) is late
+ * The shared memory's stats (engine/shared/ozzy_stats.h) on the Realiser A16 at its defaults
+ * (48 kHz, 80 frames x 4 queued each way, 1667 us a transfer): completions on time are counted and
+ * give the longest gap, nothing late; a gap past the queue (4 x 1667 us plus 1 ms of jitter) is late
  * on the direction it held up, one just short of it isn't; an error, a short transfer and a
  * recovery count, each telling the platform (stats_changed); a stop's aborts are no gap after
  * the next start; a new attach starts from zero.
@@ -17,12 +17,12 @@
 
 #define PCM_OUT  0x05
 #define PCM_IN   0x86
-#define PERIOD   833                /* us per 80-frame transfer at 96 kHz */
+#define PERIOD   1667               /* us per 80-frame transfer at 48 kHz */
 
 static struct ozzy_shared_memory shm;
 static struct fake_bus fb;
 
-/* The next PCM out completion @gap us after the last, and every PCM in / MIDI one queued before it */
+/* The next PCM out completion @gap us after the last, and every PCM in one queued before it */
 static void step(struct ozzy_engine *e, uint64_t gap)
 {
 	struct fake_xfer x;
@@ -45,7 +45,7 @@ static void run_for(struct ozzy_engine *e, unsigned int n, uint64_t gap)
 
 static struct ozzy_engine *start(void)
 {
-	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0xFFDB);
+	const struct ozzy_device *model = ozzy_device_lookup(0x0A4A, 0x5A16);
 	struct ozzy_engine *e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 
 	memset(&shm, 0, sizeof(shm));
@@ -68,7 +68,7 @@ int main(void)
 
 	CHECK(s->version == OZZY_STATS_VERSION && s->size == sizeof(struct ozzy_stats), "header %u/%u", s->version,
 	      s->size);
-	CHECK(shm.audio.sample_rate == 96000 && shm.info.transfer_frames[0] == 80 && shm.info.transfer_frames[1] == 80,
+	CHECK(shm.audio.sample_rate == 48000 && shm.info.transfer_frames[0] == 80 && shm.info.transfer_frames[1] == 80,
 	      "runs at %u, %u/%u frames", shm.audio.sample_rate, shm.info.transfer_frames[0], shm.info.transfer_frames[1]);
 
 	/* On time, with a little jitter */
@@ -81,15 +81,15 @@ int main(void)
 	CHECK(ozzy_stats_incidents(s) == 0 && fb.stats_changed == 0, "incidents %u, told %u", ozzy_stats_incidents(s),
 	      fb.stats_changed);
 
-	/* Just short of the queue's 3333 us plus 1 ms: not late; past it: late, both ways (the in
+	/* Just short of the queue's 6666 us plus 1 ms: not late; past it: late, both ways (the in
 	 * completion waited as long) */
-	run_for(e, 1, 4300);
-	CHECK(s->dir[OZZY_PCM_OUT].late == 0, "a 4.3 ms gap was late");
-	run_for(e, 1, 6000);
+	run_for(e, 1, 7600);
+	CHECK(s->dir[OZZY_PCM_OUT].late == 0, "a 7.6 ms gap was late");
+	run_for(e, 1, 9000);
 	run_for(e, 1, PERIOD);   /* the in completion queued behind it */
-	CHECK(s->dir[OZZY_PCM_OUT].late == 1 && s->dir[OZZY_PCM_IN].late == 1, "a 6 ms gap: late %u / %u",
+	CHECK(s->dir[OZZY_PCM_OUT].late == 1 && s->dir[OZZY_PCM_IN].late == 1, "a 9 ms gap: late %u / %u",
 	      s->dir[0].late, s->dir[1].late);
-	CHECK(s->dir[OZZY_PCM_OUT].max_gap_us == 6000 && s->dir[OZZY_PCM_IN].max_gap_us == 6000, "max gap %u / %u us",
+	CHECK(s->dir[OZZY_PCM_OUT].max_gap_us == 9000 && s->dir[OZZY_PCM_IN].max_gap_us == 9000, "max gap %u / %u us",
 	      s->dir[0].max_gap_us, s->dir[1].max_gap_us);
 	CHECK(fb.stats_changed == 2, "told %u times of the two late ones", fb.stats_changed);
 

@@ -18,8 +18,7 @@
  * ahead of the cable, and only within 1.6 ms (where 625 * T < 1).
  *
  * The control byte after each slot is 0xFF, which the official driver sends
- * when its control queue is empty (otherwise control | 0x18). ESI's U168 XT panel
- * fills that queue: a serial bus to the unit's converters (ploytec_cport.h).
+ * when its control queue is empty (otherwise control | 0x18).
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */

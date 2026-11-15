@@ -24,8 +24,6 @@
 #endif
 
 #include "ploytec_protocol.h"
-#include "../../ozzy_quirks.h"
-#include "../../ozzy_settings.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +35,6 @@ extern "C" {
  *              copy it if the platform needs DMA-safe memory. Returns >= 0 on
  *              success, negative errno on failure.
  * @clear_halt: clear ENDPOINT_HALT on @endpoint (address incl. direction bit).
- *              NULL skips the step.
  * @sleep_ms:   sleep for @ms milliseconds.
  * @vlog:       log one line (no trailing newline in @fmt). @error marks failures.
  */
@@ -54,24 +51,16 @@ struct ploytec_host_ops {
  */
 struct ploytec_handshake_info {
 	struct ploytec_firmware_version firmware;
-	uint32_t boot_rate;  /* rate before SET_CUR (the DB2 boots at 44100) */
-	uint32_t rate;       /* rate the device was set to: the requested one, or the S/PDIF lock rate */
+	uint32_t boot_rate;  /* rate before SET_CUR */
+	uint32_t rate;       /* rate the device was set to */
 	uint8_t status;      /* AJ input selector byte as read before the confirm write */
-	struct ozzy_clock_status clock;  /* digital lock (clock source Automatic, DIGITAL_IN devices) */
 };
 
 /*
- * ploytec_handshake - Arm a Xone (bulk/interrupt out) device for streaming at @rate Hz.
- * @quirks: the device's enum ozzy_quirk bits (the handshake uses the ones that add,
- * replace or skip setup requests: NO_AJ_SELECTOR, ESI, ESI_U168, ESI_CPLD, WAIT_200MS,
- * WAIT_100MS, AJ_BIT0, SPDIF_OUT, DIGITAL_OUT_SEL, DIGITAL_IN).
- * @settings: the user's settings (NULL: the defaults). Only the ones the device has
- * (ozzy_has_setting) are sent. On DIGITAL_IN devices with the Automatic clock source
- * (the default) and locked to S/PDIF, the handshake sets the lock rate instead of @rate,
- * as the official driver does; info->rate says which. @info may be NULL. Returns 0 on success, negative errno on failure.
+ * ploytec_handshake - Arm the device for streaming at @rate Hz. @info may be NULL.
+ * Returns 0 on success, negative errno on failure.
  */
 int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate,
-		      uint32_t quirks, const struct ozzy_settings *settings,
 		      struct ploytec_handshake_info *info);
 
 #ifdef __cplusplus

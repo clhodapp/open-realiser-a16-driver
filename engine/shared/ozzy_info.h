@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 /* Bump when struct ozzy_info changes */
-#define OZZY_INFO_VERSION 4   /* bump when struct ozzy_info changes layout */
+#define OZZY_INFO_VERSION 5   /* bump when struct ozzy_info changes layout */
 
 /* One per enum ozzy_pipe_role (engine/core/ozzy_engine.h), in its order */
 enum ozzy_info_pipe_role {
@@ -77,9 +77,8 @@ struct ozzy_info_pipe {
  * @input_selector_valid: @input_selector is the input selector byte the handshake read
  *                   (Ploytec 'A' request, AjExtData)
  * @sample_rate:     the rate the device runs at (Hz); @boot_rate what it ran at before the
- *                   driver set it (0: not read); @lock_rate the S/PDIF rate while @clock_locked
- * @device_rates:    OZZY_RATE_* bits: what the device lists; @host_rates: what a host may pick
- *                   now (only the lock rate while locked to S/PDIF)
+ *                   driver set it (0: not read)
+ * @device_rates:    OZZY_RATE_* bits: what the device lists
  * @transfer_frames: the most frames one PCM transfer moves, by enum ozzy_pcm_dir (out, in)
  * @out_bytes_per_frame/@in_bytes_per_frame: bytes one frame takes on the wire
  * @safety_offset_frames: how far ahead of the device's clock the host must write output (the
@@ -106,14 +105,11 @@ struct ozzy_info {
 	uint8_t firmware[3];
 	uint8_t input_selector_valid;
 	uint8_t input_selector;
-	uint8_t clock_locked;
-	uint8_t reserved[3];
+	uint8_t reserved[4];
 
 	uint32_t sample_rate;
 	uint32_t boot_rate;
-	uint32_t lock_rate;
 	uint32_t device_rates;
-	uint32_t host_rates;
 	uint32_t in_channels;
 	uint32_t out_channels;
 	uint32_t transfer_frames[2];

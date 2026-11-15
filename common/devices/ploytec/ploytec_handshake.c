@@ -160,60 +160,11 @@ static int hs_read_selector(const struct ploytec_host_ops *ops, void *ctx, uint8
 }
 
 /*
- * hs_follow_lock - With the Automatic clock source: read the selector again and, if the
- * device reports lock to its S/PDIF input, the rate it locked to. The official updateAjInputSelector tries
- * up to 20 times while the rate reads 192000: it takes 192k only on a device with a
- * 192k alt setting, which no DIGITAL_IN device has, so a lasting 192000 counts as no
- * lock here. @clock is cleared first.
+ * hs_selector - The generic updateAjInputSelector of the official configurationDone, with the
+ * clock source Automatic: bit 1 set (PLOYTEC_AJ_INPUT_SELECT_BIT), and the byte written back only
+ * if it changed, then wait 40 ms and read the rate (the device may re-clock).
  */
-static int hs_follow_lock(const struct ploytec_host_ops *ops, void *ctx,
-			  struct ozzy_clock_status *clock)
-{
-	uint8_t buf[1] = { 0 };
-	uint32_t rate = 0;
-	int i, ret;
-
-	clock->locked = false;
-	clock->lock_rate = 0;
-
-	ret = hs_read_selector(ops, ctx, buf);
-	if (ret < 0)
-		return ret;
-	if (!ploytec_aj_locked(buf[0])) {
-		hs_log(ops, ctx, false, "clock source automatic: no S/PDIF lock, internal (selector 0x%02X)", buf[0]);
-		return 0;
-	}
-
-	for (i = 0; i < 20; i++) {
-		ret = hs_read_rate(ops, ctx, &rate);
-		if (ret < 0)
-			return ret;
-		if (rate != 192000)
-			break;
-		ops->sleep_ms(ctx, 10);
-	}
-	if (rate == 192000 || rate == 0) {
-		hs_log(ops, ctx, true, "clock source automatic: S/PDIF lock, but the rate reads %u Hz", rate);
-		return 0;
-	}
-
-	clock->locked = true;
-	clock->lock_rate = rate;
-	hs_log(ops, ctx, false, "clock source automatic: locked to S/PDIF at %u Hz", rate);
-	return 0;
-}
-
-/*
- * hs_selector - The generic updateAjInputSelector of the official configurationDone:
- * bit 1 from the clock source (ploytec_aj_clock_byte), bit 0 cleared on OZZY_QUIRK_AJ_BIT0
- * devices, and the byte written back only if it changed, then wait 40 ms and read the
- * rate (the device may re-clock). The Xones report bit 1 set at power-up, so at the
- * default (Automatic) they get no write. On devices with digital in (OZZY_QUIRK_DIGITAL_IN;
- * the official driver forces lock off for the rest) with Automatic, @clock gets the lock
- * state and rate.
- */
-static int hs_selector(const struct ploytec_host_ops *ops, void *ctx, uint32_t quirks,
-		       uint8_t clock_source, struct ozzy_clock_status *clock)
+static int hs_selector(const struct ploytec_host_ops *ops, void *ctx)
 {
 	uint8_t buf[1] = { 0 };
 	uint32_t rate;
@@ -225,253 +176,16 @@ static int hs_selector(const struct ploytec_host_ops *ops, void *ctx, uint32_t q
 	if (ret < 0)
 		return ret;
 
-	want = ploytec_aj_clock_byte(buf[0], clock_source);
-	if (quirks & OZZY_QUIRK_AJ_BIT0)
-		want &= (uint8_t)~PLOYTEC_AJ_MODE0_BIT;
-	if (want != buf[0]) {
-		ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_STATUS,
-				   (uint16_t)(int16_t)(int8_t)want, PLOYTEC_REG_AJ_INPUT_SEL, 0, 0);
-		if (ret < 0)
-			return ret;
-		ops->sleep_ms(ctx, 40);
-		hs_log(ops, ctx, false, "selector: read 0x%02X, wrote 0x%02X", buf[0], want);
-	}
-	if ((quirks & OZZY_QUIRK_DIGITAL_IN) && clock_source == OZZY_CLOCK_AUTOMATIC)
-		return hs_follow_lock(ops, ctx, clock);
-	return want != buf[0] ? hs_read_rate(ops, ctx, &rate) : 0;
-}
-
-/*
- * hs_digital_out_sel - writeDigitalOutSelector: 'I' wIndex 2 = AjExtData[4] (default 0),
- * no read first.
- */
-static int hs_digital_out_sel(const struct ploytec_host_ops *ops, void *ctx)
-{
-	return ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_STATUS,
-			    0, PLOYTEC_REG_DIGITAL_OUT_SEL, 0, 0);
-}
-
-/*
- * hs_spdif_regs - The S/PDIF output registers 0x0D..0x11 writeDigitalOutMode wants for
- * @mode (AjExtData[3], enum ozzy_spdif_out_mode) at @rate, from the ones read (@old):
- *   mode 0 (default, consumer): 0x0D = 0x04, 0x0E = 0, 0x0F = 0, 0x10 = (old & 0xF0) | rate
- *     code (IEC 60958: 32k 3, 44.1k 0, 48k 2, 88.2k 8, 96k 0xA, 176.4k 0xC, 192k 0xE),
- *     0x11 = 0x0B
- *   mode 1 (professional): 0x0D = 0xC1 / 0x41 / 0x81 at 32k / 44.1k / 48k, 0x01 above (other
- *     rates: unchanged), 0x0E = 0, 0x0F = 0x2C, 0x10 = 0, 0x11 = 0x50 / 0x10 / 0x58 / 0x18
- *     at 88.2k / 96k / 176.4k / 192k, else 0
- */
-static void hs_spdif_regs(uint8_t mode, uint32_t rate, const uint8_t *old, uint8_t *want)
-{
-	uint8_t code;
-
-	want[1] = 0x00;
-	if (mode == OZZY_SPDIF_OUT_PROFESSIONAL) {
-		switch (rate) {
-		case 32000:  want[0] = 0xC1; want[4] = 0x00; break;
-		case 44100:  want[0] = 0x41; want[4] = 0x00; break;
-		case 48000:  want[0] = 0x81; want[4] = 0x00; break;
-		case 88200:  want[0] = 0x01; want[4] = 0x50; break;
-		case 96000:  want[0] = 0x01; want[4] = 0x10; break;
-		case 176400: want[0] = 0x01; want[4] = 0x58; break;
-		case 192000: want[0] = 0x01; want[4] = 0x18; break;
-		default:     want[0] = old[0]; want[4] = 0x00; break;
-		}
-		want[2] = 0x2C;
-		want[3] = 0x00;
-		return;
-	}
-
-	switch (rate) {
-	case 32000:  code = 0x3; break;
-	case 48000:  code = 0x2; break;
-	case 88200:  code = 0x8; break;
-	case 96000:  code = 0xA; break;
-	case 176400: code = 0xC; break;
-	case 192000: code = 0xE; break;
-	default:     code = 0x0; break;  /* 44.1k */
-	}
-	want[0] = 0x04;
-	want[2] = 0x00;
-	want[3] = (old[3] & 0xF0) | code;
-	want[4] = 0x0B;
-}
-
-/*
- * hs_spdif_out - writeDigitalOutMode: read the S/PDIF output registers 0x0D..0x11 and write
- * each one that differs from what @mode wants at @rate (hs_spdif_regs). The official startStreaming does this right after the first
- * SET_CUR pair, and setDigitalOutMode with streaming suspended.
- */
-static int hs_spdif_out(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate, uint8_t mode)
-{
-	uint8_t old[PLOYTEC_SPDIF_REGS] = { 0 };
-	uint8_t want[PLOYTEC_SPDIF_REGS];
-	int i, ret;
-
-	ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_IN, PLOYTEC_CMD_ESI_A,
-			   PLOYTEC_SPDIF_REG_FIRST << 8, PLOYTEC_ESI_A_INDEX, old, sizeof(old));
-	if (ret < 0)
-		return ret;
-
-	hs_spdif_regs(mode, rate, old, want);
-
-	for (i = 0; i < PLOYTEC_SPDIF_REGS; i++) {
-		if (old[i] == want[i])
-			continue;
-		ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_ESI_A,
-				   (uint16_t)((PLOYTEC_SPDIF_REG_FIRST + i) << 8 | want[i]),
-				   PLOYTEC_ESI_A_INDEX, 0, 0);
-		if (ret < 0)
-			return ret;
-	}
-	hs_log(ops, ctx, false, "S/PDIF out registers set for %u Hz (%s)", rate,
-	       ozzy_spdif_out_mode_names[mode]);
-	return 0;
-}
-
-/*
- * hs_esi_a_request - ESI 'A' write (sendEsuARequest), no data phase.
- */
-static int hs_esi_a_request(const struct ploytec_host_ops *ops, void *ctx, uint16_t wvalue)
-{
-	int ret;
-
-	ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_ESI_A,
-			   wvalue, PLOYTEC_ESI_A_INDEX, 0, 0);
-	if (ret < 0)
-		hs_log(ops, ctx, true, "ESI 'A' request 0x%03X failed (ret=%d)", wvalue, ret);
-	return ret;
-}
-
-/*
- * hs_esi_setup - The ESI U-series selector requests of the official configurationDone,
- * which runs before startStreaming sets the rate:
- *   - U168 XT only: 'A' 0x349
- *   - ESI input selector (updateAjInputSelector_Esu186) in place of hs_selector:
- *     read 'I' wIndex 0 (again after 20 ms while the lock bit is set), keep the
- *     PRESERVE_MASK bits, set the state of @esi_clock (STATE_A without the setting, the
- *     driver's default), send 'A' 0x349 for Internal, else 0x348, and write the byte back
- *     only if it changed, then wait 200 ms (the device re-clocks; the official driver reads
- *     the rate back next, as the handshake does)
- * The second 'A' request overrides the first, as in the official driver, which
- * runs the selector again after the U168 write.
- */
-static int hs_esi_setup(const struct ploytec_host_ops *ops, void *ctx, uint32_t quirks,
-			uint8_t esi_clock)
-{
-	uint8_t buf[1] = { 0 };
-	uint8_t want, state = PLOYTEC_AJ_ESU_STATE_A;
-	uint16_t a_request = PLOYTEC_ESI_A_BASE;
-	int ret;
-
-	if (esi_clock == OZZY_ESI_CLOCK_AUTO_SPDIF) {
-		state = PLOYTEC_AJ_ESU_STATE_C;
-	} else if (esi_clock == OZZY_ESI_CLOCK_INTERNAL) {
-		state = PLOYTEC_AJ_ESU_STATE_B;
-		a_request = PLOYTEC_ESI_A_U168;
-	}
-
-	if (quirks & OZZY_QUIRK_ESI_U168) {
-		ret = hs_esi_a_request(ops, ctx, PLOYTEC_ESI_A_U168);
-		if (ret < 0)
-			return ret;
-	}
-
-	ret = hs_read_selector(ops, ctx, buf);
-	if (ret < 0)
-		return ret;
-
-	want = (buf[0] & PLOYTEC_AJ_ESU_PRESERVE_MASK) | state;
-	ret = hs_esi_a_request(ops, ctx, a_request);
-	if (ret < 0)
-		return ret;
-
-	if (want != buf[0]) {
-		ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_STATUS,
-				   (uint16_t)(int16_t)(int8_t)want, PLOYTEC_REG_AJ_INPUT_SEL, 0, 0);
-		if (ret < 0)
-			return ret;
-		ops->sleep_ms(ctx, 200);
-	}
-	hs_log(ops, ctx, false, "ESI selector: read 0x%02X, now 0x%02X", buf[0], want);
-	return 0;
-}
-
-/*
- * hs_esi_cpld - The CPLD byte, 'I' wIndex 1, wValue 0xE7 (setEsuCpldByte(0)), late in
- * the official configurationDone, after the selectors (ESI U-series and ESU1808).
- */
-static int hs_esi_cpld(const struct ploytec_host_ops *ops, void *ctx)
-{
-	int ret;
-
+	want = (uint8_t)(buf[0] | PLOYTEC_AJ_INPUT_SELECT_BIT);
+	if (want == buf[0])
+		return 0;
 	ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_STATUS,
-			   PLOYTEC_ESI_CPLD_BASE, PLOYTEC_REG_US3XX_CONFIG, 0, 0);
-	if (ret >= 0)
-		hs_log(ops, ctx, false, "ESI CPLD byte 0x%02X written", PLOYTEC_ESI_CPLD_BASE);
-	return ret;
-}
-
-/*
- * hs_wm8776 - The codec registers from the WM8776 settings (ozzy_settings.h; NULL: their
- * defaults), as the official drivers write them at every stream start: R7, R21, R22 of codec
- * 0 (1/2), then of codec 1 (3/4). The defaults are Windows' WM8776SetDefault: R7 = 0x090,
- * R21 = 0x001 (Mic/Line) / 0x004 (Aux), R22 = 0x001 (playback, no direct monitoring).
- */
-static int hs_wm8776(const struct ploytec_host_ops *ops, void *ctx, const struct ozzy_settings *settings)
-{
-	static const struct { uint16_t index; uint8_t reg; } where[6] = {
-		{ PLOYTEC_WM8776_INDEX_12, PLOYTEC_WM8776_R7_DAC_MIX },
-		{ PLOYTEC_WM8776_INDEX_12, PLOYTEC_WM8776_R21_ADC_MUX },
-		{ PLOYTEC_WM8776_INDEX_12, PLOYTEC_WM8776_R22_OUT_MUX },
-		{ PLOYTEC_WM8776_INDEX_34, PLOYTEC_WM8776_R7_DAC_MIX },
-		{ PLOYTEC_WM8776_INDEX_34, PLOYTEC_WM8776_R21_ADC_MUX },
-		{ PLOYTEC_WM8776_INDEX_34, PLOYTEC_WM8776_R22_OUT_MUX },
-	};
-	static const uint16_t in12[OZZY_NUM_WM_IN12] = {
-		PLOYTEC_WM8776_AIN1, PLOYTEC_WM8776_AIN2, PLOYTEC_WM8776_AIN3, PLOYTEC_WM8776_AIN4,
-		PLOYTEC_WM8776_AIN5, PLOYTEC_WM8776_ADC_MUTE };
-	static const uint16_t in34[OZZY_NUM_WM_IN34] = {
-		PLOYTEC_WM8776_AIN2, PLOYTEC_WM8776_AIN3, PLOYTEC_WM8776_AIN4, PLOYTEC_WM8776_AIN5,
-		PLOYTEC_WM8776_ADC_MUTE };
-	static const uint16_t direct12[OZZY_NUM_WM_DIRECT] = {
-		0, PLOYTEC_WM8776_OUT_BYPASS, PLOYTEC_WM8776_OUT_BYPASS | PLOYTEC_WM8776_OUT_AUX };
-	struct ozzy_settings defaults;
-	uint16_t value[6];
-	const uint8_t *v;
-	unsigned int i;
-	int ret;
-
-	if (!settings) {
-		ozzy_settings_defaults(&defaults);
-		settings = &defaults;
-	}
-	v = settings->value;
-
-	value[0] = v[OZZY_SETTING_WM_MONO_12] ? PLOYTEC_WM8776_MIX_MONO : PLOYTEC_WM8776_MIX_STEREO;
-	value[1] = in12[v[OZZY_SETTING_WM_INPUT_12] % OZZY_NUM_WM_IN12];
-	value[2] = (v[OZZY_SETTING_WM_PLAYBACK_12] ? PLOYTEC_WM8776_OUT_DAC : 0) |
-		   direct12[v[OZZY_SETTING_WM_DIRECT_12] % OZZY_NUM_WM_DIRECT];
-	value[3] = v[OZZY_SETTING_WM_MONO_34] ? PLOYTEC_WM8776_MIX_MONO : PLOYTEC_WM8776_MIX_STEREO;
-	value[4] = in34[v[OZZY_SETTING_WM_INPUT_34] % OZZY_NUM_WM_IN34];
-	value[5] = (v[OZZY_SETTING_WM_PLAYBACK_34] ? PLOYTEC_WM8776_OUT_DAC : 0) |
-		   (v[OZZY_SETTING_WM_MODULE_34] ? PLOYTEC_WM8776_OUT_AUX : 0) |
-		   (v[OZZY_SETTING_WM_DIRECT_34] ? PLOYTEC_WM8776_OUT_BYPASS : 0);
-
-	for (i = 0; i < 6; i++) {
-		ret = ops->control(ctx, PLOYTEC_REQTYPE_VENDOR_OUT, PLOYTEC_CMD_ESI_A,
-				   (uint16_t)(where[i].reg << 9 | (value[i] & 0x1FF)),
-				   where[i].index, 0, 0);
-		if (ret < 0) {
-			hs_log(ops, ctx, true, "WM8776 write 0x%04X R%u failed (ret=%d)",
-			       where[i].index, where[i].reg, ret);
-			return ret;
-		}
-	}
-	hs_log(ops, ctx, false,
-	       "WM8776: 1/2 R7=0x%03X R21=0x%03X R22=0x%03X, 3/4 R7=0x%03X R21=0x%03X R22=0x%03X",
-	       value[0], value[1], value[2], value[3], value[4], value[5]);
-	return 0;
+			   (uint16_t)(int16_t)(int8_t)want, PLOYTEC_REG_AJ_INPUT_SEL, 0, 0);
+	if (ret < 0)
+		return ret;
+	ops->sleep_ms(ctx, 40);
+	hs_log(ops, ctx, false, "selector: read 0x%02X, wrote 0x%02X", buf[0], want);
+	return hs_read_rate(ops, ctx, &rate);
 }
 
 /*
@@ -497,27 +211,15 @@ static int hs_clear_pcm_halt(const struct ploytec_host_ops *ops, void *ctx)
 }
 
 int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate,
-		      uint32_t quirks, const struct ozzy_settings *settings,
 		      struct ploytec_handshake_info *info)
 {
 	struct ploytec_handshake_info local;
-	uint8_t clock_source = OZZY_CLOCK_AUTOMATIC;
-	uint8_t spdif_mode = OZZY_SPDIF_OUT_CONSUMER;
-	uint8_t esi_clock = OZZY_ESI_CLOCK_AUTO_ANALOG;
 	uint32_t verify_rate = 0;
 	int step = 0;
 	int ret = 0;
 
 	if (!info)
 		info = &local;
-	info->clock.locked = false;
-	info->clock.lock_rate = 0;
-	if (settings && ozzy_has_setting(quirks, OZZY_SETTING_CLOCK_SOURCE))
-		clock_source = settings->value[OZZY_SETTING_CLOCK_SOURCE];
-	if (settings && ozzy_has_setting(quirks, OZZY_SETTING_SPDIF_OUT_MODE))
-		spdif_mode = settings->value[OZZY_SETTING_SPDIF_OUT_MODE];
-	if (settings && ozzy_has_setting(quirks, OZZY_SETTING_ESI_CLOCK))
-		esi_clock = settings->value[OZZY_SETTING_ESI_CLOCK];
 
 	hs_log(ops, ctx, false, "--- begin handshake sequence ---");
 
@@ -525,14 +227,6 @@ int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t ra
 	ret = hs_read_firmware(ops, ctx, &info->firmware);
 	if (ret < 0)
 		goto err;
-
-	/* The official driver reads the firmware first (onServiceStart), then waits in configurationDone */
-	if (quirks & OZZY_QUIRK_WAIT_1000MS)
-		ops->sleep_ms(ctx, 1000);
-	else if (quirks & OZZY_QUIRK_WAIT_200MS)
-		ops->sleep_ms(ctx, 200);
-	else if (quirks & OZZY_QUIRK_WAIT_100MS)
-		ops->sleep_ms(ctx, 100);
 
 	hs_log(ops, ctx, false, "[%d/7] reading hardware status...", ++step);
 	ret = hs_read_status(ops, ctx, &info->status);
@@ -544,48 +238,16 @@ int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t ra
 	if (ret < 0)
 		goto err;
 
-	/* configurationDone: the input selector, then the digital output selector */
-	if (quirks & OZZY_QUIRK_ESI) {
-		hs_log(ops, ctx, false, "ESI selector and 'A' request...");
-		ret = hs_esi_setup(ops, ctx, quirks, esi_clock);
-	} else if (!(quirks & OZZY_QUIRK_NO_AJ_SELECTOR)) {
-		ret = hs_selector(ops, ctx, quirks, clock_source, &info->clock);
-	}
+	/* configurationDone: the input selector */
+	ret = hs_selector(ops, ctx);
 	if (ret < 0)
 		goto err;
-	/* Locked to S/PDIF: the official driver adopts the lock rate and offers only it */
-	if (info->clock.locked && info->clock.lock_rate != rate) {
-		hs_log(ops, ctx, false, "following the S/PDIF lock: %u Hz instead of %u Hz",
-		       info->clock.lock_rate, rate);
-		rate = info->clock.lock_rate;
-	}
 	info->rate = rate;
-	if (quirks & OZZY_QUIRK_DIGITAL_OUT_SEL) {
-		ret = hs_digital_out_sel(ops, ctx);
-		if (ret < 0)
-			goto err;
-	}
-	if (quirks & OZZY_QUIRK_ESI_CPLD) {
-		ret = hs_esi_cpld(ops, ctx);
-		if (ret < 0)
-			goto err;
-	}
-	if (quirks & OZZY_QUIRK_WM8776) {
-		ret = hs_wm8776(ops, ctx, settings);
-		if (ret < 0)
-			goto err;
-	}
 
 	hs_log(ops, ctx, false, "[%d/7] setting sample rate to %u Hz...", ++step, rate);
 	ret = hs_set_rate(ops, ctx, rate);
 	if (ret < 0)
 		goto err;
-
-	if (quirks & OZZY_QUIRK_SPDIF_OUT) {
-		ret = hs_spdif_out(ops, ctx, rate, spdif_mode);
-		if (ret < 0)
-			goto err;
-	}
 
 	/* The official driver reads the rate back and waits 50 ms (bulkAudioRun) */
 	hs_log(ops, ctx, false, "[%d/7] verifying sample rate...", ++step);
@@ -609,11 +271,9 @@ int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t ra
 	if (ret < 0)
 		goto err;
 
-	if (ops->clear_halt) {
-		ret = hs_clear_pcm_halt(ops, ctx);
-		if (ret < 0)
-			goto err;
-	}
+	ret = hs_clear_pcm_halt(ops, ctx);
+	if (ret < 0)
+		goto err;
 
 	hs_log(ops, ctx, false, "--- handshake complete, device ready ---");
 	return 0;
