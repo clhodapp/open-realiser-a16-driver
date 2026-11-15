@@ -20,9 +20,13 @@
 #define BLOCK 80u
 /* USB streaming stops after this long without an active playback or return client. */
 #define IDLE_STOP_NS 5000000000ULL
-/* After a USB failure, how long the A16 may stay off the bus before the driver exits. The
- * A16 re-enumerates within a second after its boot-time drop. */
-#define LOST_WAIT_NS 5000000000ULL
+/* How long the A16 may stay off the bus after its boot-time drop before the driver exits.
+ * The A16 re-enumerates within a second after that drop. */
+#define LOST_WAIT_NS 3000000000ULL
+/* The boot-time drop comes about 43.5 s after a power-up enumerates the A16, and sooner
+ * when the cable is connected partway through a boot. Only a failure while a client is
+ * active and within this long of the driver first opening the A16 counts as that drop. */
+#define BOOT_WINDOW_NS 50000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
 /* Reopens tried on an A16 that is on the bus, after a USB failure. */
@@ -63,6 +67,8 @@ struct live {
     bool detach, configured, attached, streaming, hotplug_registered;
     /* Set by the hotplug callback when the open A16 leaves the bus. */
     bool gone;
+    /* When the driver opened the A16 as enumerated, without a reset; 0 after a reopen. */
+    uint64_t enumerated_open;
     struct usb_bus bus;
     struct ozzy_engine *engine;
     struct ozzy_shared_memory *shm;
@@ -415,6 +421,7 @@ static bool a16_open(struct live *l, bool reset) {
     l->bus.on_progress = on_progress;
     l->bus.audio_data = l;
     l->gone = false;
+    l->enumerated_open = reset ? 0 : usb_now();
     return true;
 }
 /* Run the handshake and start streaming. */
@@ -437,14 +444,15 @@ static void a16_pause(struct live *l) {
     l->streaming = false;
 }
 /*
- * After a USB failure: close the A16, wait for it to come back, and reopen it
- * with a port reset. A single reset can take several seconds while the kernel
- * retries, so LOST_WAIT_NS counts only time the A16 is absent from the bus,
- * and REOPEN_TRIES bounds the reopens of an A16 that is present.
- * 1 when it is open again, 0 when it stayed away or would not reopen,
+ * After a USB failure: close the A16 and reopen it with a port reset. With
+ * boot_drop, the A16 may be off the bus for up to LOST_WAIT_NS first;
+ * otherwise an A16 off the bus ends recovery at once. A single reset can take
+ * several seconds while the kernel retries, and the A16 stays on the bus
+ * throughout, so REOPEN_TRIES bounds the reopens of an A16 that is present.
+ * 1 when it is open again, 0 when it is gone or would not reopen,
  * -1 on SIGINT/SIGTERM.
  */
-static int a16_recover(struct live *l) {
+static int a16_recover(struct live *l, bool boot_drop) {
     a16_close(l);
     uint64_t absent_since = usb_now();
     unsigned int reopens = 0;
@@ -457,7 +465,7 @@ static int a16_recover(struct live *l) {
             if (++reopens >= REOPEN_TRIES)
                 return 0;
             absent_since = usb_now();
-        } else if (usb_now() - absent_since >= LOST_WAIT_NS)
+        } else if (!boot_drop || usb_now() - absent_since >= LOST_WAIT_NS)
             return 0;
         pause_ms(100);
     }
@@ -640,9 +648,11 @@ int main(int argc, char **argv) {
                 failure_count--;
             }
             failures[failure_count++] = now;
-            fprintf(stderr, l->gone ? "A16 left the bus; waiting for it and reopening it\n"
-                                    : "A16 USB failure; resetting and reopening it\n");
-            int recovered = a16_recover(l);
+            bool boot_drop = wanted && l->enumerated_open && now - l->enumerated_open < BOOT_WINDOW_NS;
+            fprintf(stderr, boot_drop ? "A16 USB failure during its boot; resetting and reopening it\n"
+                    : l->gone         ? "A16 left the bus\n"
+                                      : "A16 USB failure; resetting and reopening it\n");
+            int recovered = a16_recover(l, boot_drop);
             if (recovered < 0)
                 break;
             if (!recovered) {
