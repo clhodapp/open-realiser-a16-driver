@@ -23,11 +23,16 @@
 /* How long the A16 may stay off the bus after its boot-time drop before the driver exits.
  * The A16 re-enumerates within a second after that drop. */
 #define LOST_WAIT_NS 3000000000ULL
-/* The A16 drops off USB when it receives playback from about 43.5 s after a power-up
- * enumerates it until about 50 s, and sooner when the cable is connected partway through
- * a boot. Only a failure while a client is active, within this long of the driver first
- * opening the A16, and before the A16 has returned a non-zero sample counts as such a drop. */
-#define BOOT_WINDOW_NS 60000000000ULL
+/*
+ * The A16 drops off USB when it receives playback about 43.5 s after a power-up
+ * enumerates it, sooner when the cable is connected partway through a boot, and again
+ * 0.5 to 1.5 s after playback resumes while that boot step lasts. A failure counts as
+ * such a drop while a client is active, before the A16 has returned a non-zero sample,
+ * and inside the boot window: BOOT_FIRST_NS from the first open, then after each
+ * boot-time drop until BOOT_EXTEND_NS after the stream may resume.
+ */
+#define BOOT_FIRST_NS 50000000000ULL
+#define BOOT_EXTEND_NS 5000000000ULL
 /* After a boot-time drop, how long the reopened A16 gets without streaming. */
 #define BOOT_HOLD_NS 3000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
@@ -70,8 +75,8 @@ struct live {
     bool detach, configured, attached, streaming, hotplug_registered;
     /* Set by the hotplug callback when the open A16 leaves the bus. */
     bool gone;
-    /* When the driver first opened the A16 as enumerated, without a reset. */
-    uint64_t enumerated_open;
+    /* End of the boot window (BOOT_FIRST_NS, BOOT_EXTEND_NS). */
+    uint64_t boot_until;
     /* No streaming before this time, after a boot-time drop. */
     uint64_t hold_until;
     /* The A16 has returned a non-zero sample, so it has finished booting. */
@@ -437,7 +442,7 @@ static bool a16_open(struct live *l, bool reset) {
     l->bus.audio_data = l;
     l->gone = false;
     if (!reset)
-        l->enumerated_open = usb_now();
+        l->boot_until = usb_now() + BOOT_FIRST_NS;
     return true;
 }
 /* Run the handshake and start streaming. */
@@ -664,8 +669,7 @@ int main(int argc, char **argv) {
                 failure_count--;
             }
             failures[failure_count++] = now;
-            bool boot_drop =
-                wanted && !l->booted && l->enumerated_open && now - l->enumerated_open < BOOT_WINDOW_NS;
+            bool boot_drop = wanted && !l->booted && now < l->boot_until;
             fprintf(stderr, boot_drop ? "A16 USB failure during its boot; resetting and reopening it\n"
                     : l->gone         ? "A16 left the bus\n"
                                       : "A16 USB failure; resetting and reopening it\n");
@@ -683,6 +687,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "A16 reopened after a USB reset\n");
             if (boot_drop) {
                 l->hold_until = usb_now() + BOOT_HOLD_NS;
+                l->boot_until = l->hold_until + BOOT_EXTEND_NS;
                 fprintf(stderr, "No USB streaming for %llu s after the boot-time drop\n",
                         (unsigned long long)(BOOT_HOLD_NS / 1000000000ULL));
             }
