@@ -8,15 +8,11 @@
 #include "ozzy_engine.h"
 #include "../shared/ozzy_log.h"
 #include "../devices/ploytec/ploytec_engine.h"
-#include "../devices/ploytec/ploytec_isoc_engine.h"
-#include "../devices/ploytec/ploytec_us3xx_engine.h"
 
 size_t ozzy_engine_size(const struct ozzy_device *model)
 {
 	switch (model->family) {
 	case OZZY_FAMILY_PLOYTEC_XONE:  return sizeof(struct ploytec_engine);
-	case OZZY_FAMILY_PLOYTEC_ISOC:  return sizeof(struct ploytec_isoc_engine);
-	case OZZY_FAMILY_PLOYTEC_US3XX: return sizeof(struct ploytec_us3xx_engine);
 	default:                        return 0;
 	}
 }
@@ -28,17 +24,7 @@ struct ozzy_engine *ozzy_engine_init(void *mem, const struct ozzy_device *model)
 	if (!mem || !size)
 		return NULL;
 	memset(mem, 0, size);
-	switch (model->family) {
-	case OZZY_FAMILY_PLOYTEC_XONE:
-		ploytec_engine_init((struct ploytec_engine *)mem, model);
-		break;
-	case OZZY_FAMILY_PLOYTEC_ISOC:
-		ploytec_isoc_engine_init((struct ploytec_isoc_engine *)mem, model);
-		break;
-	case OZZY_FAMILY_PLOYTEC_US3XX:
-		ploytec_us3xx_engine_init((struct ploytec_us3xx_engine *)mem, model);
-		break;
-	}
+	ploytec_engine_init((struct ploytec_engine *)mem, model);
 	return (struct ozzy_engine *)mem;
 }
 
@@ -86,10 +72,6 @@ void ozzy_engine_attach(struct ozzy_engine *e, const struct ozzy_bus *bus, volat
 	m->pcm_in_ring = (uint8_t *)shm->audio.input_buffer;
 	m->pcm_in_ring_bytes = sizeof(shm->audio.input_buffer);
 	m->pcm_out_slots = m->pcm_in_slots = 1;
-	m->isoc_in = (uint8_t *)shm->isoc_in_usb_buffer;
-	m->isoc_in_size = sizeof(shm->isoc_in_usb_buffer);
-	m->midi_in = (uint8_t *)shm->midi_in_usb_buffer;
-	m->midi_out = (uint8_t *)shm->midi_out_usb_buffer;
 }
 
 uint32_t ozzy_engine_setting_quirks(const struct ozzy_engine *e)
@@ -214,7 +196,7 @@ static void stats_start(struct ozzy_engine *e)
 	}
 }
 
-void ozzy_engine_stats_complete(struct ozzy_engine *e, uint8_t pipe, int status, uint32_t failed)
+void ozzy_engine_stats_complete(struct ozzy_engine *e, uint8_t pipe, int status)
 {
 	int dir = stats_dir(e, pipe);
 	volatile struct ozzy_stats_dir *s;
@@ -245,10 +227,6 @@ void ozzy_engine_stats_complete(struct ozzy_engine *e, uint8_t pipe, int status,
 	s->transfers++;
 	if (status != 0) {
 		s->errors++;
-		incident = true;
-	}
-	if (failed) {
-		s->short_transfers += failed;
 		incident = true;
 	}
 	if (incident)
@@ -311,7 +289,6 @@ void ozzy_engine_publish_info(struct ozzy_engine *e)
 		info.alt_settings[i] = e->profile.alt_settings[i];
 	}
 	info.output = r->output;
-	info.feedback = r->feedback;
 	info.firmware_valid = r->firmware_valid;
 	info.firmware_chip = r->firmware_chip;
 	memcpy(info.firmware, r->firmware, sizeof(info.firmware));
@@ -418,63 +395,6 @@ const struct ozzy_pcm_ring *ozzy_engine_take_pcm_ring(struct ozzy_engine *e, enu
 	return ring && ring->frames && ring->channels == channels ? ring : NULL;
 }
 
-void ozzy_engine_plain_out(struct ozzy_engine *e, uint8_t *dst_ring, uint32_t dst_frames, uint64_t first,
-			   uint32_t frames)
-{
-	const struct ozzy_pcm_ring *ring = ozzy_engine_take_pcm_ring(e, OZZY_PCM_OUT);
-	uint32_t frame_bytes = e->model->out_channels * 3;
-	uint32_t d = ozzy_mod_u64(first, dst_frames), r, f;
-
-	if (!ring) {
-		for (f = 0; f < frames; f++, d = d + 1 == dst_frames ? 0 : d + 1)
-			memset(dst_ring + d * frame_bytes, 0, frame_bytes);
-		return;
-	}
-	r = ozzy_mod_u64(e->pcm_pos[OZZY_PCM_OUT], ring->frames);
-	for (f = 0; f < frames; f++) {
-		if (e->out_route.identity)
-			memcpy(dst_ring + d * frame_bytes, ring->base + r * frame_bytes, frame_bytes);
-		else
-			ozzy_route_frame(dst_ring + d * frame_bytes, ring->base + r * frame_bytes, &e->out_route, 2 * 3);
-		if (++r == ring->frames)
-			r = 0;
-		if (++d == dst_frames)
-			d = 0;
-	}
-	e->pcm_pos[OZZY_PCM_OUT] += frames;
-	ozzy_bus_pcm_progress(e->bus, OZZY_PCM_OUT, e->pcm_pos[OZZY_PCM_OUT]);
-}
-
-void ozzy_engine_plain_in(struct ozzy_engine *e, const uint8_t *src, uint32_t frames)
-{
-	const struct ozzy_pcm_ring *ring = ozzy_engine_take_pcm_ring(e, OZZY_PCM_IN);
-	uint32_t frame_bytes, r, f;
-
-	if (!ring)
-		return;
-	frame_bytes = ring->channels * 3;
-	r = ozzy_mod_u64(e->pcm_pos[OZZY_PCM_IN], ring->frames);
-	for (f = 0; f < frames; f++) {
-		uint8_t *dst = ring->base + r * frame_bytes;
-
-		if (!src)
-			memset(dst, 0, frame_bytes);
-		else if (e->in_route.identity)
-			memcpy(dst, src + f * frame_bytes, frame_bytes);
-		else
-			ozzy_route_frame(dst, src + f * frame_bytes, &e->in_route, 2 * 3);
-		if (++r == ring->frames)
-			r = 0;
-	}
-	e->pcm_pos[OZZY_PCM_IN] += frames;
-}
-
-void ozzy_engine_plain_in_done(struct ozzy_engine *e)
-{
-	if (ozzy_engine_take_pcm_ring(e, OZZY_PCM_IN))
-		ozzy_bus_pcm_progress(e->bus, OZZY_PCM_IN, e->pcm_pos[OZZY_PCM_IN]);
-}
-
 void ozzy_engine_bind_endpoints(struct ozzy_engine *e, const struct ozzy_usb_endpoint *eps, unsigned int count,
 				const struct ozzy_usb_endpoint *bound[OZZY_PIPE_ROLES])
 {
@@ -523,9 +443,6 @@ static uint8_t *alloc_zeroed(const struct ozzy_allocator *a, size_t size, bool *
 
 bool ozzy_engine_alloc_memory(struct ozzy_engine *e, const struct ozzy_allocator *a)
 {
-	const struct ozzy_engine_pipe *out = &e->pipe[OZZY_PIPE_PCM_OUT];
-	const struct ozzy_engine_pipe *fb = &e->pipe[OZZY_PIPE_FEEDBACK];
-	uint32_t fb_bytes = fb->transfer_type == 1 && fb->max_packet_size > 4 ? fb->max_packet_size : 4;
 	struct ozzy_engine_memory *m = &e->mem;
 	bool ok = true;
 	unsigned int i;
@@ -538,16 +455,6 @@ bool ozzy_engine_alloc_memory(struct ozzy_engine *e, const struct ozzy_allocator
 		m->pcm_in[i] = alloc_zeroed(a, OZZY_PCM_SLOT_MIN, &ok);
 	}
 	m->pcm_out_slots = m->pcm_in_slots = OZZY_PCM_OWN_SLOTS;
-	if (out->transfer_type == 1 && out->max_packet_size) {
-		/* One OUT transfer: at most a packet per microframe, each at most the bytes per interval */
-		m->isoc_out_size = OZZY_DMA_ROUND(OZZY_MAX_ISOC_PACKETS * out->max_packet_size);
-		for (i = 0; i < ISOC_OUT_TRANSFERS; i++)
-			m->isoc_out[i] = alloc_zeroed(a, m->isoc_out_size, &ok);
-	}
-	m->isoc_in_size = ISOC_FB_TRANSFERS * OZZY_DMA_ROUND(OZZY_MAX_ISOC_PACKETS * fb_bytes);
-	m->isoc_in = alloc_zeroed(a, m->isoc_in_size, &ok);
-	m->midi_in = alloc_zeroed(a, OZZY_MIDI_IN_SIZE, &ok);
-	m->midi_out = alloc_zeroed(a, OZZY_DMA_ROUND(OZZY_MIDI_OUT_SIZE), &ok);
 	if (!ok)
 		ozzy_engine_free_memory(e);
 	return ok;
@@ -567,15 +474,6 @@ void ozzy_engine_free_memory(struct ozzy_engine *e)
 		if (m->pcm_in[i])
 			a->free(a->ctx, m->pcm_in[i]);
 	}
-	for (i = 0; i < ISOC_OUT_TRANSFERS; i++)
-		if (m->isoc_out[i])
-			a->free(a->ctx, m->isoc_out[i]);
-	if (m->isoc_in)
-		a->free(a->ctx, m->isoc_in);
-	if (m->midi_in)
-		a->free(a->ctx, m->midi_in);
-	if (m->midi_out)
-		a->free(a->ctx, m->midi_out);
 	memset(m, 0, sizeof(*m));
 	e->allocator = NULL;
 }

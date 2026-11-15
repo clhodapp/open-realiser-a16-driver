@@ -25,7 +25,6 @@ int main(void)
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	ozzy_engine_set_usb_speed(e, OZZY_USB_SPEED_HIGH);
 	ozzy_engine_set_driver_version(e, "test-1234");
@@ -42,7 +41,6 @@ int main(void)
 	CHECK(info->usb_speed == OZZY_USB_SPEED_HIGH, "USB speed %u", info->usb_speed);
 	CHECK(!strcmp(info->driver_version, "test-1234"), "driver version \"%s\"", info->driver_version);
 	CHECK(info->output == OZZY_INFO_OUTPUT_PLOYTEC_INTERRUPT, "output %u (964-byte interrupt EP)", info->output);
-	CHECK(info->feedback == OZZY_INFO_FEEDBACK_NONE, "feedback %u", info->feedback);
 	CHECK(info->firmware_valid && info->firmware[0] == 1, "firmware %u.%u.%u", info->firmware[0],
 	      info->firmware[1], info->firmware[2]);
 	CHECK(info->input_selector_valid, "input selector not read");
@@ -63,10 +61,9 @@ int main(void)
 	      "PCM out pipe %#x type %u %u bytes, %u in flight", info->pipes[OZZY_PIPE_PCM_OUT].address,
 	      info->pipes[OZZY_PIPE_PCM_OUT].transfer_type, info->pipes[OZZY_PIPE_PCM_OUT].max_packet,
 	      info->pipes[OZZY_PIPE_PCM_OUT].in_flight);
-	CHECK(info->pipes[OZZY_PIPE_MIDI_IN].address == 0x83 && info->pipes[OZZY_PIPE_MIDI_IN].in_flight == 0,
-	      "MIDI in pipe listed, not read");
-	CHECK(info->pipes[OZZY_PIPE_FEEDBACK].address == 0 && info->pipes[OZZY_PIPE_FEEDBACK].in_flight == 0,
-	      "a feedback pipe on a Xone");
+	CHECK(info->pipes[OZZY_PIPE_PCM_IN].address == 0x86 && info->pipes[OZZY_PIPE_PCM_IN].in_flight == 4,
+	      "PCM in pipe %#x, %u in flight", info->pipes[OZZY_PIPE_PCM_IN].address,
+	      info->pipes[OZZY_PIPE_PCM_IN].in_flight);
 
 	/* Another rate: the restart publishes it, and counts */
 	CHECK(ozzy_engine_change_rate(e, 44100) == OZZY_SETTING_RESTART && ozzy_engine_restart(e), "rate restart");

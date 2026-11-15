@@ -14,15 +14,10 @@ pkg_check_modules(SAMPLERATE REQUIRED IMPORTED_TARGET samplerate)
 set(OZZY ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 add_library(ozzy-engine STATIC
   ${OZZY}/engine/core/ozzy_engine.c
-  ${OZZY}/engine/core/ozzy_isoc_output.c
-  ${OZZY}/engine/core/ozzy_isoc_input.c
   ${OZZY}/engine/devices/ploytec/ploytec_engine.c
   ${OZZY}/engine/devices/ploytec/ploytec_io.c
-  ${OZZY}/engine/devices/ploytec/ploytec_isoc_engine.c
-  ${OZZY}/engine/devices/ploytec/ploytec_us3xx_engine.c
   ${OZZY}/common/devices/ploytec/ploytec_handshake.c
-  ${OZZY}/common/devices/ploytec/ploytec_codec.c
-  ${OZZY}/common/usb_midi.c)
+  ${OZZY}/common/devices/ploytec/ploytec_codec.c)
 target_compile_definitions(ozzy-engine PUBLIC OZZY_USER_ENGINE)
 target_include_directories(ozzy-engine PUBLIC ${OZZY})
 target_link_libraries(ozzy-engine PUBLIC m)

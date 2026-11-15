@@ -29,7 +29,7 @@ extern "C" {
  * struct ozzy_stats_dir - One PCM direction (out, in: enum ozzy_pcm_dir).
  * @transfers:  completed transfers
  * @errors:     transfers that completed with an error (not the cancels of a stop)
- * @short_transfers: transfers that moved less than asked (isochronous: packets that failed)
+ * @short_transfers: transfers that moved less than asked
  * @late:       completions after a gap longer than the queued transfers cover: the device went
  *              unserved for a while (a host that stopped running, not the client), the USB
  *              side's xrun. Out: it ran dry and repeated or dropped; in: it overflowed.

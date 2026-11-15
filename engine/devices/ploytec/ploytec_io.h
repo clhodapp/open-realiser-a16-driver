@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * What every Ploytec engine (ploytec_engine, ploytec_isoc_engine) does the same way: the
- * handshake's host services over the bus, PCM in and MIDI in (ploytec_io.c).
+ * PCM transfer helpers of the Ploytec engine (ploytec_engine.c): the report of what the
+ * handshake read, the transfer places and sizes, PCM in (ploytec_io.c) and the restart quiet.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -18,10 +18,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Host services for the shared handshake (common/devices/ploytec/ploytec_handshake.c), without
- * clear_halt; the context is the engine's struct ozzy_bus */
-extern const struct ploytec_host_ops ploytec_bus_host_ops;
 
 /* What the handshake read, for ozzy_info: the firmware ('V', shown as 1.<major>.<minor>, as
  * the official tools do), the rate the device booted at and the input selector byte */
@@ -82,34 +78,6 @@ static inline bool ploytec_submit_pcm_in(const struct ozzy_engine *e, uint8_t ad
 {
 	return ozzy_bus_submit(e->bus, address, ozzy_engine_pcm_in_slot(e, t), ploytec_in_xfer_bytes(frames),
 			       (void *)(uintptr_t)t);
-}
-
-/*
- * MIDI IN: PLOYTEC_MIDI_IN_XFERS reads of the framing's transfer size (9 bytes on the Xones,
- * as Linux reads them), each into its own OZZY_DMA_ALIGN slot of the MIDI IN memory
- */
-#define PLOYTEC_MIDI_IN_XFERS   4
-#define PLOYTEC_MIDI_IN_SLOT    OZZY_DMA_ALIGN   /* >= PLOYTEC_MIDI_XFER_MAX */
-
-static inline uint8_t *ploytec_midi_in_slot(const struct ozzy_engine *e, uint32_t slot)
-{
-	return e->mem.midi_in + slot * PLOYTEC_MIDI_IN_SLOT;
-}
-
-static inline bool ploytec_submit_midi_in(const struct ozzy_engine *e, uint8_t address, const struct ploytec_midi *midi,
-					  uint32_t slot)
-{
-	return ozzy_bus_submit(e->bus, address, ploytec_midi_in_slot(e, slot), midi->xfer_size, (void *)(uintptr_t)slot);
-}
-
-/* The MIDI bytes of one MIDI IN transfer (ploytec_midi.h) into the midi_in ring */
-static inline void ploytec_midi_in_to_ring(const struct ploytec_midi *midi, volatile struct ozzy_shared_memory *shm,
-					   const uint8_t *transfer, uint32_t bytes)
-{
-	uint8_t out[PLOYTEC_MIDI_IN_MAX_SLOTS];
-	uint32_t count = ploytec_midi_in(midi, transfer, bytes, out);
-
-	ozzy_midi_ring_push(&shm->midi_in, out, count);
 }
 
 /*

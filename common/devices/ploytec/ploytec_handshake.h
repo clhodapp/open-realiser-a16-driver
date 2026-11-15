@@ -61,19 +61,6 @@ struct ploytec_handshake_info {
 };
 
 /*
- * struct ploytec_rate_endpoints - wIndex of the two UAC1 SET_CUR rate requests:
- * the PCM IN and PCM OUT endpoint addresses. The official driver sends them to
- * whichever pipes it streams on (PGDevice::startStreaming).
- */
-struct ploytec_rate_endpoints {
-	uint16_t pcm_in;
-	uint16_t pcm_out;
-};
-
-extern const struct ploytec_rate_endpoints ploytec_xone_rate_endpoints;  /* 0x86, 0x05 */
-extern const struct ploytec_rate_endpoints ploytec_isoc_rate_endpoints;  /* 0x86, 0x02 */
-
-/*
  * ploytec_handshake - Arm a Xone (bulk/interrupt out) device for streaming at @rate Hz.
  * @quirks: the device's enum ozzy_quirk bits (the handshake uses the ones that add,
  * replace or skip setup requests: NO_AJ_SELECTOR, ESI, ESI_U168, ESI_CPLD, WAIT_200MS,
@@ -86,44 +73,6 @@ extern const struct ploytec_rate_endpoints ploytec_isoc_rate_endpoints;  /* 0x86
 int ploytec_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate,
 		      uint32_t quirks, const struct ozzy_settings *settings,
 		      struct ploytec_handshake_info *info);
-
-/*
- * ploytec_handshake_eps - The same sequence with the rate requests sent to @eps.
- * Bulk in / isoc out devices (Akai EIE Pro) use ploytec_isoc_rate_endpoints and
- * no clear_halt (the official driver doesn't clear halts, and the Xone endpoints
- * it would hit are not the EIE's PCM pipes).
- */
-int ploytec_handshake_eps(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate,
-			  const struct ploytec_rate_endpoints *eps, uint32_t quirks,
-			  const struct ozzy_settings *settings,
-			  struct ploytec_handshake_info *info);
-
-/*
- * struct ploytec_us3xx_info - What ploytec_us3xx_handshake() read.
- * @config:    'I' wIndex 1, the channel config (mixer mode: ploytec_us366_channels)
- * @selector:  'I' wIndex 0 as read, before bits 3-4 of @config went in
- * @boot_rate: the rate before SET_CUR; @rate the one set
- */
-struct ploytec_us3xx_info {
-	struct ploytec_firmware_version firmware;
-	uint8_t config;
-	uint8_t selector;
-	uint32_t boot_rate;
-	uint32_t rate;
-};
-
-extern const struct ploytec_rate_endpoints ploytec_us3xx_rate_endpoints;  /* 0x81, 0x02 */
-
-/*
- * ploytec_us3xx_handshake - Arm a Tascam US-366 for streaming at @rate Hz, as Tascam's Windows
- * driver did in d-hey's capture (.claude/re/tascam_us366.md): 'V'; 'I' wIndex 1 and 0, the
- * selector written with the channel config's bits 3-4; GET_CUR; three SET_CUR pairs to 0x81 and
- * 0x02, with (@mixer, the first start after the device came) the 'M' table and, at 48 kHz, the
- * 'B' block after the first, and the S/PDIF channel status (consumer) after the second. No rate
- * read-back: the Windows driver doesn't read it. Returns 0 or a negative errno.
- */
-int ploytec_us3xx_handshake(const struct ploytec_host_ops *ops, void *ctx, uint32_t rate, bool mixer,
-			    struct ploytec_us3xx_info *info);
 
 #ifdef __cplusplus
 }

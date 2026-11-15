@@ -1,10 +1,9 @@
 /* SPDX-License-Identifier: MIT */
 /*
  * The engine on transfer memory of the platform's own (ozzy_engine_alloc_memory), as Linux has
- * it: separate buffers, 4 PCM slots per direction, a buffer per isochronous OUT transfer.
- * Every transfer must use that memory (never the shared memory's PCM buffers), the frames on
- * the wire must be the ring's frames in order, no isochronous packet may wrap or leave a gap
- * (a transfer goes out as one URB), and everything allocated must be freed.
+ * it: separate buffers, 4 PCM slots per direction. Every transfer must use that memory (never
+ * the shared memory's PCM buffers), the frames on the wire must be the ring's frames in order,
+ * and everything allocated must be freed.
  *
  * Copyright (C) 2024 Marcel Bierling <marcel@hackerman.art>
  */
@@ -77,18 +76,8 @@ static uint32_t seed = 3;
 
 static void fill(struct fake_xfer *x, void *arg)
 {
-	uint32_t i, k;
+	uint32_t i;
 
-	if (x->isoc) {
-		for (k = 0; k < x->count; k++) {
-			uint8_t *b = x->buf + x->packets[k].offset;
-
-			b[0] = 0x00;
-			b[1] = 0x00;
-			b[2] = 0x0C;
-		}
-		return;
-	}
 	for (i = 0; i < x->size; i++)
 		x->buf[i] = (uint8_t)fake_rand(&seed);
 }
@@ -114,7 +103,6 @@ static void xone(void)
 	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x05, 3, 964, 1);
 	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 3, 1024, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 3, 64, 1);
 	ozzy_engine_attach(e, &fb.bus, &shm);
 	CHECK(ozzy_engine_alloc_memory(e, &a), "alloc");
 	ozzy_engine_set_pcm_ring(e, OZZY_PCM_OUT, &ro);
@@ -144,68 +132,8 @@ static void xone(void)
 	free(e);
 }
 
-/* Akai EIE Pro with a buffer per OUT transfer: the frames on the wire are the ring's, in order */
-static void isoc(void)
-{
-	const struct ozzy_device *model = ozzy_device_lookup(0x09E8, 0x0010);
-	static struct ozzy_shared_memory shm;
-	static uint8_t ring[1000 * 12];
-	struct ozzy_pcm_ring ro = { ring, 1000, 4, 0 };
-	struct platform_memory pm = { { 0 } };
-	struct ozzy_allocator a = { pm_alloc, pm_free, &pm };
-	struct fake_bus fb;
-	struct fake_xfer x;
-	struct ozzy_engine *e;
-	uint64_t frame = 0;
-	unsigned int i, k, outside = 0, wrapped = 0, wrong = 0, gaps = 0;
-
-	memset(&shm, 0, sizeof(shm));
-	for (i = 0; i < sizeof(ring); i++)
-		ring[i] = (uint8_t)(i * 5 + 9);
-	fake_bus_init(&fb, &shm, NULL);
-	e = ozzy_engine_init(malloc(ozzy_engine_size(model)), model);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_OUT, 0x02, 1, 1024, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_PCM_IN, 0x86, 2, 512, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_IN, 0x83, 2, 64, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_MIDI_OUT, 0x03, 2, 64, 1);
-	ozzy_engine_set_endpoint(e, OZZY_PIPE_FEEDBACK, 0x81, 1, 3, 4);
-	ozzy_engine_attach(e, &fb.bus, &shm);
-	CHECK(ozzy_engine_alloc_memory(e, &a), "alloc");
-	ozzy_engine_set_pcm_ring(e, OZZY_PCM_OUT, &ro);
-	CHECK(ozzy_engine_start(e), "isoc start");
-
-	for (i = 0; i < 400 && fake_bus_pop(&fb, &x); i++) {
-		outside += !in_platform_memory(&pm, x.buf, x.size);
-		/* One URB per transfer: packets back to back from the first one's offset */
-		for (k = 1; x.isoc && k < x.count; k++)
-			gaps += x.packets[k].offset != x.packets[k - 1].offset + x.packets[k - 1].length;
-		if (x.isoc && x.pipe == 0x02) {
-			for (k = 0; k < x.count; k++) {
-				uint32_t j;
-
-				wrapped += x.packets[k].offset + x.packets[k].length > x.size;
-				for (j = 0; j < x.packets[k].length / 12; j++, frame++)
-					wrong += memcmp(x.buf + x.packets[k].offset + j * 12, ring + (frame % 1000) * 12, 12) != 0;
-			}
-		}
-		if (fb.timer_on && i % 3 == 0)
-			ozzy_engine_timer(e);
-		fake_bus_complete(&fb, e, &x, fill, NULL);
-	}
-	CHECK(!outside, "isoc: %u transfers outside the platform's memory", outside);
-	CHECK(!wrapped, "isoc: %u packets wrap their transfer buffer", wrapped);
-	CHECK(!gaps, "isoc: %u packets not right after the one before", gaps);
-	CHECK(frame > 10000 && !wrong, "isoc: %llu frames on the wire, %u wrong", (unsigned long long)frame, wrong);
-	CHECK(all_zero(shm.audio.output_buffer, sizeof(shm.audio.output_buffer)), "isoc: the shared memory's output buffer was touched");
-	CHECK(e->mem.isoc_out_size == 32 * 1024, "isoc: OUT transfer buffers of %u bytes", e->mem.isoc_out_size);
-	ozzy_engine_stop(e);
-	platform_memory_done(&pm, e, "isoc");
-	free(e);
-}
-
 int main(void)
 {
 	xone();
-	isoc();
 	return CHECK_DONE("platform memory");
 }
