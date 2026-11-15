@@ -114,7 +114,11 @@ static bool bus_control(void *ctx, uint8_t type, uint8_t req, uint16_t value,
 {
     struct usb_bus *b = ctx;
     if ((type & 0x80) && size) memset(data, 0, size);
+    /* An A16 that has stopped answering stays that way until a port reset, so after a
+     * timeout every request fails at once and the caller can reset it. */
+    if (b->failed) return false;
     int ret = libusb_control_transfer(b->handle, type, req, value, index, data, size, 2000);
+    if (ret == LIBUSB_ERROR_TIMEOUT || ret == LIBUSB_ERROR_NO_DEVICE) b->failed = true;
     FILE *log = b->trace ? b->trace : stderr;
     fprintf(log, "%llu control type=%02x req=%02x value=%04x index=%04x length=%u result=%d data=",
             (unsigned long long)usb_now(), type, req, value, index, size, ret);
@@ -185,27 +189,6 @@ void usb_bus_init(struct usb_bus *b, libusb_context *usb, libusb_device_handle *
     memset(b, 0, sizeof(*b));
     b->bus.ops = &ops; b->bus.ctx = b; b->usb = usb; b->handle = handle;
     b->engine = engine; b->trace = trace;
-    for (unsigned int i = 0; i < 256; i++) b->previous_alt[i] = -1;
-}
-
-/* Some vendor-specific firmware stalls GET_INTERFACE. Linux still tracks the
- * selected setting in sysfs; use that observed value rather than assuming zero. */
-static int sysfs_alt(libusb_device *dev, unsigned int config, unsigned int intf)
-{
-    uint8_t ports[8];
-    int n = libusb_get_port_numbers(dev, ports, sizeof(ports));
-    if (n <= 0) return -1;
-    char path[192];
-    int at = snprintf(path, sizeof(path), "/sys/bus/usb/devices/%u-", libusb_get_bus_number(dev));
-    for (int i = 0; i < n; i++)
-        at += snprintf(path + at, sizeof(path) - (size_t)at, "%s%u", i ? "." : "", ports[i]);
-    snprintf(path + at, sizeof(path) - (size_t)at, ":%u.%u/bAlternateSetting", config, intf);
-    FILE *f = fopen(path, "r");
-    if (!f) return -1;
-    unsigned int alt;
-    int read = fscanf(f, "%u", &alt);
-    fclose(f);
-    return read == 1 && alt <= 255 ? (int)alt : -1;
 }
 
 bool usb_bus_configure(struct usb_bus *b, bool detach)
@@ -237,18 +220,7 @@ bool usb_bus_configure(struct usb_bus *b, bool detach)
         ret = libusb_claim_interface(b->handle, (int)number);
         if (ret) goto usb_error;
         b->claimed[number] = true;
-        unsigned char previous = 0;
-        ret = libusb_control_transfer(b->handle, 0x81, LIBUSB_REQUEST_GET_INTERFACE,
-                                     0, (uint16_t)number, &previous, 1, 2000);
-        fprintf(b->trace ? b->trace : stderr, "GET_INTERFACE interface=%u result=%d\n", number, ret);
-        if (ret != 1) {
-            int observed = sysfs_alt(libusb_get_device(b->handle), config->bConfigurationValue, number);
-            if (observed < 0) { fprintf(stderr, "cannot read previous alternate setting on %u\n", number); goto done; }
-            previous = (unsigned char)observed;
-            fprintf(stderr, "GET_INTERFACE failed (%d); sysfs reports interface %u alt %u\n", ret, number, previous);
-        }
-        b->previous_alt[number] = previous;
-        fprintf(b->trace ? b->trace : stderr, "interface %u alt %u -> %u\n", number, previous, alt);
+        fprintf(b->trace ? b->trace : stderr, "interface %u -> alt %u\n", number, alt);
         ret = libusb_set_interface_alt_setting(b->handle, (int)number, (int)alt);
         if (ret) goto usb_error;
         for (unsigned int k = 0; k < desc->bNumEndpoints; k++) {
@@ -300,25 +272,13 @@ void usb_bus_release(struct usb_bus *b)
     bus_timer_stop(b);
     bus_abort(b);
     for (int i = 255; i >= 0; i--) {
+        /* The interfaces stay at their streaming alternate setting: releasing them
+         * sends the A16 nothing, and a port reset or the next open sets them again. */
         if (b->claimed[i]) {
-            int restore = 0;
-            if (b->previous_alt[i] >= 0) {
-                restore = libusb_set_interface_alt_setting(b->handle, i, b->previous_alt[i]);
-            }
             int ret = libusb_release_interface(b->handle, i);
-            if (ret) { fprintf(stderr, "release interface %d: %s\n", i, libusb_error_name(ret)); b->failed = true; }
-            /* USBDEVFS_RELEASEINTERFACE can finish resetting the A16 after
-             * SET_INTERFACE returned an error. Verify after that cleanup. */
-            if (b->previous_alt[i] >= 0) {
-                int observed = sysfs_alt(libusb_get_device(b->handle), b->config_value, (unsigned int)i);
-                if (observed != b->previous_alt[i]) {
-                    fprintf(stderr, "restore interface %d failed: requested alt %d, observed %d (SET_INTERFACE %d)\n",
-                            i, b->previous_alt[i], observed, restore);
-                    b->failed = true;
-                } else if (restore) {
-                    fprintf(stderr, "SET_INTERFACE %d returned %s; interface release restored alt %d (sysfs verified)\n",
-                            i, libusb_error_name(restore), observed);
-                }
+            if (ret && ret != LIBUSB_ERROR_NO_DEVICE) {
+                fprintf(stderr, "release interface %d: %s\n", i, libusb_error_name(ret));
+                b->failed = true;
             }
         }
         if (b->detached[i]) {

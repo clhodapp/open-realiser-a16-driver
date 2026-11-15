@@ -97,8 +97,10 @@ while no stream is running. A failure counts as a boot-time drop while a client
 is active, before the A16 has returned a non-zero sample, and either within 50 s
 of the bridge first opening the A16 or within 5 s of the stream resuming after
 an earlier boot-time drop. The bridge then waits up to 3 s for the A16 to
-return, and after reopening it streams nothing for 3 s before resuming. In every
-other case, an A16 off the bus
+return, resets and reopens it, and sends it nothing more until 9 s after the
+drop, or until the reset finishes if that is later. A control request that times
+out fails the stream at once, so the bridge resets the A16 again without
+retrying. In every other case, an A16 off the bus
 makes the bridge exit at once with status 0, which removes the nodes. More than
 five failures within two minutes end it with status 1. A PipeWire disconnection
 ends the bridge.
@@ -190,9 +192,9 @@ queues drop incoming frames and increment overrun counts. Capture is discarded
 when inactive, with queued old frames flushed on the next source activation.
 Stats every five seconds report frames, queue levels, underruns/overruns and
 resampling ratios while streaming. SIGINT/SIGTERM or stream errors stop both
-sides, cancel transfers, release interfaces, and restore previous alternate
-settings using the same backend lifecycle as the WAV harness. USB rate/register
-state is not restored.
+sides, cancel transfers and release the interfaces, using the same backend
+lifecycle as the WAV harness. The interfaces stay at their streaming alternate
+setting, and USB rate/register state is not restored.
 
 ## Validation
 

@@ -98,5 +98,6 @@ The PipeWire bridge streams only while a client plays or records, so the drop
 happens only if a client is active at the boot step. After the drop, or any
 other USB failure, the bridge resets the A16's port as soon as the A16 is back,
 retries the reset up to three times and reopens the A16. After a boot-time
-drop it streams nothing for 3 s before resuming the stream.
+drop it sends the A16 nothing until 9 s after the drop, or until the reset
+finishes if that is later, and then resumes the stream.
 [PIPEWIRE.md](../../tools/libusb-harness/PIPEWIRE.md) describes the limits.

@@ -6,8 +6,9 @@
 /* Linker-wrapped libusb I/O: exercise the actual backend without opening USB. */
 static struct libusb_transfer *queued[32];
 static unsigned int count, delivered;
-static bool fail_submit, short_control;
+static bool fail_submit, short_control, control_timeout;
 static int control_result = -1;
+static unsigned int control_calls;
 static int last_status;
 static uint32_t last_bytes;
 int __wrap_libusb_submit_transfer(struct libusb_transfer *t)
@@ -32,6 +33,8 @@ int __wrap_libusb_control_transfer(libusb_device_handle *h, uint8_t type, uint8_
     uint16_t value, uint16_t index, unsigned char *data, uint16_t length, unsigned int timeout)
 {
     (void)h; (void)type; (void)request; (void)value; (void)index; (void)timeout;
+    control_calls++;
+    if (control_timeout) return LIBUSB_ERROR_TIMEOUT;
     if (data) memset(data, 0xaa, length);
     return control_result >= 0 ? control_result : short_control && length ? length - 1 : length;
 }
@@ -94,6 +97,9 @@ int main(void)
     fail_submit = true;
     assert(!b.bus.ops->submit(&b, 0x86, data, 512, NULL));
     assert(b.failed && !b.pending_count && !b.pending);
+    fail_submit = false;
+
+    usb_bus_init(&b, NULL, NULL, &e, NULL);
     uint8_t reply[3];
     short_control = true;
     assert(!b.bus.ops->control(&b, 0xa2, 0x81, 0x100, 0x86, reply, 3));
@@ -104,6 +110,17 @@ int main(void)
     assert(b.bus.ops->control(&b, 0xc0, 0x56, 0, 0, firmware, sizeof(firmware)));
     control_result = 2;
     assert(!b.bus.ops->control(&b, 0xc0, 0x56, 0, 0, firmware, sizeof(firmware)));
+    assert(!b.failed);
+
+    /* A timeout fails the bus, and later requests fail without reaching the device. */
+    control_timeout = true;
+    assert(!b.bus.ops->control(&b, 0xa2, 0x81, 0x100, 0, reply, 3));
+    assert(b.failed);
+    control_timeout = false;
+    control_result = -1;
+    unsigned int before = control_calls;
+    assert(!b.bus.ops->control(&b, 0xa2, 0x81, 0x100, 0, reply, 3));
+    assert(control_calls == before);
     puts("libusb cancellation, disconnect, short transfer and submit failures: ok");
     return 0;
 }

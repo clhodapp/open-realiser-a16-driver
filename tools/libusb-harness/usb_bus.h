@@ -15,7 +15,6 @@ struct usb_bus {
     unsigned int pending_count;
     uint8_t types[256];
     bool claimed[256], detached[256];
-    int previous_alt[256];
     uint8_t config_value;
     uint32_t timer_us;
     uint64_t timer_next, progress[OZZY_PCM_DIRS];

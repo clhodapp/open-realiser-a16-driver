@@ -33,8 +33,10 @@
  */
 #define BOOT_FIRST_NS 50000000000ULL
 #define BOOT_EXTEND_NS 5000000000ULL
-/* After a boot-time drop, how long the reopened A16 gets without streaming. */
-#define BOOT_HOLD_NS 3000000000ULL
+/* After a boot-time drop, no request goes to the A16 before this long after the drop,
+ * or before its port reset finishes if that is later. The A16 answered requests sent
+ * 6 to 8 s after a drop, and stopped answering some sent 4 s after one. */
+#define BOOT_QUIET_NS 9000000000ULL
 /* Port resets tried on each reopen after a USB failure. */
 #define RESET_TRIES 3
 /* Reopens tried on an A16 that is on the bus, after a USB failure. */
@@ -77,8 +79,10 @@ struct live {
     bool gone;
     /* End of the boot window (BOOT_FIRST_NS, BOOT_EXTEND_NS). */
     uint64_t boot_until;
-    /* No streaming before this time, after a boot-time drop. */
+    /* No USB requests before this time, after a boot-time drop. */
     uint64_t hold_until;
+    /* When the last USB failure was detected; 0 before any. */
+    uint64_t last_failure;
     /* The A16 has returned a non-zero sample, so it has finished booting. */
     bool booted;
     struct usb_bus bus;
@@ -410,10 +414,12 @@ static bool a16_open(struct live *l, bool reset) {
         return false;
     }
     for (unsigned int tries = 0; reset && tries < RESET_TRIES; tries++) {
+        uint64_t began = usb_now();
         ret = libusb_reset_device(l->handle);
+        fprintf(stderr, "USB reset %s after %.2f s\n", ret ? libusb_error_name(ret) : "done",
+                (double)(usb_now() - began) / 1e9);
         if (!ret)
             break;
-        fprintf(stderr, "USB reset: %s\n", libusb_error_name(ret));
         /* The A16 left the bus again: the caller finds it anew. */
         if (ret == LIBUSB_ERROR_NOT_FOUND || ret == LIBUSB_ERROR_NO_DEVICE)
             break;
@@ -646,7 +652,11 @@ int main(int argc, char **argv) {
         } else if (wanted && usb_now() >= l->hold_until) {
             if (a16_stream(l)) {
                 idle_since = usb_now();
-                fprintf(stderr, "USB streaming started\n");
+                if (l->last_failure)
+                    fprintf(stderr, "USB streaming started, %.2f s after the last failure\n",
+                            (double)(idle_since - l->last_failure) / 1e9);
+                else
+                    fprintf(stderr, "USB streaming started\n");
             } else
                 broken = true;
         } else {
@@ -684,12 +694,14 @@ int main(int argc, char **argv) {
                     libusb_unref_device(dev);
                 break;
             }
-            fprintf(stderr, "A16 reopened after a USB reset\n");
+            l->last_failure = now;
+            uint64_t reopened = usb_now();
+            fprintf(stderr, "A16 reopened %.2f s after the failure\n", (double)(reopened - now) / 1e9);
             if (boot_drop) {
-                l->hold_until = usb_now() + BOOT_HOLD_NS;
+                l->hold_until = reopened > now + BOOT_QUIET_NS ? reopened : now + BOOT_QUIET_NS;
                 l->boot_until = l->hold_until + BOOT_EXTEND_NS;
-                fprintf(stderr, "No USB streaming for %llu s after the boot-time drop\n",
-                        (unsigned long long)(BOOT_HOLD_NS / 1000000000ULL));
+                fprintf(stderr, "No USB requests until %.2f s after the boot-time drop\n",
+                        (double)(l->hold_until - now) / 1e9);
             }
             continue;
         }
