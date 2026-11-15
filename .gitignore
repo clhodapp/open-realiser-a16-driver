@@ -1,10 +1,4 @@
 # Build artifacts
-Build/
-build/
-*.o
-*.a
-*.so
-/build-userspace*/
 /result
 
 # Editor files
