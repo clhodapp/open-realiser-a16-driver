@@ -4,7 +4,7 @@ This project builds a Linux userspace driver for the Smyth Realiser A16 on
 Ozzy's USB protocol engine. The MIT license, upstream history and upstream
 README are retained. See [README.ozzy.md](../../README.ozzy.md) for that history.
 
-The driver is a Cargo workspace of two crates:
+The driver is a Cargo workspace of three crates:
 
 - `crates/a16-engine`: the USB protocol engine, a Rust port of Ozzy's C engine,
   without dependencies outside std. `tests/a16_trace.rs` checks a trace of the
@@ -15,6 +15,10 @@ The driver is a Cargo workspace of two crates:
   streams (`nodes.rs`), the queues and level check (`live.rs`), the profiles
   (`profiles.rs`, with the table `tools/libusb-harness/layouts/generate.py`
   writes), and the binaries `a16-driver`, `a16-usb` and `a16-static-dsp`.
+- `crates/a16-control`: a client for the A16's TCP command server, without
+  dependencies outside std, and the `a16-ctl` binary.
+  [ip-control.md](ip-control.md) describes the protocol. `tests/fake_a16.rs`
+  runs `a16-ctl` against a fake A16 that replays replies of a real one.
 
 `tools/libusb-harness/` keeps the profile data and generator and the harness
 notes; `tools/pipewire-upmix/` keeps the upmixer configuration, its generator and
@@ -22,7 +26,7 @@ the launchers.
 
 `cargo test --workspace` runs every test: the engine's, the bus on scripted libusb
 calls, the bridge's USB lifecycle on a fake A16 and a fake clock
-(`tests/lifecycle.rs`), the command lines, and the Python checks of `tools/`
+(`tests/lifecycle.rs`), the command lines, the TCP client against a fake A16, and the Python checks of `tools/`
 (generated files current, configuration discovery, static upmixing). They run
 without USB hardware or a PipeWire server. `nix flake check` builds the package,
 which runs them in the sandbox. The GitHub workflow runs these checks on x86-64
