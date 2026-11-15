@@ -187,23 +187,3 @@ tables and INFs, 2026-10-22): three classic WDM drivers, no KMDF (no WdfVersionB
   each period, one buffer more than WaveRT; and its KS filters are the WDM-KS endpoint.
 - `XONEDB4M.sys` (USB\VID_0A4A&PID_FFDB&MI_00): PortCls with a DMus (DirectMusic) port, finding
   the USB driver through IoGetDeviceInterfaces.
-
-## 6. The DB2 can't carry more than 48 kHz anyway
-
-Interrupt endpoints with bInterval 1 move one packet per 125 µs microframe:
-
-| Device | EP | wMaxPacketSize | Frame size | Frames/µframe | Max rate |
-|--------|----|----------------|------------|---------------|----------|
-| DB2 fw 1.2.0 | 0x05 out | 512 | 48 B | 10 | 80 kHz |
-| DB2 fw 1.2.0 | 0x86 in  | 512 | 64 B | 8  | **64 kHz** |
-| Xone:4D      | 0x05 out | 964 | 48 B | 20 | 160 kHz |
-| Xone:4D      | 0x86 in  | 1024| 64 B | 16 | 128 kHz |
-
-So 88.2/96 kHz is physically impossible over the DB2's endpoints. This matches the official
-48k-only table and the A&H spec ("USB soundcard sampling frequency: 48kHz").
-
-The device does *accept* SET_CUR 96000. PR #70 reports it then plays at half speed. Ozzy
-must not offer anything but 48000 for the DB2.
-
-The DB2 boots at 44100 (GET_CUR before the first SET_CUR, in both the Windows capture and every
-Ozzy log), but 44100 is not in the official table either. Only 48000 is.

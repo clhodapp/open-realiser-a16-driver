@@ -2,21 +2,6 @@
 
 ## Open Questions
 
-### macOS isoc before 12: frame io() at High Speed (branch `macos-min-target`)
-`IOUSBHostPipe::io(IOUSBHostIsochronousTransaction*...)` is reserved slot 50, new in the macOS 12
-SDK (not in 11.3; headers in `tools/old_sdk_headers/`). Calling it on an older kernel would hit an
-unused slot, so the kext falls back to the frame `io()` (10.11+, deprecated), whose frames sit back
-to back in the descriptor, with the ring's tail and head as an `IOMultiMemoryDescriptor` when it
-wraps. The EMU USB audio kext (Wouter1/EMU-driver, `OEM_DRIVERS/emu_driver_ref/`, facts only)
-uses the same frame `io()` on 10.11+ for High Speed 2008-era interfaces: one frame entry per
-service interval (a microframe at bInterval 1), `firstFrameNumber` in 1 ms frames, started at
-`getFrameNumber()` + 10 or more and advanced by entries × interval / 8. It never passes 0, which
-the header calls XHCI only. Both of Ozzy's paths schedule the same way
-(`KextBus::IsocFrameNumber`), so EHCI Macs work too, including macOS 12+ via OpenCore Legacy
-Patcher. Untested on hardware. Test: an isoc device on macOS 12+ with `UseIsocTransactions()`
-forced to false, and once on an EHCI Mac. The kext asks for IOUSBHostFamily 1.0.1, which 10.11
-probably provides. Unchecked.
-
 ### Status 'I' idx0 bit 7: DB4 0x92 vs DB2 0x12
 Not USB speed. The official driver preserves it but never interprets it for A&H devices.
 Meaning unknown. Ozzy logs it as `[b7:x]`.
@@ -62,10 +47,6 @@ the same wire format, or if our codec is wrong.
 ### PGNoiseGenerator anti-tamper
 `onServiceStart` uses a PRNG seeded with VID/PID to verify expected values. This is a
 license/anti-clone check. Not relevant to our driver but interesting.
-
-### AJ subsystem
-`AJ::configurationDone`, `AJ::sendCPort`, `AJ::getLevelInfo` — purpose unclear. May be
-related to level metering or some control protocol. Has its own pipe assignment via `AJ::assignPipes`.
 
 ## Resolved (moved from questions)
 
