@@ -406,6 +406,9 @@ impl Nodes {
             (c"node.pause-on-idle", "true".to_owned()),
             (c"node.rate", "1/48000".to_owned()),
             (c"node.latency", "1024/48000".to_owned()),
+            // The queues swing half a quantum around their 2048-frame target: a 2048-frame
+            // quantum leaves about 1024 frames in hand, and a 4096-frame one would run them dry
+            (c"node.max-latency", "2048/48000".to_owned()),
             (c"priority.session", "0".to_owned()),
             (c"node.autoconnect", "false".to_owned()),
             (c"audio.position", positions.to_owned()),
