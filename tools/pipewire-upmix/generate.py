@@ -48,7 +48,7 @@ def height_graph(layout):
 def module(mode, layout):
     return dict(name='libpipewire-module-filter-chain', args={
         'node.description': f'Realiser A16 {mode} to 7.1.4',
-        'audio.rate':48000, 'node.latency':'1024/48000',
+        'audio.rate':48000,
         'filter.graph':height_graph(layout),
         'capture.props': {
             'node.name':f'a16.upmix.{mode}', 'node.description':f'Realiser A16 {mode} to 7.1.4',
@@ -65,7 +65,7 @@ def config():
     # Same PSD conversion as the validated reference, now targeting the height stage.
     stereo={
         'node.description':'Realiser A16 Stereo to 7.1.4 (PSD)',
-        'audio.position':['FL','FR'], 'audio.rate':48000, 'node.latency':'1024/48000',
+        'audio.position':['FL','FR'], 'audio.rate':48000,
         'capture.props':{'node.name':'a16.upmix.stereo','node.description':'Realiser A16 Stereo to 7.1.4 (PSD)',
                          'media.class':'Audio/Sink','priority.session':0,'channelmix.upmix':False},
         'playback.props':{'node.name':'a16.upmix.output','target.object':'a16.upmix.7.1',

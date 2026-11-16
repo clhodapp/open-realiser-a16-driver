@@ -215,7 +215,13 @@ A16 clock, their ratios settle near 1.0. Outgoing float
 samples are clipped to 24-bit range, with nonfinite values replaced by silence.
 
 The initial queue target is 2048 frames (42.7 ms) per direction, in addition to
-PipeWire buffering, USB transfers and the A16's processing latency. This is a
+PipeWire buffering, USB transfers and the A16's processing latency. Each graph
+cycle adds a whole quantum to the playback queue while USB drains it 80 frames
+at a time, so the level swings about half a quantum around the target. The
+nodes request a 1024-frame quantum (`node.latency`) and allow at most 2048
+(`node.max-latency`), which keeps the lowest level about 1024 frames above
+empty. The upmixer requests no latency, so it runs at whatever quantum the
+graph has. This is a
 conservative first implementation, not a low-latency tuned driver. No latency
 measurement or compensation is advertised to PipeWire beyond the playback
 queue level, which the graph clock carries as its delay. Lossless bit
