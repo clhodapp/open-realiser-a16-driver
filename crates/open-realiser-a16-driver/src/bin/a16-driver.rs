@@ -13,6 +13,7 @@ use open_realiser_a16_driver::bridge::{AudioPath, Bridge, Shared};
 use open_realiser_a16_driver::bus::{UsbBus, engine_logger, stderr_log};
 use open_realiser_a16_driver::libusb::LibUsb;
 use open_realiser_a16_driver::nodes::PipeWire;
+use open_realiser_a16_driver::notify;
 use open_realiser_a16_driver::profiles::{self, Missing};
 use open_realiser_a16_driver::strerror;
 
@@ -116,7 +117,11 @@ fn default_config() -> Option<PathBuf> {
 }
 
 fn main() {
-    std::process::exit(run());
+    let status = run();
+    // A driver that exits before the A16 was ready, as when no A16 is attached, still
+    // reports readiness, so systemd records a start followed by this exit status
+    notify::ready();
+    std::process::exit(status);
 }
 
 fn run() -> i32 {

@@ -11,6 +11,7 @@ pub mod graph_clock;
 pub mod libusb;
 pub mod live;
 pub mod nodes;
+pub mod notify;
 pub mod profiles;
 pub mod samplerate;
 pub mod usb;
