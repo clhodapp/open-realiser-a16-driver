@@ -443,6 +443,9 @@ impl<U: Usb> Bridge<U> {
         self.log(format_args!(
             "READY: A16 attached, 16ch out/2ch in, 48000 Hz; USB streaming starts when a client first plays or records"
         ));
+        // The PipeWire nodes exist and the A16 is open: services ordered after the driver
+        // can start
+        crate::notify::ready();
         while !stopping.load(Ordering::SeqCst)
             && !self.shared.failed.load(Ordering::SeqCst)
             && (seconds_bound == 0 || self.now() - start < seconds_bound * 1_000_000_000)

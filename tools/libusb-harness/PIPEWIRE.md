@@ -111,6 +111,12 @@ makes the bridge exit at once with status 0, which removes the nodes. More than
 five failures within two minutes end it with status 1. A PipeWire disconnection
 ends the bridge.
 
+Run as a systemd service with `Type=notify`, the bridge sends `READY=1` once its
+nodes exist and the A16 is open, so a service ordered `After=` it, such as the
+upmixer, starts only then. A bridge that exits earlier, as when no A16 is
+attached, sends it just before exiting, so systemd records a start followed by
+that exit status.
+
 It exposes two selectable desktop nodes:
 
 - `a16.playback`: Realiser A16 USB <selected profile>, a layout-dependent number of playback channels.
