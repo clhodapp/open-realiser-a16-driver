@@ -8,20 +8,25 @@
 //! cycle, filling the graph's clock and triggering the graph, at the A16's rate as
 //! [`Cycles`] follows it. The source is in the sink's node group, so it follows that graph.
 
+use std::cell::RefCell;
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 use std::ptr;
+use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicPtr, Ordering};
 
 use pipewire::context::ContextRc;
 use pipewire::core::CoreRc;
+use pipewire::metadata::{Metadata, MetadataListener};
+use pipewire::registry::{self, RegistryRc};
 use pipewire::spa::sys as spa;
 use pipewire::sys as pw;
 use pipewire::thread_loop::ThreadLoopRc;
+use pipewire::types::ObjectType;
 
-use crate::bridge::{RATE, Shared};
+use crate::bridge::{DEFAULT_QUANTUM, RATE, Shared};
 use crate::graph_clock::Cycles;
-use crate::live::{self, TARGET};
+use crate::live;
 
 /// One stream and what its callbacks reach.
 struct Endpoint {
@@ -46,8 +51,8 @@ struct Endpoint {
 /// `priority.driver` of the sink. Of the drivers in one graph, the one with the highest
 /// priority drives it.
 const DRIVER_PRIORITY: &str = "1500";
-/// The cycle the timer runs before the graph has set its position.
-const DEFAULT_QUANTUM: u64 = 1024;
+/// The setting, on subject 0 of the `settings` metadata, that asks for a queue target.
+const QUEUE_TARGET_KEY: &str = "a16.queue-target";
 
 /// `CLOCK_MONOTONIC`, in nanoseconds.
 fn monotonic_ns() -> u64 {
@@ -204,12 +209,12 @@ unsafe extern "C" fn cycle(data: *mut c_void, _expirations: u64) {
         let driving = pw::pw_stream_is_driving(e.stream);
         let position = e.position.load(Ordering::Acquire);
         let (duration, rate) = if position.is_null() {
-            (DEFAULT_QUANTUM, RATE)
+            (u64::from(DEFAULT_QUANTUM), RATE)
         } else {
             let clock = &(*position).clock;
             (
                 if clock.target_duration == 0 {
-                    DEFAULT_QUANTUM
+                    u64::from(DEFAULT_QUANTUM)
                 } else {
                     clock.target_duration
                 },
@@ -228,6 +233,10 @@ unsafe extern "C" fn cycle(data: *mut c_void, _expirations: u64) {
             .graph_rate_diff
             .store(c.rate_diff.to_bits(), Ordering::Relaxed);
         shared.graph_locked.store(c.locked, Ordering::Relaxed);
+        shared.graph_quantum.store(
+            u32::try_from(duration).unwrap_or(u32::MAX),
+            Ordering::Relaxed,
+        );
         set_timer(e, c.next_nsec);
         if !driving {
             return;
@@ -875,7 +884,7 @@ unsafe extern "C" fn process(data: *mut c_void) {
             let out = std::slice::from_raw_parts_mut(d.data.cast::<f32>(), n as usize * 2);
             let available = side.fifo.available();
             let mut got = 0;
-            if !e.capture_primed && available >= TARGET {
+            if !e.capture_primed && shared.capture_ready(available) {
                 e.capture_primed = true;
             }
             if e.capture_primed {
@@ -940,10 +949,74 @@ unsafe extern "C" fn process(data: *mut c_void) {
     }
 }
 
+/// The `settings` metadata, bound, and the listener for its properties.
+struct Settings {
+    id: u32,
+    _metadata: Metadata,
+    _listener: MetadataListener,
+}
+
+/// Take a value of the `a16.queue-target` setting as the queue target request.
+fn request_queue_target(shared: &Shared, value: Option<&str>) {
+    match live::parse_queue_target(value) {
+        Some(frames) => {
+            shared.queue_request.store(frames, Ordering::Relaxed);
+            if frames == 0 {
+                eprintln!("A16 queue target requested: default");
+            } else {
+                eprintln!("A16 queue target requested: {frames} frames");
+            }
+        }
+        None => eprintln!(
+            "A16 ignores {QUEUE_TARGET_KEY} {:?}: not a number of frames",
+            value.unwrap_or("")
+        ),
+    }
+}
+
+/// Bind the `settings` metadata of `global`, if it is that, and follow its
+/// `a16.queue-target` on subject 0; binding it reports the value it holds.
+fn watch_settings(
+    registry: &RegistryRc,
+    global: &registry::GlobalObject<&pipewire::spa::utils::dict::DictRef>,
+    shared: &Arc<Shared>,
+) -> Option<Settings> {
+    if global.type_ != ObjectType::Metadata
+        || global.props.and_then(|p| p.get("metadata.name")) != Some("settings")
+    {
+        return None;
+    }
+    let metadata: Metadata = registry.bind(global).ok()?;
+    let shared = Arc::clone(shared);
+    let listener = metadata
+        .add_listener_local()
+        .property(move |subject, key, _type, value| {
+            if subject == 0 {
+                match key {
+                    Some(QUEUE_TARGET_KEY) => request_queue_target(&shared, value),
+                    // Every property removed
+                    None => request_queue_target(&shared, None),
+                    Some(_) => {}
+                }
+            }
+            0
+        })
+        .register();
+    Some(Settings {
+        id: global.id,
+        _metadata: metadata,
+        _listener: listener,
+    })
+}
+
 /// The connection to PipeWire, its thread loop and the published card.
 pub struct PipeWire {
     nodes: Box<Nodes>,
     core_listener: Option<pipewire::core::Listener>,
+    /// The `settings` metadata, once the registry has announced it.
+    settings: Rc<RefCell<Option<Settings>>>,
+    registry_listener: Option<registry::Listener>,
+    registry: Option<RegistryRc>,
     core: Option<CoreRc>,
     context: Option<ContextRc>,
     thread_loop: Option<ThreadLoopRc>,
@@ -993,6 +1066,9 @@ impl PipeWire {
                 data_loop_name: String::new(),
             }),
             core_listener: None,
+            settings: Rc::new(RefCell::new(None)),
+            registry_listener: None,
+            registry: None,
             core: None,
             context: None,
             thread_loop: Some(thread_loop),
@@ -1011,6 +1087,36 @@ impl PipeWire {
                 })
                 .register(),
         );
+        // The registry announces the `settings` metadata, as it does to pw-metadata; the
+        // callbacks run on the thread loop, which has not started
+        let registry = core.get_registry_rc().map_err(|_| failed())?;
+        let weak = registry.downgrade();
+        let found = Rc::clone(&this.settings);
+        let removed = Rc::clone(&this.settings);
+        let watched = Arc::clone(&shared);
+        this.registry_listener = Some(
+            registry
+                .add_listener_local()
+                .global(move |global| {
+                    let Some(registry) = weak.upgrade() else {
+                        return;
+                    };
+                    if found.borrow().is_some() {
+                        return;
+                    }
+                    if let Some(settings) = watch_settings(&registry, global, &watched) {
+                        *found.borrow_mut() = Some(settings);
+                    }
+                })
+                .global_remove(move |id| {
+                    let mut settings = removed.borrow_mut();
+                    if settings.as_ref().is_some_and(|s| s.id == id) {
+                        *settings = None;
+                    }
+                })
+                .register(),
+        );
+        this.registry = Some(registry);
         let n = &mut *this.nodes;
         n.core = core.as_raw_ptr();
         // SAFETY: the context is live; its data loop lives as long as it does
@@ -1094,6 +1200,9 @@ impl PipeWire {
             unsafe { pw::pw_proxy_destroy(n.device_proxy) };
             n.device_proxy = ptr::null_mut();
         }
+        self.settings.borrow_mut().take();
+        self.registry_listener = None;
+        self.registry = None;
         self.core_listener = None;
         self.core = None;
         self.context = None;

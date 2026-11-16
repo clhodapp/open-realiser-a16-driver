@@ -8,8 +8,14 @@ use std::sync::atomic::{AtomicU32, Ordering};
 
 /// Frames a queue holds.
 pub const CAPACITY: u32 = 16384;
-/// The queue level each side aims for, and the level a queue fills to before it plays.
+/// The queue level each side aims for, and the level a queue fills to before it plays, unless
+/// the `a16.queue-target` setting asks for another.
 pub const TARGET: u32 = 2048;
+/// The frames of the USB transfers in flight each way: 4 of 80 frames.
+pub const USB_MARGIN: u32 = 4 * 80;
+/// The largest queue target a request may set: half of what a queue holds.
+pub const MAX_TARGET: u32 = 8192;
+const _: () = assert!(MAX_TARGET * 2 <= CAPACITY);
 /// The most channels a queue frame has.
 pub const CHANNELS: usize = 16;
 
@@ -142,19 +148,69 @@ pub fn pack(p: &mut [u8], v: f32) {
     p[2] = (u >> 16) as u8;
 }
 
+/// The smallest queue target for a graph `quantum`. The queue level swings about half a
+/// quantum either side of its target, so its low point stays [`USB_MARGIN`] above empty.
+pub fn min_target(quantum: u32) -> u32 {
+    (quantum / 2 + USB_MARGIN).min(MAX_TARGET)
+}
+
+/// The queue target for a `requested` one (0: the default, [`TARGET`]) at a graph
+/// `quantum`: a request is clamped to [`min_target`] and [`MAX_TARGET`].
+pub fn queue_target(requested: u32, quantum: u32) -> u32 {
+    if requested == 0 {
+        TARGET
+    } else {
+        requested.clamp(min_target(quantum), MAX_TARGET)
+    }
+}
+
+/// The level a queue with `target` fills to before it plays, at a graph `quantum`: the
+/// target, and at least a quantum more than [`USB_MARGIN`]. A quantum moves in or out of a
+/// queue at once, so its first low point is a quantum below the level it starts at.
+pub fn prime_level(target: u32, quantum: u32) -> u32 {
+    target.max(quantum.saturating_add(USB_MARGIN))
+}
+
+/// The requested queue target of an `a16.queue-target` value, in frames: 0 for the default,
+/// which an empty or removed value or 0 asks for; None for a value that is not a number.
+pub fn parse_queue_target(value: Option<&str>) -> Option<u32> {
+    let text = value.unwrap_or("").trim().trim_matches('"').trim();
+    if text.is_empty() {
+        Some(0)
+    } else {
+        text.parse().ok()
+    }
+}
+
 /// The feedback from a queue's level to its resampler's ratio.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct Clock {
+    target: u32,
     filtered: f64,
     integral: f64,
     initialized: bool,
 }
 
 impl Clock {
+    /// A clock that steers its queue toward `target` frames.
+    pub fn new(target: u32) -> Clock {
+        Clock {
+            target,
+            filtered: 0.0,
+            integral: 0.0,
+            initialized: false,
+        }
+    }
+
+    /// The level the clock steers toward.
+    pub fn target(&self) -> u32 {
+        self.target
+    }
+
     /// The resampling ratio for a queue at `level` frames, `seconds` after the last call:
     /// smoothed, with a bounded integral, within 0.5% of 1.
     pub fn ratio(&mut self, level: u32, seconds: f64) -> f64 {
-        let target = f64::from(TARGET);
+        let target = f64::from(self.target);
         if !self.initialized {
             self.filtered = target;
             self.initialized = true;
@@ -267,20 +323,67 @@ mod tests {
         }
     }
 
-    /// Ten minutes at both drift extremes, with a 1 ms control step.
+    /// Ten minutes at both drift extremes, with a 1 ms control step, for the default target
+    /// and the bounds of a request.
     #[test]
     fn drift_controller() {
-        for sign in [-1.0, 1.0] {
-            let mut clock = Clock::default();
-            let mut level = f64::from(TARGET);
-            for _ in 0..600_000 {
-                let ratio = clock.ratio(level as u32, 0.001);
-                level += 48.0 * (1.0 + sign * 0.0003) - 48.0 / ratio;
-                assert!(level > 0.0 && level < f64::from(CAPACITY));
-                assert!((0.995..=1.005).contains(&ratio));
+        for target in [TARGET, min_target(256), MAX_TARGET] {
+            for sign in [-1.0, 1.0] {
+                let mut clock = Clock::new(target);
+                let mut level = f64::from(target);
+                for _ in 0..600_000 {
+                    let ratio = clock.ratio(level as u32, 0.001);
+                    level += 48.0 * (1.0 + sign * 0.0003) - 48.0 / ratio;
+                    assert!(level > 0.0 && level < f64::from(CAPACITY));
+                    assert!((0.995..=1.005).contains(&ratio));
+                }
+                assert!((level - f64::from(target)).abs() < 5.0, "target {target}");
             }
-            assert!((level - f64::from(TARGET)).abs() < 5.0);
         }
+    }
+
+    /// A queue that starts 2048 frames above the clock's target is pulled down to it.
+    #[test]
+    fn clock_steers_toward_its_target() {
+        let mut clock = Clock::new(1024);
+        assert_eq!(clock.target(), 1024);
+        let mut level = 3072.0f64;
+        for _ in 0..600_000 {
+            let ratio = clock.ratio(level as u32, 0.001);
+            level += 48.0 - 48.0 / ratio;
+        }
+        assert!((level - 1024.0).abs() < 5.0, "level {level}");
+    }
+
+    #[test]
+    fn queue_target_bounds() {
+        assert_eq!(queue_target(0, 1024), TARGET);
+        assert_eq!(queue_target(0, 8192), TARGET);
+        assert_eq!(min_target(1024), 832);
+        assert_eq!(min_target(256), 448);
+        assert_eq!(queue_target(512, 1024), 832);
+        assert_eq!(queue_target(512, 256), 512);
+        assert_eq!(queue_target(100, 256), 448);
+        assert_eq!(queue_target(1, 64), 352);
+        assert_eq!(queue_target(9000, 1024), MAX_TARGET);
+        assert_eq!(queue_target(u32::MAX, 256), MAX_TARGET);
+        assert_eq!(queue_target(MAX_TARGET, 1024), MAX_TARGET);
+        assert_eq!(prime_level(TARGET, 1024), TARGET);
+        assert_eq!(prime_level(832, 1024), 1344);
+        assert_eq!(prime_level(512, 256), 576);
+        assert_eq!(prime_level(MAX_TARGET, 2048), MAX_TARGET);
+    }
+
+    #[test]
+    fn queue_target_values() {
+        assert_eq!(parse_queue_target(Some("512")), Some(512));
+        assert_eq!(parse_queue_target(Some(" 1024 ")), Some(1024));
+        assert_eq!(parse_queue_target(Some("\"768\"")), Some(768));
+        assert_eq!(parse_queue_target(Some("0")), Some(0));
+        assert_eq!(parse_queue_target(Some("")), Some(0));
+        assert_eq!(parse_queue_target(None), Some(0));
+        assert_eq!(parse_queue_target(Some("low")), None);
+        assert_eq!(parse_queue_target(Some("-5")), None);
     }
 
     /// Sparse -29 dBFS spikes, as a silent A16 return carries, never count; a sustained
