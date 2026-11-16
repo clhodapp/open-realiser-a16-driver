@@ -13,7 +13,7 @@
 //! [`BOOT_EXTEND_NS`] after the stream may resume.
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use a16_engine::{Direction, Engine, PcmRing, SampleRate};
@@ -47,6 +47,9 @@ pub const REOPEN_TRIES: u32 = 3;
 /// More failures than this within [`RECOVERY_WINDOW_NS`] end the driver.
 pub const RECOVERY_LIMIT: usize = 5;
 pub const RECOVERY_WINDOW_NS: u64 = 120_000_000_000;
+/// The graph's quantum, and the cycle the sink's timer runs, before the graph has set its
+/// position.
+pub const DEFAULT_QUANTUM: u32 = 1024;
 /// How often the bridge logs its stats while streaming.
 const STATS_NS: u64 = 5_000_000_000;
 
@@ -90,6 +93,14 @@ pub struct Shared {
     /// The sink's last cycle: its `rate_diff`, and whether it followed the A16 clock.
     pub graph_rate_diff: AtomicU64,
     pub graph_locked: AtomicBool,
+    /// The graph's quantum in frames, as the sink last read it from the graph's position.
+    pub graph_quantum: AtomicU32,
+    /// The queue target the `a16.queue-target` setting asks for, in frames; 0 for the
+    /// default.
+    pub queue_request: AtomicU32,
+    /// The capture queue's target in the high 32 bits and the request it came from in the
+    /// low 32, as the capture consumer last set them.
+    capture_target: AtomicU64,
     /// The selected profile, an index of `effective`.
     pub profile: AtomicUsize,
     pub effective: Vec<Effective>,
@@ -106,9 +117,32 @@ impl Shared {
             a16_clock: A16Clock::default(),
             graph_rate_diff: AtomicU64::new(1f64.to_bits()),
             graph_locked: AtomicBool::new(false),
+            graph_quantum: AtomicU32::new(DEFAULT_QUANTUM),
+            queue_request: AtomicU32::new(0),
+            capture_target: AtomicU64::new(u64::from(live::TARGET) << 32),
             profile: AtomicUsize::new(profile),
             effective,
         }
+    }
+
+    /// The capture consumer, while its queue is not playing: whether the queue holds
+    /// `available` frames enough to play. The queue fills to the [`live::prime_level`] of
+    /// the target the request asks for at the graph's current quantum, which this sets.
+    pub fn capture_ready(&self, available: u32) -> bool {
+        let request = self.queue_request.load(Ordering::Relaxed);
+        let quantum = self.graph_quantum.load(Ordering::Relaxed);
+        let target = live::queue_target(request, quantum);
+        self.capture_target.store(
+            u64::from(target) << 32 | u64::from(request),
+            Ordering::SeqCst,
+        );
+        available >= live::prime_level(target, quantum)
+    }
+
+    /// The capture queue's target, and the request it came from.
+    pub fn capture_target(&self) -> (u32, u32) {
+        let packed = self.capture_target.load(Ordering::SeqCst);
+        ((packed >> 32) as u32, packed as u32)
     }
 
     /// The profile the sink runs.
@@ -126,6 +160,8 @@ pub struct AudioPath {
     out_clock: Clock,
     in_clock: Clock,
     output_primed: bool,
+    /// The last queue target logged for playback and for the return, with its request.
+    logged: [Option<(u32, u32)>; 2],
     /// The A16 has returned a sustained audio level, so it has finished booting.
     pub booted: bool,
     return_level: Level,
@@ -142,9 +178,10 @@ impl AudioPath {
             shared,
             out_src: Resampler::new(live::CHANNELS)?,
             in_src: Resampler::new(2)?,
-            out_clock: Clock::default(),
-            in_clock: Clock::default(),
+            out_clock: Clock::new(live::TARGET),
+            in_clock: Clock::new(live::TARGET),
             output_primed: false,
+            logged: [None; 2],
             booted: false,
             return_level: Level::default(),
             out_frames: 0,
@@ -158,10 +195,39 @@ impl AudioPath {
         self.earliest.reset();
     }
 
+    /// The level the playback queue fills to and is steered toward.
+    pub fn playback_target(&self) -> u32 {
+        self.out_clock.target()
+    }
+
+    /// Log the target that the playback queue, or with `capture` the capture queue, primes
+    /// to from `requested`, when either differs from the last one logged for that queue.
+    fn log_target(&mut self, capture: bool, target: u32, requested: u32) {
+        let logged = &mut self.logged[usize::from(capture)];
+        if *logged == Some((target, requested)) {
+            return;
+        }
+        *logged = Some((target, requested));
+        let quantum = self.shared.graph_quantum.load(Ordering::Relaxed);
+        let how = if requested == 0 {
+            "default".to_owned()
+        } else if target > requested {
+            format!("requested {requested}, raised to the minimum for quantum {quantum}")
+        } else if target < requested {
+            format!("requested {requested}, lowered to the maximum")
+        } else {
+            format!("requested {requested}")
+        };
+        let which = if capture { "return" } else { "playback" };
+        (self.log)(&format!(
+            "A16 {which} queue target: {target} frames ({how})"
+        ));
+    }
+
     fn reset_output(&mut self) {
         self.shared.sink.fifo.discard();
         self.output_primed = false;
-        self.out_clock = Clock::default();
+        self.out_clock = Clock::new(self.out_clock.target());
         self.out_src.reset();
     }
 }
@@ -170,11 +236,12 @@ const BLOCK_SECONDS: f64 = BLOCK as f64 / RATE as f64;
 
 impl Audio for AudioPath {
     /// The next out transfer's 80 frames, from the playback queue: silence until the queue
-    /// has filled to its target, and after it runs dry until it fills again. While the
-    /// playback node is paused the queued audio keeps playing out, so a brief pause of the
-    /// node, as PipeWire makes when it reconfigures the graph, is not heard. The transfer
-    /// that completed at `now` carried 80 frames the A16 has taken, which advances the
-    /// graph's clock.
+    /// has filled to [`live::prime_level`] of its target, and after it runs dry until it
+    /// fills again. The target is set as the queue fills, from the `a16.queue-target`
+    /// setting. While the playback node is paused the queued audio keeps playing out, so a
+    /// brief pause of the node, as PipeWire makes when it reconfigures the graph, is not
+    /// heard. The transfer that completed at `now` carried 80 frames the A16 has taken,
+    /// which advances the graph's clock.
     fn before_out(&mut self, ring: &mut PcmRing, now: u64) {
         self.out_frames += BLOCK as u64;
         let sample = self.earliest.date(self.out_frames, now);
@@ -189,10 +256,20 @@ impl Audio for AudioPath {
         let active = sink.active.load(Ordering::SeqCst);
         let available = sink.fifo.available();
         if !self.output_primed {
-            if !active || available < live::TARGET {
+            if !active {
+                return;
+            }
+            let requested = self.shared.queue_request.load(Ordering::Relaxed);
+            let quantum = self.shared.graph_quantum.load(Ordering::Relaxed);
+            let target = live::queue_target(requested, quantum);
+            if available < live::prime_level(target, quantum) {
                 return;
             }
             self.output_primed = true;
+            if self.out_clock.target() != target {
+                self.out_clock = Clock::new(target);
+            }
+            self.log_target(false, target, requested);
         }
         let mut input = [0.0f32; 256 * live::CHANNELS];
         let mut output = [0.0f32; BLOCK * live::CHANNELS];
@@ -223,6 +300,8 @@ impl Audio for AudioPath {
     }
 
     /// An in transfer's 80 frames, into the capture queue while the return node streams.
+    /// The capture consumer sets the capture queue's target while the queue is not playing
+    /// ([`Shared::capture_ready`]), and the return's resampler steers toward it.
     fn after_in(&mut self, ring: &PcmRing) {
         let bytes = ring.as_bytes();
         let mut input = [0.0f32; BLOCK * 2];
@@ -239,9 +318,14 @@ impl Audio for AudioPath {
         // Only the capture consumer owns its read index. While idle, do not produce.
         if !source.active.load(Ordering::SeqCst) {
             self.in_src.reset();
-            self.in_clock = Clock::default();
+            self.in_clock = Clock::new(self.in_clock.target());
             return;
         }
+        let (target, requested) = shared.capture_target();
+        if self.in_clock.target() != target {
+            self.in_clock = Clock::new(target);
+        }
+        self.log_target(true, target, requested);
         let ratio = self.in_clock.ratio(source.fifo.available(), BLOCK_SECONDS);
         shared
             .capture_ratio
@@ -548,13 +632,15 @@ impl<U: Usb> Bridge<U> {
             if self.streaming && self.now() - last >= STATS_NS {
                 let s = &self.shared;
                 let line = format!(
-                    "stats usb={}/{} pw={}/{} queues={}/{} xruns={},{}/{},{} ratios={:.7}/{:.7} graph={} rate_diff={:.7}",
+                    "stats usb={}/{} pw={}/{} queues={}/{} targets={}/{} xruns={},{}/{},{} ratios={:.7}/{:.7} graph={} rate_diff={:.7}",
                     self.bus.progress[0],
                     self.bus.progress[1],
                     s.sink.frames.load(Ordering::SeqCst),
                     s.source.frames.load(Ordering::SeqCst),
                     s.sink.fifo.available(),
                     s.source.fifo.available(),
+                    self.audio.playback_target(),
+                    s.capture_target().0,
                     s.sink.underruns.load(Ordering::SeqCst),
                     s.sink.overruns.load(Ordering::SeqCst),
                     s.source.underruns.load(Ordering::SeqCst),
