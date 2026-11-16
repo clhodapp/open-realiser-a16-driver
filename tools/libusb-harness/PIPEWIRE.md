@@ -231,18 +231,71 @@ No playback data means silence. An underrun reprimes the playback queue instead
 of repeating old samples; source underflow emits silence and reprimes. Full
 queues drop incoming frames and increment overrun counts. Capture is discarded
 when inactive, with queued old frames flushed on the next source activation.
-Stats every five seconds report frames, queue levels, underruns/overruns and
-resampling ratios while streaming, then which clock the graph's last cycle
+Stats every five seconds report frames, queue levels, the playback and return
+queue targets (`targets=`), underruns/overruns and resampling ratios while
+streaming, then which clock the graph's last cycle
 followed (`graph=a16` or `graph=timer`) and its `rate_diff`. SIGINT/SIGTERM or stream errors stop both
 sides, cancel transfers and release the interfaces, using the same backend
 lifecycle as the WAV harness. The interfaces stay at their streaming alternate
 setting, and USB rate/register state is not restored.
 
+## Queue target
+
+The `a16.queue-target` setting on subject 0 of PipeWire's `settings` metadata
+sets the queue target of both directions, in frames at 48 kHz. The driver reads
+the value present when it connects and follows changes to it. To lower the
+latency for a while:
+
+```sh
+pw-metadata -n settings 0 a16.queue-target 512
+```
+
+To return to the default of 2048 frames:
+
+```sh
+pw-metadata -n settings 0 a16.queue-target 0
+```
+
+An empty value and a removed key (`pw-metadata -n settings -d 0
+a16.queue-target`) also select the default. Nothing is persisted: a restart of
+PipeWire or of the driver returns to the default.
+
+A queue takes up a new target only when it primes from empty, so a change while
+audio plays drops no frames and does not speed playback up. The playback queue
+primes when the playback node starts streaming, after a pause of the node has
+played the queue out, and after an underrun. The return queue primes when the
+return node starts streaming, when USB streaming restarts, and after the
+capture queue runs dry. The queue then fills to its target before it plays, and
+to at least a quantum plus 320 frames. A whole quantum enters or leaves a queue
+at once, so the first low point after the start is a quantum below the level it
+starts at. The resampler then steers the level toward the target.
+
+The level swings about half a quantum either side of the target, so the
+smallest target is half the graph's current quantum plus 320 frames, the 4
+transfers of 80 frames that USB has in flight. At the 1024-frame quantum the A16
+nodes request (`node.latency = 1024/48000`) that is 832 frames, and at 256 it is
+448. A target below about 830 frames therefore also needs a smaller graph
+quantum, which a client such as a game may request, or which
+`pw-metadata -n settings 0 clock.force-quantum 256` forces. The largest target
+is 8192 frames, half of what a queue holds. A request outside these bounds is
+clamped to the nearer one. Each target a queue takes up is logged once, with
+the request and any clamp, for example
+`A16 playback queue target: 832 frames (requested 512, raised to the minimum for quantum 1024)`.
+The graph clock's delay is the playback queue level, so PipeWire sees the
+latency of the target in use.
+
+A smaller target leaves less margin for a client that delivers late and for
+USB completion jitter. When the margin is too small the queue underruns; the
+underrun counts in the stats line show it.
+
 ## Validation
 
 `nix build` runs the tests of the Cargo workspace, including concurrent queue
 ordering across 32-bit counter wrap, capacity limits, PCM conversion/clipping,
-simulated +/-300 ppm clock drift for ten minutes, the graph clock's loop on a fake
+simulated +/-300 ppm clock drift for ten minutes at the default target and at
+both bounds of a queue target request, the queue target's bounds and when each
+queue takes a request up (`crates/open-realiser-a16-driver/tests/queue_target.rs`),
+the graph clock's loop on a fake
 A16 clock (it converges to the A16 rate through 1.5 ms of completion jitter,
 holds 1.0 without a clock, and locks again after a gap), the return-level check, the
 engine and libusb bus tests, and the USB lifecycle on a fake A16
