@@ -15,6 +15,7 @@
   rustPlatform,
   libusb1,
   libsamplerate,
+  systemdLibs,
   pipewire,
 }:
 let
@@ -42,7 +43,7 @@ let
       && !(lib.hasPrefix "result" name);
   };
   # pipewire-rs generates its bindings with bindgen; the crate links
-  # libsamplerate through pkg-config.
+  # libsamplerate and libsystemd through pkg-config.
   native = [
     pkg-config
     rustPlatform.bindgenHook
@@ -50,6 +51,7 @@ let
   libraries = [
     libusb1
     libsamplerate
+    systemdLibs
     pipewire
   ];
   tests = project.tests.overrideAttrs (old: {
