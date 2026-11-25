@@ -14,7 +14,7 @@ use a16_engine::{Direction, Engine, PcmRing, SampleRate};
 use open_realiser_a16_driver::bus::{UsbBus, engine_logger, stderr_log};
 use open_realiser_a16_driver::libusb::{LibUsb, config_descriptor};
 use open_realiser_a16_driver::usb::{Usb, UsbError};
-use open_realiser_a16_driver::{perror, wav};
+use open_realiser_a16_driver::{log, perror, wav};
 use rusb::UsbContext as _;
 use rusb::ffi;
 
@@ -133,7 +133,9 @@ fn parse(args: &[OsString]) -> Option<Options> {
 }
 
 fn main() {
-    std::process::exit(run());
+    let status = run();
+    log::flush();
+    std::process::exit(status);
 }
 
 fn run() -> i32 {
@@ -327,7 +329,7 @@ fn stream(
     let trace = trace.map(|file| Box::new(BufWriter::new(file)) as Box<dyn Write>);
     let mut bus = UsbBus::new(usb, trace, stderr_log());
     let mut engine = Engine::new();
-    engine.set_logger(engine_logger(|line| eprintln!("{line}")));
+    engine.set_logger(engine_logger(log::line));
     let mut result = 1;
     let mut attached = false;
     if bus.configure(&mut engine, o.detach) {

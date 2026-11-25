@@ -15,8 +15,8 @@ use open_realiser_a16_driver::libusb::LibUsb;
 use open_realiser_a16_driver::nodes::PipeWire;
 use open_realiser_a16_driver::notify;
 use open_realiser_a16_driver::profiles::{self, Missing};
-use open_realiser_a16_driver::realtime;
 use open_realiser_a16_driver::strerror;
+use open_realiser_a16_driver::{log, realtime};
 
 const HELP: &str = "a16-driver [--seconds 1..86400] [--detach] [--profile NAME] [--list-profiles] \
 [--config FILE] [--missing-speakers Chr,...]\n48 kHz, selectable layout sink + stereo source. \
@@ -181,6 +181,7 @@ fn run() -> i32 {
     }
     let shared = Arc::new(Shared::new(effective, o.profile));
     let result = session(&shared, &o, &missing);
+    log::flush();
     eprintln!("PipeWire/USB shutdown result={result}");
     result
 }
@@ -212,12 +213,15 @@ fn session(shared: &Arc<Shared>, o: &Options, missing: &Missing) -> i32 {
     // This thread runs the USB side from here on. Threads inherit the scheduling policy
     // of the thread that creates them, so libusb's threads, started above, stay at normal
     // priority.
+    // It logs through the logger thread, which writes to stderr without making it wait.
     match realtime::make_current_thread_realtime() {
-        Ok(priority) => eprintln!("USB thread realtime at priority {priority} through rtkit"),
-        Err(error) => eprintln!("USB thread at normal priority: {error}"),
+        Ok(priority) => log::line(&format!(
+            "USB thread realtime at priority {priority} through rtkit"
+        )),
+        Err(error) => log::line(&format!("USB thread at normal priority: {error}")),
     }
     let mut engine = Engine::new();
-    engine.set_logger(engine_logger(|line| eprintln!("{line}")));
+    engine.set_logger(engine_logger(log::line));
     let bus = UsbBus::new(usb, None, stderr_log());
     let mut bridge = Bridge::new(
         bus,

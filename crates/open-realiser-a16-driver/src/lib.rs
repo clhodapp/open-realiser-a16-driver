@@ -10,6 +10,7 @@ pub mod bus;
 pub mod graph_clock;
 pub mod libusb;
 pub mod live;
+pub mod log;
 pub mod nodes;
 pub mod notify;
 pub mod profiles;

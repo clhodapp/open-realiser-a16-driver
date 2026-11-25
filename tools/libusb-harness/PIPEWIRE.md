@@ -205,7 +205,11 @@ running on those cycles, and the loop locks afresh when the A16 streams again.
 When a client joins the A16 nodes to another device whose driver priority is
 higher, that device drives the graph and the A16 nodes follow it.
 
-All engine/libusb calls remain on the USB event thread. PipeWire RT callbacks
+All engine/libusb calls remain on the USB event thread. That thread does not
+write to stderr: its log lines go through a bounded queue to a logger thread at
+normal priority (`src/log.rs`), and a full queue drops lines and counts them.
+Under systemd, stderr is a socket to journald, and a write to it blocks while
+journald is behind. PipeWire RT callbacks
 perform bounded copies through atomic single-producer/single-consumer queues;
 they do not allocate, log, block, invoke libusb, or resample. Each queue holds at
 most 16384 frames. Sinc resampling through libsamplerate runs on the USB thread,

@@ -44,9 +44,9 @@ pub fn engine_logger(mut sink: impl FnMut(&str) + Send + 'static) -> Logger {
 /// What the bus logs through: one line per call, without a newline.
 pub type Log = Box<dyn FnMut(&str)>;
 
-/// Log to stderr.
+/// Log to stderr through the logger thread of [`crate::log`], which never blocks the caller.
 pub fn stderr_log() -> Log {
-    Box::new(|line| eprintln!("{line}"))
+    Box::new(crate::log::line)
 }
 
 /// The libusb bus of one open A16.
