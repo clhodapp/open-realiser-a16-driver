@@ -567,7 +567,7 @@ impl<U: Usb> Bridge<U> {
                     .usb
                     .handle_events(Duration::from_millis(10), &mut done);
                 self.bus
-                    .deliver(&mut self.engine, done, Some(&mut self.audio));
+                    .deliver(&mut self.engine, &mut done, Some(&mut self.audio));
                 if self.bus.usb.gone() {
                     broken = true;
                 }

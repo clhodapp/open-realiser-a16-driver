@@ -71,6 +71,8 @@ pub struct UsbBus<U> {
     pub failed: bool,
     input_ready: bool,
     timing: Timing,
+    /// The transfers each poll returns, kept so that its capacity is reused.
+    completions: Vec<Completion>,
     trace: Option<Box<dyn Write>>,
     log: Log,
 }
@@ -114,6 +116,7 @@ impl<U: Usb> UsbBus<U> {
             failed: false,
             input_ready: false,
             timing: Timing::default(),
+            completions: Vec::with_capacity(32),
             trace,
             log,
         }
@@ -280,7 +283,7 @@ impl<U: Usb> UsbBus<U> {
         timeout: Duration,
         audio: Option<&mut dyn Audio>,
     ) -> Result<(), UsbError> {
-        let mut done = Vec::new();
+        let mut done = std::mem::take(&mut self.completions);
         let before = self.usb.now();
         let ret = self.usb.handle_events(timeout, &mut done);
         let after = self.usb.now();
@@ -290,7 +293,8 @@ impl<U: Usb> UsbBus<U> {
             self.failed = true;
         }
         self.time(before, after, &done);
-        self.deliver(engine, done, audio);
+        self.deliver(engine, &mut done, audio);
+        self.completions = done;
         ret
     }
 
@@ -341,14 +345,14 @@ impl<U: Usb> UsbBus<U> {
         }
     }
 
-    /// Hand `done` to `engine`, one transfer at a time.
+    /// Hand `done` to `engine`, one transfer at a time, leaving `done` empty.
     pub fn deliver(
         &mut self,
         engine: &mut Engine,
-        done: Vec<Completion>,
+        done: &mut Vec<Completion>,
         mut audio: Option<&mut dyn Audio>,
     ) {
-        for completion in done {
+        for completion in done.drain(..) {
             let status = self.finish(&completion);
             let endpoint = completion.transfer.endpoint();
             if let (Status::Completed(_), Some(audio)) = (status, audio.as_deref_mut())

@@ -9,6 +9,10 @@ use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
 use std::time::Duration;
 
 use a16_engine::Transfer;
+
+/// The libusb transfers the transfer lists reserve room for: the engine keeps at most 4 PCM
+/// transfers in flight per direction, besides control requests.
+const TRANSFERS: usize = 32;
 use rusb::UsbContext as _;
 use rusb::ffi;
 
@@ -90,18 +94,20 @@ pub unsafe fn config_descriptor(
     }
 }
 
-/// What a transfer's callback finds through its `user_data`.
-struct Pending {
-    transfer: Transfer,
+/// What a libusb transfer's callback finds through its `user_data`: the [`Transfer`] it
+/// carries while in flight. Each libusb transfer has one slot for its lifetime, so
+/// resubmitting a transfer allocates nothing.
+struct Slot {
+    transfer: Option<Transfer>,
     done: *mut Vec<*mut ffi::libusb_transfer>,
 }
 
 extern "system" fn transfer_done(t: *mut ffi::libusb_transfer) {
-    // SAFETY: libusb calls this inside libusb_handle_events on the USB thread, with the
-    // transfer whose user_data is the Pending submit made
+    // SAFETY: libusb calls this inside libusb_handle_events on the USB thread, with a
+    // transfer whose user_data is its Slot
     unsafe {
-        let pending = (*t).user_data.cast::<Pending>();
-        (*(*pending).done).push(t);
+        let slot = (*t).user_data.cast::<Slot>();
+        (*(*slot).done).push(t);
     }
 }
 
@@ -129,6 +135,8 @@ pub struct LibUsb {
     device: Arc<AtomicPtr<ffi::libusb_device>>,
     gone: Arc<AtomicBool>,
     in_flight: Vec<*mut ffi::libusb_transfer>,
+    /// libusb transfers not in flight, with their slots, for the next submissions.
+    idle: Vec<*mut ffi::libusb_transfer>,
     /// Boxed: the callbacks reach it through a pointer that must not move with the struct.
     #[allow(clippy::box_collection)]
     done: Box<Vec<*mut ffi::libusb_transfer>>,
@@ -143,8 +151,9 @@ impl LibUsb {
             handle: None,
             device: Arc::new(AtomicPtr::new(ptr::null_mut())),
             gone: Arc::new(AtomicBool::new(false)),
-            in_flight: Vec::new(),
-            done: Box::new(Vec::new()),
+            in_flight: Vec::with_capacity(TRANSFERS),
+            idle: Vec::with_capacity(TRANSFERS),
+            done: Box::new(Vec::with_capacity(TRANSFERS)),
             context: rusb::Context::new()?,
         })
     }
@@ -217,6 +226,13 @@ impl Drop for LibUsb {
     fn drop(&mut self) {
         self.hotplug = None;
         self.close();
+        for t in self.idle.drain(..) {
+            // SAFETY: an idle transfer and its slot, each freed once
+            unsafe {
+                drop(Box::from_raw((*t).user_data.cast::<Slot>()));
+                ffi::libusb_free_transfer(t);
+            }
+        }
     }
 }
 
@@ -346,21 +362,32 @@ impl Usb for LibUsb {
         transfer: Transfer,
         timeout: Duration,
     ) -> Result<(), (UsbError, Transfer)> {
-        // SAFETY: libusb allocates the transfer
-        let t = unsafe { ffi::libusb_alloc_transfer(0) };
-        if t.is_null() {
-            return Err((UsbError(-11), transfer));
-        }
-        let pending = Box::into_raw(Box::new(Pending {
-            transfer,
-            done: &mut *self.done,
-        }));
+        let t = match self.idle.pop() {
+            Some(t) => t,
+            None => {
+                // SAFETY: libusb allocates the transfer
+                let t = unsafe { ffi::libusb_alloc_transfer(0) };
+                if t.is_null() {
+                    return Err((UsbError(-11), transfer));
+                }
+                let slot = Box::into_raw(Box::new(Slot {
+                    transfer: None,
+                    done: &mut *self.done,
+                }));
+                // SAFETY: a new transfer, which keeps this slot until it is freed
+                unsafe { (*t).user_data = slot.cast::<c_void>() };
+                t
+            }
+        };
         // SAFETY: libusb holds the transfer until it completes. Its buffer is the heap buffer
-        // of the Transfer in `pending`, which stays put until the completion takes it back
+        // of the Transfer in its slot, which stays put until the completion takes it back
         unsafe {
-            let buffer = (*pending).transfer.buffer_mut();
+            let slot = (*t).user_data.cast::<Slot>();
+            let transfer = (*slot).transfer.insert(transfer);
+            let endpoint = transfer.endpoint();
+            let buffer = transfer.buffer_mut();
             (*t).dev_handle = self.raw();
-            (*t).endpoint = (*pending).transfer.endpoint();
+            (*t).endpoint = endpoint;
             (*t).transfer_type = match kind {
                 TransferKind::Bulk => ffi::constants::LIBUSB_TRANSFER_TYPE_BULK,
                 TransferKind::Interrupt => ffi::constants::LIBUSB_TRANSFER_TYPE_INTERRUPT,
@@ -368,12 +395,12 @@ impl Usb for LibUsb {
             (*t).timeout = timeout.as_millis() as u32;
             (*t).buffer = buffer.as_mut_ptr();
             (*t).length = buffer.len() as c_int;
-            (*t).user_data = pending.cast::<c_void>();
             (*t).callback = transfer_done;
             let ret = ffi::libusb_submit_transfer(t);
             if ret != 0 {
-                ffi::libusb_free_transfer(t);
-                return Err((UsbError(ret), Box::from_raw(pending).transfer));
+                self.idle.push(t);
+                let transfer = (*slot).transfer.take().expect("the transfer just stored");
+                return Err((UsbError(ret), transfer));
             }
         }
         self.in_flight.push(t);
@@ -407,17 +434,18 @@ impl Usb for LibUsb {
         };
         for t in self.done.drain(..) {
             self.in_flight.retain(|&p| p != t);
-            // SAFETY: a completed transfer; its Pending is taken back once, and the transfer
-            // freed once
+            // SAFETY: a completed transfer; its Transfer is taken back once, and the libusb
+            // transfer goes back to the idle ones with its slot
             unsafe {
-                let pending = Box::from_raw((*t).user_data.cast::<Pending>());
+                let slot = (*t).user_data.cast::<Slot>();
+                let transfer = (*slot).transfer.take().expect("a submitted transfer");
                 done.push(Completion {
-                    transfer: pending.transfer,
+                    transfer,
                     status: (*t).status,
                     actual_length: (*t).actual_length.max(0) as usize,
                 });
-                ffi::libusb_free_transfer(t);
             }
+            self.idle.push(t);
         }
         check(ret)
     }
