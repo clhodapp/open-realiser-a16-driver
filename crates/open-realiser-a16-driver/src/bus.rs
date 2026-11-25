@@ -16,6 +16,9 @@ use crate::usb::{Completion, TRANSFER_COMPLETED, TransferKind, Usb, UsbError};
 
 /// A PCM transfer that has not completed after this long fails the stream.
 const TRANSFER_TIMEOUT: Duration = Duration::from_millis(2000);
+/// A gap this long between two completed PCM transfers in one direction is logged, with
+/// how the USB thread spent it.
+const GAP_NS: u64 = 20_000_000;
 /// A control request that has not completed after this long fails the bus.
 const CONTROL_TIMEOUT: Duration = Duration::from_millis(2000);
 /// How long a cancellation may take to drain before the process exits.
@@ -67,8 +70,22 @@ pub struct UsbBus<U> {
     draining: bool,
     pub failed: bool,
     input_ready: bool,
+    timing: Timing,
     trace: Option<Box<dyn Write>>,
     log: Log,
+}
+
+/// How the USB thread spends the time between completed PCM transfers, for the gap log.
+#[derive(Clone, Copy, Debug, Default)]
+struct Timing {
+    /// Per direction, when the last PCM transfer completed; 0 before the first.
+    last: [u64; 2],
+    /// When the last event wait returned; 0 before the first.
+    returned: u64,
+    /// Since the last completion of either direction: the longest event wait, and the
+    /// longest stretch between two waits.
+    wait: u64,
+    outside: u64,
 }
 
 fn dir_index(direction: Direction) -> usize {
@@ -96,6 +113,7 @@ impl<U: Usb> UsbBus<U> {
             draining: false,
             failed: false,
             input_ready: false,
+            timing: Timing::default(),
             trace,
             log,
         }
@@ -115,6 +133,7 @@ impl<U: Usb> UsbBus<U> {
         self.draining = false;
         self.failed = false;
         self.input_ready = false;
+        self.timing = Timing::default();
     }
 
     /// Transfers in flight.
@@ -250,6 +269,7 @@ impl<U: Usb> UsbBus<U> {
     /// Accept submissions again after an abort, so the engine can start on the same bus.
     pub fn resume(&mut self) {
         self.draining = false;
+        self.timing = Timing::default();
     }
 
     /// Handle libusb events for up to `timeout`, and hand the transfers that came back to
@@ -261,14 +281,64 @@ impl<U: Usb> UsbBus<U> {
         audio: Option<&mut dyn Audio>,
     ) -> Result<(), UsbError> {
         let mut done = Vec::new();
+        let before = self.usb.now();
         let ret = self.usb.handle_events(timeout, &mut done);
+        let after = self.usb.now();
         if let Err(error) = ret
             && error != UsbError::INTERRUPTED
         {
             self.failed = true;
         }
+        self.time(before, after, &done);
         self.deliver(engine, done, audio);
         ret
+    }
+
+    /// Account one event wait from `before` to `after` that returned `done`, and log each
+    /// direction whose completed PCM transfers were more than [`GAP_NS`] apart.
+    fn time(&mut self, before: u64, after: u64, done: &[Completion]) {
+        let t = &mut self.timing;
+        if t.returned != 0 {
+            t.outside = t.outside.max(before.saturating_sub(t.returned));
+        }
+        t.wait = t.wait.max(after.saturating_sub(before));
+        t.returned = after;
+        let mut any = false;
+        let mut gaps = Vec::new();
+        for c in done {
+            if c.status != TRANSFER_COMPLETED {
+                continue;
+            }
+            let endpoint = c.transfer.endpoint();
+            let direction = if endpoint == Direction::Out.endpoint() {
+                Direction::Out
+            } else if endpoint == Direction::In.endpoint() {
+                Direction::In
+            } else {
+                continue;
+            };
+            let d = dir_index(direction);
+            let gap = after.saturating_sub(t.last[d]);
+            if t.last[d] != 0 && gap > GAP_NS && !gaps.iter().any(|&(e, _)| e == d) {
+                gaps.push((d, gap));
+            }
+            t.last[d] = after;
+            any = true;
+        }
+        let (wait, outside) = (t.wait, t.outside);
+        if any {
+            t.wait = 0;
+            t.outside = 0;
+        }
+        for (d, gap) in gaps {
+            self.log(format_args!(
+                "USB {} transfers paused {:.1} ms; longest wait in libusb {:.1} ms, longest time outside it {:.1} ms",
+                if d == 0 { "out" } else { "in" },
+                gap as f64 / 1e6,
+                wait as f64 / 1e6,
+                outside as f64 / 1e6
+            ));
+        }
     }
 
     /// Hand `done` to `engine`, one transfer at a time.
