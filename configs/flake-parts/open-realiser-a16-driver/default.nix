@@ -47,7 +47,6 @@
         buildInputs = [
           pkgs.libusb1
           pkgs.libsamplerate
-          pkgs.systemdLibs
           pkgs.pipewire
         ];
       };

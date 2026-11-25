@@ -15,7 +15,6 @@ use open_realiser_a16_driver::libusb::LibUsb;
 use open_realiser_a16_driver::nodes::PipeWire;
 use open_realiser_a16_driver::notify;
 use open_realiser_a16_driver::profiles::{self, Missing};
-use open_realiser_a16_driver::realtime;
 use open_realiser_a16_driver::strerror;
 
 const HELP: &str = "a16-driver [--seconds 1..86400] [--detach] [--profile NAME] [--list-profiles] \
@@ -208,13 +207,6 @@ fn session(shared: &Arc<Shared>, o: &Options, missing: &Missing) -> i32 {
         eprintln!(
             "No USB hotplug events; an idle driver notices the A16 leaving only when it streams"
         );
-    }
-    // This thread runs the USB side from here on. Threads inherit the scheduling policy
-    // of the thread that creates them, so libusb's threads, started above, stay at normal
-    // priority.
-    match realtime::make_current_thread_realtime() {
-        Ok(priority) => eprintln!("USB thread realtime at priority {priority} through rtkit"),
-        Err(error) => eprintln!("USB thread at normal priority: {error}"),
     }
     let mut engine = Engine::new();
     engine.set_logger(engine_logger(|line| eprintln!("{line}")));

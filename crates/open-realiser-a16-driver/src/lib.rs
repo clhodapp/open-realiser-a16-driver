@@ -13,7 +13,6 @@ pub mod live;
 pub mod nodes;
 pub mod notify;
 pub mod profiles;
-pub mod realtime;
 pub mod samplerate;
 pub mod usb;
 pub mod wav;

@@ -214,14 +214,6 @@ clock drift. Capture and playback have independent controllers. While the graph 
 A16 clock, their ratios settle near 1.0. Outgoing float
 samples are clipped to 24-bit range, with nonfinite values replaced by silence.
 
-The USB thread asks rtkit, over the system D-Bus, for realtime scheduling at the
-highest priority rtkit grants, after setting `RLIMIT_RTTIME` to the
-`RTTimeUSecMax` that rtkit reports. PipeWire's realtime module raises the
-PipeWire data thread through rtkit as well. Without rtkit both threads run at
-normal priority, and a busy CPU delays them enough to empty the queues and the
-A16's transfers. The driver logs the priority it received or the reason rtkit
-refused.
-
 The initial queue target is 2048 frames (42.7 ms) per direction, in addition to
 PipeWire buffering, USB transfers and the A16's processing latency. Each graph
 cycle adds a whole quantum to the playback queue while USB drains it 80 frames

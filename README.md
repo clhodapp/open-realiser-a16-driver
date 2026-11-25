@@ -34,7 +34,7 @@ cargo test --workspace
 ```
 
 Without Nix, install Rust 1.88 or later, clang (for bindgen), pkg-config, libusb,
-PipeWire development headers, libsamplerate, libsystemd, and Python 3, then:
+PipeWire development headers, libsamplerate, and Python 3, then:
 
 ```sh
 cargo build --release
